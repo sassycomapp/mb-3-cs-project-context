@@ -1,13 +1,13 @@
 ---
 title: "architecture"
 doc-id: "mb-7d6be180"
-updated: "2026-10-22"
+updated: "2026-10-29"
 ---
 # Mybizz CS — Architecture
 
 **Vertical:** Consulting & Services only
 **Architecture:** Dependency-based (master_template → client instances)
-**Schema:** 44 tables (see [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md))
+**Schema:** 44 tables (see [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md))
 
 ---
 
@@ -27,7 +27,7 @@ and no separate "deploy" step for a client instance — it simply reflects whate
 `master_template` currently contains.
 
 ### blank_client_template
-The provisioning clone source. Contains the 44-table schema ([[[mb-3-cs-project-library:docs-local/authoritative-schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md)), one startup module, and
+The provisioning clone source. Contains the 44-table schema ([[[mb-3-cs-project-context:docs-local/authoritative-schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md)), one startup module, and
 `master_template` as a dependency. **Zero server modules, zero forms.** Every new client instance
 is cloned from this app, not built from scratch.
 
@@ -107,7 +107,7 @@ server_code/
 **Note:** The client-side CRM and marketing package is named `crm/` — not `marketing/`. The
 server-side package remains `server_marketing/`.
 
-**See:** [[[mb-3-cs-project-library:adr-local/crm-package-replaces-marketing|Package Name: crm/ Replaces marketing/]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/adr-local/crm-package-replaces-marketing.md) ADR
+**See:** [[[mb-3-cs-project-context:adr-local/crm-package-replaces-marketing|Package Name: crm/ Replaces marketing/]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/adr-local/crm-package-replaces-marketing.md) ADR
 
 ---
 
@@ -225,4 +225,4 @@ warning against modifying client instances added. Sections 5–6 trimmed of cont
 in the Standards Library ([[[default:specifications-global/spec-anvil-platform-standards|Anvil Platform Mechanics]]](C:/dev/project-library-global/specifications-global/spec-anvil-platform-standards.md), [[[default:specifications-global/spec-m3-design-standards|M3 Design & Component Standards]]](C:/dev/project-library-global/specifications-global/spec-m3-design-standards.md)).*
 
 **Outstanding, not fixed here:** [[[default:adr-global/adr-client-instance-readme-five-app-system|Mandatory README in Every Client Instance Documenting the Five-App System]]](C:/dev/project-library-global/adr-global/adr-client-instance-readme-five-app-system.md) ADR states "the 36-table schema" for `blank_client_template`;
-[[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) confirms 44 tables. That correction belongs in [[[default:adr-global/adr-client-instance-readme-five-app-system|Mandatory README in Every Client Instance Documenting the Five-App System]]](C:/dev/project-library-global/adr-global/adr-client-instance-readme-five-app-system.md) ADR itself.
+[[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) confirms 44 tables. That correction belongs in [[[default:adr-global/adr-client-instance-readme-five-app-system|Mandatory README in Every Client Instance Documenting the Five-App System]]](C:/dev/project-library-global/adr-global/adr-client-instance-readme-five-app-system.md) ADR itself.

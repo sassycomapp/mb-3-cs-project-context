@@ -1,7 +1,7 @@
 ---
 title: "authoritative-schema"
 doc-id: "mb-8b83e940"
-updated: "2026-10-23"
+updated: "2026-10-29"
 ---
 # Mybizz CS — Authoritative Database Schema
 
@@ -9,7 +9,7 @@ updated: "2026-10-23"
 **Version:** V1 (Consulting & Services only)
 **Total Tables:** 44
 **Platform:** Anvil.works
-**Source:** Consolidated from `database-schema.md`, [[[mb-3-cs-project-library:docs-standard-local/scaffold-spec|Scaffold Specification]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-standard-local/scaffold-spec.md), and [[[mb-3-cs-project-library:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/build-plan.md)
+**Source:** Consolidated from `database-schema.md`, [[[mb-3-cs-project-context:docs-standard-local/scaffold-spec|Scaffold Specification]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-standard-local/scaffold-spec.md), and [[[mb-3-cs-project-context:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/build-plan.md)
 
 ---
 

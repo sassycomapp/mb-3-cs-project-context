@@ -1,13 +1,13 @@
 ---
 title: "anvil-ui-build-standard-v1-2026-07-05"
 doc-id: "mb-6e69563b"
-updated: "2026-10-01"
+updated: "2026-10-29"
 ---
 # Anvil UI Build Standard (Consolidated) — v1
 
 **Purpose:** Single reference to accompany the per-UI prompt sent to Anvil's AI agent when converting each of the 70 HTML wireframes + screenshots into native Anvil Forms.
 
-**Source:** Consolidated from OpenCode's internal audit ([[[mb-3-cs-project-library:standard-operating-procedures-local/internal-standards-anvil-wireframe-conversion|Anvil Wireframe Conversion]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/standard-operating-procedures-local/internal-standards-anvil-wireframe-conversion.md), 2026-06-27), which searched the project library via GBrain.
+**Source:** Consolidated from OpenCode's internal audit ([[[mb-3-cs-project-context:standard-operating-procedures-local/internal-standards-anvil-wireframe-conversion|Anvil Wireframe Conversion]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/standard-operating-procedures-local/internal-standards-anvil-wireframe-conversion.md), 2026-06-27), which searched the project library via GBrain.
 
 **Status note:** Three items below were marked "not found" in the internal audit (breakpoints, event handler naming, formal accessibility spec). These were originally slated for external research (your planned 2nd tranche). I have not seen that output — if you ran it separately, send it over and I'll fold it in and reissue this as v2. Until then, I've proposed conservative defaults for these three, clearly marked **[PROVISIONAL]**, so production isn't blocked. Treat anything marked that way as "build with this, but confirm/codify before treating it as final."
 

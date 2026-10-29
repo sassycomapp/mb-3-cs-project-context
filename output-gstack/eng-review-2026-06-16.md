@@ -1,7 +1,7 @@
 ---
 title: "eng-review-2026-06-16"
 doc-id: "mb-3e8f2a76"
-updated: "2026-10-01"
+updated: "2026-10-29"
 ---
 # Engineering Review — Mybizz CS V1
 
@@ -327,7 +327,7 @@ The CEO review flagged a mismatch between ADR-038's `webhook_log` column definit
 | `error_message` | Text |
 | `idempotency_key` | Text |
 
-**Action:** Before Phase 2 begins, reconcile these definitions against [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md). If the authoritative schema is missing columns, add them. If ADR-038 is wrong, update it. This is a 15-minute documentation task.
+**Action:** Before Phase 2 begins, reconcile these definitions against [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md). If the authoritative schema is missing columns, add them. If ADR-038 is wrong, update it. This is a 15-minute documentation task.
 
 **Status:** TODO ITEM 8.12. Must be resolved before Stage 2.4 (Payment Integration).
 

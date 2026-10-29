@@ -1,7 +1,7 @@
 ---
 title: "schema-scope-reduction"
 doc-id: "mb-d146fc2b"
-updated: "2026-10-22"
+updated: "2026-10-29"
 ---
 # 11 — Schema Scope Reduction
 **Removal of Out-of-Scope Tables from anvil.yaml**
@@ -28,7 +28,7 @@ Additionally, `bookable_resources` was removed as an unnecessary abstraction —
 
 ## Decision
 
-**All out-of-scope tables are removed from the live schema.** The schema holds only in-scope tables; [[[mb-3-cs-project-library:docs-local/authoritative-schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) is the source of truth for the current list, which is 44 tables.
+**All out-of-scope tables are removed from the live schema.** The schema holds only in-scope tables; [[[mb-3-cs-project-context:docs-local/authoritative-schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) is the source of truth for the current list, which is 44 tables.
 
 ### Tables removed:
 | Table | Reason |
@@ -47,7 +47,7 @@ Additionally, `bookable_resources` was removed as an unnecessary abstraction —
 
 ### Tables retained
 
-Every table listed in [[[mb-3-cs-project-library:docs-local/authoritative-schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md): Core and Configuration (10), Bookings (6), CRM (9), Email (3), Content (5), Policy (2), Finance (3) and Summary (6), 44 in all.
+Every table listed in [[[mb-3-cs-project-context:docs-local/authoritative-schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md): Core and Configuration (10), Bookings (6), CRM (9), Email (3), Content (5), Policy (2), Finance (3) and Summary (6), 44 in all.
 
 ---
 

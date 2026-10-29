@@ -41,7 +41,7 @@ User instruction → global `AGENTS.md` → this file's hard rules → ADRs
 
 | Folder | Contents |
 |---|---|
-| `docs-local/` | Project documentation, including [[[mb-3-cs-project-library:docs-local/design\|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/DESIGN.md) |
+| `docs-local/` | Project documentation, including [[[mb-3-cs-project-context:docs-local/design\|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/DESIGN.md) |
 | `adr-local/` | Architecture decision records specific to this project |
 | `wireframes/` | Wireframe and visual references |
 | `output-gstack/` | GStack pipeline outputs (CEO/ENG/design review reports) |
@@ -97,7 +97,7 @@ Five canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-f
 
 ### Domain docs
 
-Single-context — [[[mb-3-cs-project-library:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/CONTEXT.md) + `adr-local/` for architectural decisions. Two-repo architecture: this repo holds planning/docs, `mb-3-cs` holds app code. See `docs/agents/domain.md`.
+Single-context — [[[mb-3-cs-project-context:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/CONTEXT.md) + `adr-local/` for architectural decisions. Two-repo architecture: this repo holds planning/docs, `mb-3-cs` holds app code. See `docs/agents/domain.md`.
 
 ---
 

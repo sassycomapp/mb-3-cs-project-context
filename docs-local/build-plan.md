@@ -1,7 +1,7 @@
 ---
 title: "build-plan"
 doc-id: "mb-e9bc1d1c"
-updated: "2026-10-22"
+updated: "2026-10-29"
 ---
 ---
 type: concept
@@ -16,7 +16,7 @@ source_kind: put_page
 **Vertical:** Consulting & Services
 **V1 Scope:** Blog, Landing Pages, Campaigns, Pre-built Segments, Tasks, Homepage Templates, Basic Analytics, Stripe + Paystack
 **V2 Deferred:** Client Portal, Advanced Analytics, Complex Task Automation, PayPal, Time Tracking, Custom Segment Builder
-**Schema:** See [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) for current table count
+**Schema:** See [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) for current table count
 **Architecture:** Dependency-based (master_template → client instances)
 **Review Status:** CEO + Eng Review Complete (All 5 phases engineering reviews complete)
 
@@ -30,7 +30,7 @@ source_kind: put_page
 | [[[default:specifications-global/spec-integration\|Integration Specification]]](C:/dev/project-library-global/specifications-global/spec-integration.md) | Brevo, Stripe, Paystack integration patterns |
 | [[[default:specifications-global/spec-api-specification\|API Specification (HTTP Endpoints)]]](C:/dev/project-library-global/specifications-global/spec-api-specification.md) | HTTP endpoints (webhooks, management) |
 | [[[default:specifications-global/spec-testing-methodology-standards\|Testing Methodology]]](C:/dev/project-library-global/specifications-global/spec-testing-methodology-standards.md) | Testing levels, pure logic, Uplink safety protocol |
-| [[[mb-3-cs-project-library:docs-local/mb-3-cs-test-specification]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/mb-3-cs-test-specification.md) | Test specifications, E2E flows, RBAC matrix |
+| [[[mb-3-cs-project-context:docs-local/mb-3-cs-test-specification]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/mb-3-cs-test-specification.md) | Test specifications, E2E flows, RBAC matrix |
 | [[[default:specifications-global/spec-regulatory-compliance-baseline\|Regulatory Compliance Baseline (Specification)]]](C:/dev/project-library-global/specifications-global/spec-regulatory-compliance-baseline.md) | POPIA, GDPR, PCI DSS compliance |
 
 ---
@@ -39,7 +39,7 @@ source_kind: put_page
 
 | Component | Status | Notes |
 |-----------|--------|-------|
-| **Schema** | 100% Complete | See [[[mb-3-cs-project-library:docs-local/authoritative-schema\|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) |
+| **Schema** | 100% Complete | See [[[mb-3-cs-project-context:docs-local/authoritative-schema\|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) |
 | **Wireframes** | ✅ 100% Complete | 50 HTML screens created |
 | **Design Direction** | ✅ 100% Complete | M3 design approved |
 | **ADR Documentation** | 100% Complete | See `adr-global/` in project-library-global (found by GBrain search) for current ADR count and status |
@@ -58,7 +58,7 @@ source_kind: put_page
 **Next Review:** After Phase 1 implementation completion
 **CEO Review:** 2026-06-15 — 11 sections reviewed, 14 TODO items captured (see todo.md section 8), plan changes applied
 **Eng Review:** 2026-06-16 — 5 dilemmas reviewed, 4 completable items executed (see todo.md section 9)
-**Test Specs:** Testing specifications consolidated into this build plan (see Phase 5.4 Testing & QA, build-plan.md Stage 5.4 completion criteria, and self-review checklists). Separate testing specifications are in [[[default:specifications-global/spec-testing-methodology-standards|Testing Methodology]]](C:/dev/project-library-global/specifications-global/spec-testing-methodology-standards.md) and [[[mb-3-cs-project-library:docs-local/mb-3-cs-test-specification|Test Specification (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/mb-3-cs-test-specification.md).
+**Test Specs:** Testing specifications consolidated into this build plan (see Phase 5.4 Testing & QA, build-plan.md Stage 5.4 completion criteria, and self-review checklists). Separate testing specifications are in [[[default:specifications-global/spec-testing-methodology-standards|Testing Methodology]]](C:/dev/project-library-global/specifications-global/spec-testing-methodology-standards.md) and [[[mb-3-cs-project-context:docs-local/mb-3-cs-test-specification|Test Specification (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/mb-3-cs-test-specification.md).
 **State Contract:** [[[default:docs-standard-global/docstd-globals-contract|globals.py Contract]]](C:/dev/project-library-global/docs-standard-global/docstd-globals-contract.md) — shared state variables and defensive loading pattern
 
 ---

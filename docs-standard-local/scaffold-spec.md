@@ -1,7 +1,7 @@
 ---
 title: "scaffold-spec"
 doc-id: "mb-be462593"
-updated: "2026-10-04"
+updated: "2026-10-29"
 ---
 # Mybizz CS — Scaffold Specification
 
@@ -12,21 +12,21 @@ updated: "2026-10-04"
 **Last Updated:** 2026-06-03 v2 — Corrected component classification. Layout variants removed from components/; only true shared components remain.
 
 **Related Documents:**
-- scaffold-workflow.md (retired — no longer on disk anywhere, verified 2026-09-18); the scaffolding sequence is covered by this file's build phases and [[[mb-3-cs-project-library:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/build-plan.md)
-- [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) — Complete 38-table schema specifications
-- [[[mb-3-cs-project-library:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/build-plan.md) — Phased build sequence
-- [[[mb-3-cs-project-library:docs-local/design|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/DESIGN.md) — Canonical design system
+- scaffold-workflow.md (retired — no longer on disk anywhere, verified 2026-09-18); the scaffolding sequence is covered by this file's build phases and [[[mb-3-cs-project-context:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/build-plan.md)
+- [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) — Complete 38-table schema specifications
+- [[[mb-3-cs-project-context:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/build-plan.md) — Phased build sequence
+- [[[mb-3-cs-project-context:docs-local/design|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/DESIGN.md) — Canonical design system
 
 ---
 
 ## Reconciliation Notes (2026-06-03)
 
 This file has been reconciled against:
-- [[[mb-3-cs-project-library:output-gstack/eng-review-2026-06-16|Mybizz CS V1]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/output-gstack/eng-review-2026-06-16.md) (the surviving eng review — the 2026-06-03 alignment report no longer exists anywhere, verified 2026-09-18)
-- [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) (current)
-- [[[mb-3-cs-project-library:docs-local/design|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/DESIGN.md) (current)
-- [[[mb-3-cs-project-library:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/build-plan.md) (current)
-- [[[mb-3-cs-project-library:docs-local/design|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/DESIGN.md) (current — design-consultation-plan-workflows no longer exists anywhere, verified 2026-09-18; the design system's canonical record is DESIGN.md)
+- [[[mb-3-cs-project-context:output-gstack/eng-review-2026-06-16|Mybizz CS V1]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/output-gstack/eng-review-2026-06-16.md) (the surviving eng review — the 2026-06-03 alignment report no longer exists anywhere, verified 2026-09-18)
+- [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) (current)
+- [[[mb-3-cs-project-context:docs-local/design|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/DESIGN.md) (current)
+- [[[mb-3-cs-project-context:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/build-plan.md) (current)
+- [[[mb-3-cs-project-context:docs-local/design|DESIGN]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/DESIGN.md) (current — design-consultation-plan-workflows no longer exists anywhere, verified 2026-09-18; the design system's canonical record is DESIGN.md)
 
 Key changes (v1):
 - Table count updated from 36 to 38 (added `privacy_policy`, `t_and_c`, `blog_comments`)
@@ -61,9 +61,9 @@ This document specifies the exact package structure, forms, modules, and table d
 
 **M3 Compliance:** All UI work uses Material Design 3 exclusively. Native M3 components from the theme dependency are fully supported. Custom composition is required for components not natively provided (Chips, Snackbar, Bottom Sheet, Tabs).
 
-**Build Phases:** Each form and table is annotated with its build phase (Phase 1–5). Build sequentially — each phase depends on the prior phase being complete. See [[[mb-3-cs-project-library:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/build-plan.md) for full details.
+**Build Phases:** Each form and table is annotated with its build phase (Phase 1–5). Build sequentially — each phase depends on the prior phase being complete. See [[[mb-3-cs-project-context:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/build-plan.md) for full details.
 
-**Note for Developers:** The former scaffold-workflow.md no longer exists (verified 2026-09-18); this file's build phases and [[[mb-3-cs-project-library:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/build-plan.md) cover the sequence. Use [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md) for complete table specifications.
+**Note for Developers:** The former scaffold-workflow.md no longer exists (verified 2026-09-18); this file's build phases and [[[mb-3-cs-project-context:docs-local/build-plan|Build Plan (Definitive)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/build-plan.md) cover the sequence. Use [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md) for complete table specifications.
 
 ---
 

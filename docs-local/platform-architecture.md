@@ -1,7 +1,7 @@
 ---
 title: "platform-architecture"
 doc-id: "mb-dc62ff9a"
-updated: "2026-10-01"
+updated: "2026-10-29"
 ---
 # Mybizz CS — Platform Architecture
 
@@ -9,7 +9,7 @@ updated: "2026-10-01"
 **Architecture:** Single vertical, dependency-based (master_template → client instances)
 **UI Theme:** Material Design 3 (M3)
 **Platform Capacity:** 100 clients (V1.x)
-**Schema:** 44 tables (see [[[mb-3-cs-project-library:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/authoritative-schema.md))
+**Schema:** 44 tables (see [[[mb-3-cs-project-context:docs-local/authoritative-schema|Authoritative Database Schema]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/authoritative-schema.md))
 
 **Note:** The five-app dependency model (development workspace / master_template /
 blank_client_template / client instances / platform-operator tooling) is Mybizz-wide — see

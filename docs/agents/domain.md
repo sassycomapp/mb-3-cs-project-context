@@ -1,7 +1,7 @@
 ---
 title: "domain"
 doc-id: "mb-18292576"
-updated: "2026-10-01"
+updated: "2026-10-29"
 ---
 # Domain Docs
 
@@ -18,7 +18,7 @@ Both repos apply to the same application. When a skill needs implementation cont
 
 ## Before exploring, read these
 
-- **[[[mb-3-cs-project-library:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/CONTEXT.md)** — domain glossary and key concepts (create lazily via `/domain-modeling` when needed).
+- **[[[mb-3-cs-project-context:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/CONTEXT.md)** — domain glossary and key concepts (create lazily via `/domain-modeling` when needed).
 - **`adr-local/`** — Architecture Decision Records for this project.
 
 If any of these files don't exist, **proceed silently**. The `/domain-modeling` skill creates them lazily when terms or decisions actually get resolved.
@@ -49,7 +49,7 @@ If any of these files don't exist, **proceed silently**. The `/domain-modeling` 
 
 ## Use the glossary's vocabulary
 
-When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in [[[mb-3-cs-project-library:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/CONTEXT.md). Don't drift to synonyms the glossary explicitly avoids.
+When your output names a domain concept (in an issue title, a refactor proposal, a hypothesis, a test name), use the term as defined in [[[mb-3-cs-project-context:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/CONTEXT.md). Don't drift to synonyms the glossary explicitly avoids.
 
 If the concept you need isn't in the glossary yet, that's a signal — either you're inventing language the project doesn't use (reconsider) or there's a real gap (note it for `/domain-modeling`).
 

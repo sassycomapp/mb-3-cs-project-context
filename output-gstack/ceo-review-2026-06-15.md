@@ -1,7 +1,7 @@
 ---
 title: "ceo-review-2026-06-15"
 doc-id: "mb-586b5956"
-updated: "2026-10-01"
+updated: "2026-10-29"
 ---
 # CEO Review — Mybizz CS V1
 
@@ -33,9 +33,9 @@ The five-app dependency model (mb-3-cs → master_template → blank_client_temp
 | Branch tracking drift | Client on wrong branch | ADR-29: version tags for staged rollout | Documented |
 | Anvil account suspension | All clients down | Single account risk — no mitigation in docs | **Gap: no documented recovery plan** |
 
-**One concern:** The Anvil Business plan hosts all 100 clients on one account. If that account is suspended or compromised, all clients go down simultaneously. The docs don't address this single-point-of-failure. This is an operational risk, not an architectural one — but it should be documented in [[[mb-3-cs-project-library:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-standard-local/deployment-procedures.md).
+**One concern:** The Anvil Business plan hosts all 100 clients on one account. If that account is suspended or compromised, all clients go down simultaneously. The docs don't address this single-point-of-failure. This is an operational risk, not an architectural one — but it should be documented in [[[mb-3-cs-project-context:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-standard-local/deployment-procedures.md).
 
-**Action needed:** Add a brief section to [[[mb-3-cs-project-library:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-standard-local/deployment-procedures.md) covering Anvil account-level failure scenarios and recovery.
+**Action needed:** Add a brief section to [[[mb-3-cs-project-context:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-standard-local/deployment-procedures.md) covering Anvil account-level failure scenarios and recovery.
 
 ---
 
@@ -179,7 +179,7 @@ ADR-032 (Observability Architecture) and Phase 0 TODO 3 address observability. T
 | Log retention | No policy for how long logs are kept |
 | Error rate monitoring | No documented approach for tracking error rates across client instances |
 
-**Action needed:** Document health thresholds, log retention policy, and error rate monitoring approach. These are small additions to ADR-032 or [[[mb-3-cs-project-library:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-standard-local/deployment-procedures.md).
+**Action needed:** Document health thresholds, log retention policy, and error rate monitoring approach. These are small additions to ADR-032 or [[[mb-3-cs-project-context:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-standard-local/deployment-procedures.md).
 
 ---
 
@@ -278,7 +278,7 @@ ADR-027 (Design Rules), ADR-015 (Material 3 Theme), ADR-037 (UI Customization), 
 | Policy editor wireframe missing | Medium-priority item from sanity audit — still outstanding | Create policy editor wireframe |
 
 **Action needed:** Create the two missing wireframes and add empty/loading/error state specs to the build plan.
-**Action needed:** Add a brief section to [[[mb-3-cs-project-library:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-standard-local/deployment-procedures.md) covering Anvil account-level failure scenarios and recovery.
+**Action needed:** Add a brief section to [[[mb-3-cs-project-context:docs-standard-local/deployment-procedures|Deployment Procedures]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-standard-local/deployment-procedures.md) covering Anvil account-level failure scenarios and recovery.
 
 ---
 

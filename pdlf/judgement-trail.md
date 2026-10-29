@@ -1,7 +1,7 @@
 ---
 title: "judgement-trail"
 doc-id: "mb-117d5961"
-updated: "2026-10-14"
+updated: "2026-10-29"
 ---
 # Judgement Trail
 Flagged issues, developer decisions, and approved deviations, extracted per task.
@@ -13,13 +13,13 @@ Flagged issues, developer decisions, and approved deviations, extracted per task
 
 ## 2026-08-12 — Matt Pocock skills configuration
 
-**Issue flagged:** Existing `## Agent skills` config targeted CLAUDE.md and claimed a Local markdown issue tracker + [[[mb-3-cs-project-library:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/CONTEXT.md)/`adr/` at repo root (40+/47 ADRs, `docs/adr-index.md`) — none of which matched the on-disk layout ([[[mb-3-cs-project-library:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/CONTEXT.md), `adr-local/` with 3 ADRs, `output-gstack/`, `ui/`).
+**Issue flagged:** Existing `## Agent skills` config targeted CLAUDE.md and claimed a Local markdown issue tracker + [[[mb-3-cs-project-context:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/CONTEXT.md)/`adr/` at repo root (40+/47 ADRs, `docs/adr-index.md`) — none of which matched the on-disk layout ([[[mb-3-cs-project-context:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/CONTEXT.md), `adr-local/` with 3 ADRs, `output-gstack/`, `ui/`).
 **Developer decision:** Project uses AGENTS.md, not CLAUDE.md — `## Agent skills` block added to AGENTS.md; CLAUDE.md's block replaced with a pointer to AGENTS.md as the single source of truth. Issue tracker switched to GitHub Issues (`gh` CLI). Domain consumer rules corrected to the real layout.
 
 **Issue flagged:** Stale `agents/` copies (doc-ids mb-3-cs-0008/0009) predated the move to `docs/agents/`.
 **Developer decision:** Nothing gets deleted — moved to `obsolete/` via `git mv` (recorded as renames).
 
-**Issue flagged:** [[[mb-3-cs-project-library:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/CONTEXT.md) claimed "47 Architecture Decision Records in `adr/`. Indexed at `docs/adr-index.md`" — neither exists on disk; docs-manager removed similar counts repo-wide on 2026-07-30 but CONTEXT.md kept the claim.
+**Issue flagged:** [[[mb-3-cs-project-context:docs-local/context|mb-3-cs (Mybizz Consulting Services)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/CONTEXT.md) claimed "47 Architecture Decision Records in `adr/`. Indexed at `docs/adr-index.md`" — neither exists on disk; docs-manager removed similar counts repo-wide on 2026-07-30 but CONTEXT.md kept the claim.
 **Developer decision:** Corrected to "ADRs live in `adr-local/` (currently 3)". Flagged that the timezone-utc-storage-display-conversion ADR required by AGENTS.md's Timestamp Standard is not on disk — timestamps matched the established `date-created: YYYY-MM-DDTHHMMSS+0200` frontmatter convention.
 
 ## 2026-07-07 — dev-pdlf project registration

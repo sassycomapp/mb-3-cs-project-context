@@ -1,7 +1,7 @@
 ---
 title: "DESIGN"
 doc-id: "mb-190df6bf"
-updated: "2026-10-23"
+updated: "2026-10-29"
 ---
 # Mybizz CS — DESIGN
 
@@ -20,7 +20,7 @@ It exists to provide the single design reference that GStack expects as `DESIGN.
 
 This document is consolidated from the following approved design consultation outputs:
 
-- [[[mb-3-cs-project-library:docs-local/design-direction|Design Direction (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/design-direction.md) — primary source for visual direction, tokens, typography, spacing, elevation, Anvil role map, and component styling rules.
+- [[[mb-3-cs-project-context:docs-local/design-direction|Design Direction (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/design-direction.md) — primary source for visual direction, tokens, typography, spacing, elevation, Anvil role map, and component styling rules.
 - `design-consultation-plan-workflows.md` — source for workflow-specific component definitions, template inventory, implementation notes, schema additions, and design documentation expectations.
 - `design-consultation-plan-descriprive.md` — source for workstream framing, palette strategy, blog template strategy, layout architecture, and client-facing customization model.
 
@@ -33,7 +33,7 @@ This file has been reconciled against:
 - `sanity-audit-final-report.md` (2026-06-01)
 - `plan-tune-verification-report.md` (2026-06-01)
 - `wireframe-reconciliation-audit.md` (2026-06-01)
-- [[[mb-3-cs-project-library:docs-local/platform-architecture|Platform Architecture]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/platform-architecture.md) (current)
+- [[[mb-3-cs-project-context:docs-local/platform-architecture|Platform Architecture]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/platform-architecture.md) (current)
 - `nomenclature.md` (current)
 
 Key corrections applied:
@@ -1086,7 +1086,7 @@ Expected fields include:
 
 Mybizz_management is **out of scope** for this project. The following is recorded as architectural context only. Mybizz_management is a separate Anvil application for platform operator tooling — client provisioning, health monitoring, billing automation, and update distribution. It is not part of master_template and is built only after the master template reaches launch.
 
-Relevant architectural context is documented in [[[mb-3-cs-project-library:docs-local/platform-architecture|Platform Architecture]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/platform-architecture.md).
+Relevant architectural context is documented in [[[mb-3-cs-project-context:docs-local/platform-architecture|Platform Architecture]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/platform-architecture.md).
 
 ---
 
@@ -1372,7 +1372,7 @@ This section records how the source files map into this consolidated design auth
 
 | Source file | Primary contribution to this document |
 |---|---|
-| [[[mb-3-cs-project-library:docs-local/design-direction\|Design Direction (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/design-direction.md) | Core visual direction, tokens, spacing, typography, elevations, role map |
+| [[[mb-3-cs-project-context:docs-local/design-direction\|Design Direction (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/design-direction.md) | Core visual direction, tokens, spacing, typography, elevations, role map |
 | `design-consultation-plan-workflows.md` | Workflow details, custom components, schema additions, implementation notes |
 | `design-consultation-plan-descriprive.md` | Workstreams, palette model, blog template strategy, layout architecture |
 
@@ -1436,8 +1436,8 @@ implementation artifacts for the MUI aesthetic and palette system.
 
 | File | Location | Purpose | Status |
 |---|---|---|---|
-| [[[mb-3-cs-project-library:docs-local/design_palette_section\|DESIGN Palette Section]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/DESIGN_palette_section.md) | `docs/` | Full M3 CSS token sets for all 4 palettes | Authoritative |
-| [[[mb-3-cs-project-library:docs-local/palette_selector_tokens\|Token Swap Blocks]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-library/docs-local/palette_selector_tokens.md) | `docs/` | Python dict blocks for palette selector | Authoritative |
+| [[[mb-3-cs-project-context:docs-local/design_palette_section\|DESIGN Palette Section]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/DESIGN_palette_section.md) | `docs/` | Full M3 CSS token sets for all 4 palettes | Authoritative |
+| [[[mb-3-cs-project-context:docs-local/palette_selector_tokens\|Token Swap Blocks]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/palette_selector_tokens.md) | `docs/` | Python dict blocks for palette selector | Authoritative |
 | `theme_mui_patch.css` | `docs/` | MUI aesthetic patch (reference only) | Reference |
 | `theme_patched.css` | `docs/` | Deployment-ready theme.css with MUI patch | Deploy |
 
