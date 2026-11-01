@@ -45,7 +45,7 @@ Domain terms are defined in `GLOSSARY.md` once Step 16 produces it; until then, 
 - `business-requirements-document.md`, `product-requirements-document.md`
 - `mb-3-cs-concept.md`, `mb-3-cs-architecture-reference.md`, `user-flows.md`
 - `scaffold-spec.md`, `globals-contract.md`, `integration-architecture.md`, `observability-requirements.md`, `deployment-procedures.md`, `anvil-ui-build-standard.md`
-- `authoritative-schema.md`, `DESIGN.md`, `palette-tokens.md`, `custom-component-requirements-matrix.md`, `calendar-feature-spec.md`, `releases/v2/mybizz-ai-implementation-spec.md`, `mb-3-cs-vault-implementation.md`, `mb-3-cs-test-specification.md`
+- `authoritative-schema.md`, `DESIGN.md`, `palette-tokens.md`, `custom-component-requirements-matrix.md`, `calendar-feature-spec.md`, `mybizz-ai-implementation-spec.md`, `mb-3-cs-vault-implementation.md`, `mb-3-cs-test-specification.md`
 - [[[default:specifications-global/spec-regulatory-compliance-baseline|Regulatory Compliance Baseline]]](C:/dev/project-library-global/specifications-global/spec-regulatory-compliance-baseline.md), [[[default:specifications-global/spec-security|Security Specification]]](C:/dev/project-library-global/specifications-global/spec-security.md), [[[default:specifications-global/spec-api-specification|API Specification (HTTP Endpoints)]]](C:/dev/project-library-global/specifications-global/spec-api-specification.md)
 
 ---

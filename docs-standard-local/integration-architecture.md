@@ -133,7 +133,7 @@ A client's Brevo keys can send email as the client. They are kept in the Vault, 
 - Every AI text, speech-to-text and natural-sounding speech request goes from `server_ai/ai_request_layer` to App 5, with the instance's Bearer token. App 5 holds Mybizz's Groq keys, calls Groq and records each client's usage (F-26, F-27).
 - Browser speech synthesis is the default spoken voice; Groq TTS is used for the natural-sounding voice.
 - An AI failure returns a clear message and leaves the form working.
-- Detail: `releases/v2/mybizz-ai-implementation-spec.md`.
+- Detail: `mybizz-ai-implementation-spec.md`.
 
 ---
 

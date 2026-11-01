@@ -17,7 +17,7 @@ Every feature carries the number and name it has in `mb-3-cs-concept.md` section
 | User flows | `docs-local/user-flows.md` |
 | Design system | `docs-local/DESIGN.md`; palette colour values in `docs-local/palette-tokens.md` |
 | Custom components | `docs-local/custom-component-requirements-matrix.md` |
-| AI and voice (built now) | `docs-local/releases/v2/mybizz-ai-implementation-spec.md` |
+| AI and voice (built now) | `docs-local/mybizz-ai-implementation-spec.md` |
 | Voice tiers 4 and 5 (added later) | `docs-local/releases/v2/mybizz-ai-implementation-spec-v2.md` |
 | Calendar | `docs-local/calendar-feature-spec.md` |
 | The Vault | `docs-local/mb-3-cs-vault-implementation.md`, [[[default:specifications-global/spec-vault-system\|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md) |
@@ -410,7 +410,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Packages: `components/`, `shared/`.
 
 ### F-26 AI assistance
-- Architecture and assists: `releases/v2/mybizz-ai-implementation-spec.md`.
+- Architecture and assists: `mybizz-ai-implementation-spec.md`.
 - One reusable AI helper component, `AIHelperComponent` in `components/` (`custom-component-requirements-matrix.md`), with trigger button, floating window, assist selector, dynamic working area, result area, copy, insert/replace/append into the host form.
 - Context awareness: the host form passes its context; the helper preselects the matching assist.
 - One shared AI request layer (`server_ai/`): prompt composition, model call, result return, error handling. Each assist is defined by identity, input fields, context mapping, prompt template and result handling.

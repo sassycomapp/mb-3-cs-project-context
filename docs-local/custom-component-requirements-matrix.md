@@ -105,7 +105,7 @@ All custom components:
 
 ### AIHelperComponent
 
-- Specified in full in `releases/v2/mybizz-ai-implementation-spec.md`.
+- Specified in full in `mybizz-ai-implementation-spec.md`.
 - Trigger button placed on the host form; floating window over the current page with assist selector, working area and result area.
 - The host form passes its context; the component preselects the matching assist.
 - Result actions: copy, insert, replace, append, cancel.

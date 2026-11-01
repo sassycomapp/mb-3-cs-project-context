@@ -17,7 +17,7 @@ The structure of App 1: its packages, forms, modules, navigation and startup.
 | Custom components | `docs-local/custom-component-requirements-matrix.md` |
 | Design system | `docs-local/DESIGN.md`, `docs-local/palette-tokens.md` |
 | Calendar forms | `docs-local/calendar-feature-spec.md` |
-| AI and voice | `docs-local/releases/v2/mybizz-ai-implementation-spec.md` |
+| AI and voice | `docs-local/mybizz-ai-implementation-spec.md` |
 | Shared client state | `docs-standard-local/globals-contract.md` |
 | Screen building rules | `docs-standard-local/anvil-ui-build-standard.md` |
 
