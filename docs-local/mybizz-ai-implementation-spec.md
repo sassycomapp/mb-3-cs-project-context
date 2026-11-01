@@ -5,13 +5,13 @@ updated: "2026-11-01"
 ---
 # Mybizz AI Implementation Specification
 
-This document specifies the AI and voice layer of Mybizz CS, its sample data and the Wave accounting integration, all built as part of Mybizz CS. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
+This document specifies the AI and voice layer of Mybizz CS and its sample data, all built as part of Mybizz CS. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
 
 ---
 
 ## Purpose
 
-This document defines the architecture and rollout plan for the reusable AI assistance layer of the Mybizz application, including a fully integrated voice module and the Wave accounting integration. The goal is to introduce AI and voice in a way that increases user value, minimises duplicate build effort, and preserves the existing workflow structure of the app.
+This document defines the architecture and rollout plan for the reusable AI assistance layer of the Mybizz application, including a fully integrated voice module. The goal is to introduce AI and voice in a way that increases user value, minimises duplicate build effort, and preserves the existing workflow structure of the app.
 
 The strategy is to build one reusable AI helper component that serves multiple AI features through a shared interaction model, rather than building separate standalone AI tools inside each page. The AI and voice layers are post-core enhancements: they are implemented after the core application has been coded and tested.
 
@@ -314,10 +314,6 @@ The sample data, client sentiment summaries, booking and availability insights, 
 
 The deeper voice features — proactive morning briefings, conversational follow-up and the natural-sounding voice — are delivered in this phase, on top of the established voice foundation.
 
-### Phase 5 — Wave accounting integration
-
-The Wave integration is delivered last, because it serves only the clients who use Wave.
-
 ---
 
 ## Data-Dependent Assists
@@ -349,7 +345,7 @@ Three months of activity for a business in the client's own trade, in the client
 ### How the sample data is kept apart
 
 - Every sample row is recorded in one table, `sample_rows` (table name and row id), so the instance always knows which rows are sample data.
-- Sample contacts use addresses at `example.com`, a domain reserved for examples that delivers no email. Mybizz CS sends no email, reminder or campaign to a sample contact, takes no payment for a sample invoice, and sends no sample event to Wave.
+- Sample contacts use addresses at `example.com`, a domain reserved for examples that delivers no email. Mybizz CS sends no email, reminder or campaign to a sample contact, takes no payment for a sample invoice, and leaves every sample record out of the accounts export.
 - While sample data exists, every screen shows a banner: "You are viewing sample data. Clear sample data."
 
 ### Clearing the sample data
@@ -364,52 +360,17 @@ Three months of activity for a business in the client's own trade, in the client
 
 ---
 
-## Wave Accounting Integration
+## Further AI Functions
 
-### What it is
+Two further AI functions use the same helper, request layer and prompt pattern as the ten assists.
 
-Wave is a free accounting platform widely used by small and solo businesses — freelancers, consultants, coaches, trades — exactly the Mybizz target market. Wave handles bookkeeping, profit and loss, tax preparation, and financial reporting in a way that Mybizz does not and does not try to replicate. The two platforms are naturally complementary rather than competitive.
+### Website text (edit mode)
 
-Mybizz manages the operational side of a business: bookings, clients, invoices, payments, marketing. Wave manages the financial recording side: accounting, ledger entries, tax categories, and reports. The gap between them is the manual data entry a business owner otherwise has to do themselves — copying paid invoices from Mybizz into Wave, re-entering customer records, manually recording revenue. That is the gap the integration closes.
+In edit mode on a website page, a landing page or a published blog post (architecture reference F-06), the user selects a text element and opens the AI helper. The helper offers: write this text, rewrite it shorter, rewrite it warmer, rewrite it more professional, and translate it into the app language. The result replaces the selected text when the user accepts it; nothing is published until the user presses Save. During onboarding, the same function writes the first website text from the business profile.
 
-### The concept
+### Social captions
 
-The integration is intentionally lean — a one-way, event-driven push from Mybizz to Wave. Mybizz does not pull data from Wave. Mybizz does not try to replace Wave's accounting features. Mybizz tells Wave what happened, at the moment it happened, so the business owner does not have to.
-
-**The three events pushed:**
-
-**1. Invoice paid** — when a Mybizz invoice is marked paid (manually or via Stripe/Paystack callback), the payment is recorded in Wave automatically. The correct customer record is created or matched in Wave if it does not already exist.
-
-**2. New customer** — when a new client is created in Mybizz, a matching customer record is created in Wave. The business owner's client database and their Wave accounting contacts stay in sync without manual duplication.
-
-**3. Refund issued** — when a refund is processed in Mybizz, the corresponding adjustment is recorded in Wave. This is the one event that, if missed, creates the most accounting headaches.
-
-That is the entire integration scope. Three triggers. Three push events. No sync UI, no mapping configuration screens, no two-way data flow. The user connects their Wave account once, and the three events flow automatically from that point forward.
-
-### Why this fits Mybizz's design philosophy
-
-The integration is additive, not transformational. It does not change how Mybizz works. It does not change how Wave works. It eliminates one repetitive manual task — copying financial events between two systems — without adding a new tool, a new subscription, or a new concept for the business owner to learn.
-
-Wave's free plan is genuinely free for accounting. The integration therefore adds accounting capability to Mybizz's offering at zero additional cost to the client. The Mybizz value proposition — one platform, one price — extends naturally: "and if you use Wave, your accounts update themselves."
-
-### Connection model
-
-The client connects their Wave account once through the Mybizz Settings Hub — the same pattern as the Vault and payment gateway configuration. Credentials are stored in the Vault. The connection is visible, but the mechanics are invisible from that point on.
-
-The business owner never needs to think about it again.
-
-### Explicit scope boundaries
-
-The following are deliberately out of scope:
-
-- Mybizz does not pull financial data from Wave — no balance displays, no Wave reports inside Mybizz
-- Mybizz does not attempt to replace any Wave accounting feature
-- Mybizz does not sync backwards — Wave changes do not affect Mybizz records
-- The integration is optional — clients who do not use Wave are unaffected
-
-### Build order
-
-Wave has a live API and the technical path is clear. The integration is built last in the AI and voice rollout (Phase 5), because it serves only the clients who already use Wave, while the AI and voice features serve every client.
+On publishing a blog post, the social caption assist writes one caption per platform, as `sm-syndication-spec.md` specifies, in the app language. The captions are stored in `blog_posts.share_captions` and can be edited and regenerated in the Share panel.
 
 ---
 
@@ -450,7 +411,7 @@ On mobile, voice interaction is the primary mode. The user opens Mybizz via a ho
 
 ## Host Contexts
 
-The host areas for the rollout are the areas associated with the assist list: onboarding and profile setup, services configuration, FAQs, proposals, blog and social publishing, email-related workflows, invoicing, and clause-related legal explanation areas.
+The host areas for the rollout are the areas associated with the assist list: onboarding and profile setup, services configuration, FAQs, proposals and quotes, blog and social publishing, website edit mode, the Team Inbox reply composer, invoicing, and clause-related legal explanation areas.
 
 Each host form uses the same helper button and the same floating component, with contextual defaults varying by form. This is the architectural principle of one component, one integration point, many assist types.
 
@@ -493,15 +454,15 @@ Generated content does not remain isolated in the helper. It transfers easily in
 | Assists 9 and 10 | LLM | Mybizz | Higher token use — larger data context |
 | Voice tier 4 (form filling) | LLM | Mybizz | Slightly higher token use than a tier 3 query |
 | Voice tier 5 (business intelligence) | LLM | Mybizz | Low — the instance computes the figures; the LLM only writes the answer |
-| Wave integration | Wave API | No one | Wave's free plan |
+| Website text and social captions | LLM | Mybizz | Short prompts, a few per published page or post |
 
-No additional cost passes to the client for any AI, voice or Wave feature.
+No additional cost passes to the client for any AI or voice feature.
 
 ---
 
 ## Delivery Estimate
 
-The reusable helper architecture plus all ten assists is estimated at roughly three to four days including prompt tuning, because the architecture avoids rebuilding the same pattern repeatedly. Adding the voice module (Groq Whisper wiring, text-to-speech and Tier 1–3 capability) adds approximately one more day, given the shared pipeline architecture. The deeper voice features, assists 9 and 10, voice tiers 4 and 5, the sample data and the Wave integration are estimated separately when their phases are planned.
+The reusable helper architecture plus all ten assists is estimated at roughly three to four days including prompt tuning, because the architecture avoids rebuilding the same pattern repeatedly. Adding the voice module (Groq Whisper wiring, text-to-speech and Tier 1–3 capability) adds approximately one more day, given the shared pipeline architecture. The deeper voice features, assists 9 and 10, voice tiers 4 and 5, the sample data and the further AI functions are estimated separately when their phases are planned.
 
 The credibility of this estimate depends on keeping the design centralised and resisting the temptation to build bespoke page-specific AI tools. The first assist consumes the most effort, because it establishes the API connection, result-handling logic and UX conventions for the rest. After that, expansion is much more mechanical.
 
@@ -534,10 +495,10 @@ The credibility of this estimate depends on keeping the design centralised and r
 10. Add voice tier 4 (voice form filling) for booking, contact, invoice, task, quote and deal.
 11. Add voice tier 5 (business intelligence by voice) with its analysis functions.
 12. Add the morning briefing, conversational follow-up and the natural-sounding voice.
-13. Add the Wave accounting integration.
+13. Add the website-text function in edit mode and the social caption assist.
 
 ---
 
 ## Outcome Target
 
-Implemented this way, Mybizz gains a coherent AI layer that feels integrated, premium and expandable rather than bolted on. The product value comes not only from the ten individual assists, the voice module and the Wave integration, but from the fact that they are delivered through one elegant reusable assistant model that is easy to place throughout the app.
+Implemented this way, Mybizz gains a coherent AI layer that feels integrated, premium and expandable rather than bolted on. The product value comes not only from the ten individual assists, the further AI functions and the voice module, but from the fact that they are delivered through one elegant reusable assistant model that is easy to place throughout the app.

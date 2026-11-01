@@ -5,7 +5,7 @@ updated: "2026-11-01"
 ---
 # Mybizz CS — User Flows
 
-**Authority:** Reference — defines the intended behaviour of every user flow in Mybizz CS. Each flow carries the feature number it belongs to (F-01 to F-34, as in `mb-3-cs-concept.md`). Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
+**Authority:** Reference — defines the intended behaviour of every user flow in Mybizz CS. Each flow carries the feature number it belongs to (F-01 to F-36, as in `mb-3-cs-concept.md`). Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
 **Related ADRs:** [[[default:adr-global/adr-form-architecture-and-state|Form Architecture and State Management]]](C:/dev/project-library-global/adr-global/adr-form-architecture-and-state.md) ADR, [[[default:adr-global/adr-webhook-architecture|Webhook Architecture]]](C:/dev/project-library-global/adr-global/adr-webhook-architecture.md) ADR
 
 ---
@@ -31,6 +31,7 @@ updated: "2026-11-01"
 | Visitor | An unauthenticated person browsing the client's public website |
 | Campaign Visitor | A visitor arriving from a marketing campaign |
 | Mybizz | The founder, working in the Mybizz management app (App 5) |
+| Prospect | A business trying Mybizz CS in the demo apps before registering |
 
 ---
 
@@ -53,9 +54,9 @@ updated: "2026-11-01"
 | UF-13 | Time tracking and invoicing hours | F-14 | Staff, Owner | Finance & Reports → Time Entries |
 | UF-14 | Invoices, payment terms and refunds | F-15 | Owner, Manager | Finance & Reports → Invoices |
 | UF-15 | Payment webhooks | F-15, F-29 | System | Gateway webhook endpoints |
-| UF-16 | Content management | F-06, F-21 | Owner, Admin | Content & Website → Pages, Blog |
+| UF-16 | Content management and edit mode | F-06, F-21 | Owner, Manager | Content & Website → Pages, Blog; Edit on a public page |
 | UF-17 | Homepage customisation | F-07, F-09 | Owner | Content & Website → Pages → Homepage |
-| UF-18 | Landing page creation | F-08 | Owner | Content & Website → Landing Pages |
+| UF-18 | Landing page creation | F-08 | Owner, Manager | Content & Website → Landing Pages |
 | UF-19 | Contact form submission | F-06, F-17, F-20 | Visitor | `/contact` |
 | UF-20 | Lead capture via landing page | F-19 | Campaign Visitor | `/landing/:slug` |
 | UF-21 | Contact management | F-17 | Owner, Manager, Admin | Customers & Marketing → Contacts |
@@ -69,62 +70,71 @@ updated: "2026-11-01"
 | UF-29 | Customer portal | F-24 | Customer | Customer sign-in |
 | UF-30 | Using the AI helper | F-26 | Owner, Manager, Admin, Staff | AI button on a form |
 | UF-31 | WhatsUp voice | F-27 | Owner, Manager, Admin, Staff | Home screen shortcut |
-| UF-32 | Connecting Wave | F-28 | Owner | Settings → Integrations |
+| UF-32 | Expenses, accounts reports and export | F-28 | Owner, Manager | Finance & Reports → Expenses, Accounts |
 | UF-33 | Restoring or viewing data from R2 | F-29 | Owner, Mybizz | Settings → Data |
 | UF-34 | Help: support tickets and feedback | F-32 | Owner, Manager, Admin, Staff, Mybizz | Help |
-| UF-35 | Upgrade to a dedicated account | F-04, F-33 | Owner, Mybizz | Dashboard → Upgrade |
+| UF-35 | Team Inbox: reading, replying and managing email | F-18 | Every staff role | Inbox |
 | UF-36 | Mybizz acts on an at-risk alert | F-34 | Mybizz | App 5 → Alerts |
 | UF-37 | Release reaches every client | F-34 | Mybizz | App 1 release |
 | UF-38 | Error recovery | F-11, F-15, F-01 | All users | Inline |
+| UF-39 | Email addresses and desks | F-18 | Owner, Manager | Settings → Email |
+| UF-40 | Deals, companies and quotes | F-35 | Owner, Manager, Admin, Staff | Sales & Operations → Deals, Quotes |
+| UF-41 | Customer accepts a quote | F-35, F-24 | Customer | Quote email, customer portal |
+| UF-42 | Sharing a blog post | F-21 | Owner, Manager | Blog → Share |
+| UF-43 | Clearing the sample data | F-04, F-26 | Owner | Dashboard banner, Settings → Data |
+| UF-44 | Trying the demo apps | F-36 | Prospect | `demo.mybizz.live`, `try.mybizz.live` |
 
 ---
 
 ## UF-01 Client registration and provisioning (F-03, F-34)
 
 **New Client:**
-1. Registers on the Mybizz website: business name, owner name, owner email, the client's own domain.
+1. Registers on the Mybizz website: business name, trade, owner name, owner email, the client's own domain.
 2. Receives a confirmation email from Mybizz and confirms the email address.
-3. Sets up the client's storage, guided step by step on the registration page with a short video: opens a free Cloudflare account on the client's own email address, adds a payment method, switches R2 on, and invites Mybizz's Cloudflare user as a member with the role Cloudflare R2 Admin. The account is the client's and stays the client's.
+3. Sets up the client's storage and domain settings, guided step by step on the registration page with a short video: opens a free Cloudflare account on the client's own email address, adds a payment method, switches R2 on, adds the client's domain to Cloudflare, and invites Mybizz's Cloudflare user as a member with the roles Cloudflare R2 Admin and DNS. The account is the client's and stays the client's.
 
 **System (App 5):**
 4. Creates the client record and issues the client reference number.
-5. Assigns a client hosting account with a free place (two clients per account).
-6. Accepts the client's Cloudflare invitation, creates the client's R2 bucket, and creates a token that reaches that bucket only.
+5. Opens a new Mybizz-owned Anvil Business account for the client.
+6. Accepts the client's Cloudflare invitation, creates the client's R2 bucket and a token that reaches that bucket only, and creates the client's Amazon SES tenant, domain identity and scoped AWS keys.
 
 **Mybizz:**
-7. Clones App 3 (`blank_client_template`) into the assigned hosting account as `[client-name]-cs`.
-8. Sets the instance's `encryption_key` Anvil Secret, connects the client's domain, and issues the instance's Bearer token; App 5 stores the token and the client's Mybizz-side credentials, and writes the bucket's keys into the instance's Vault.
-9. Creates the Owner account in the instance with `business_profile.onboarding_status = "in_progress"`.
+7. Clones App 3 (`blank_client_template`) into the client's hosting account as `[client-name]-cs`.
+8. Sets the instance's `encryption_key` Anvil Secret and issues the instance's Bearer token; App 5 stores the token and the client's Mybizz-side credentials, and writes the bucket's keys and the AWS keys into the instance's Vault. Anvil's Email service is set to the SES SMTP endpoint.
+9. App 5 loads the sample data for the client's trade.
+10. Creates the Owner account in the instance with `business_profile.onboarding_status = "in_progress"`.
 
 **System:**
-10. Sends the Owner a welcome email from Mybizz's own Brevo account with a link to set a password. No password is ever sent by email.
+11. Sends the Owner a welcome email from Mybizz's own address with a link to set a password. No password is ever sent by email.
 
 ---
 
 ## UF-02 Owner onboarding (F-03)
 
-Onboarding is a guided, resumable form, separate from Settings, with a progress indicator. Each step saves when completed. See [[[default:specifications-global/spec-onboarding-implementation-plan|Mybizz CS Onboarding System - Engineering Plan]]](C:/dev/project-library-global/specifications-global/spec-onboarding-implementation-plan.md).
+Onboarding is a resumable wizard, separate from Settings, with a progress indicator and a short help video on every step. Each step saves when completed. See [[[default:specifications-global/spec-onboarding-implementation-plan|Mybizz CS Onboarding System - Engineering Plan]]](C:/dev/project-library-global/specifications-global/spec-onboarding-implementation-plan.md).
 
-1. **Owner sets a password** from the welcome link and signs in → the onboarding form opens with a welcome and the progress indicator.
-2. **Business profile** — link to Settings → Business Profile tab.
-3. **Brand palette** — link to Settings → Brand Palette tab, with live preview.
-4. **System currency** — select from the list and confirm; locked once the first booking or invoice exists.
-5. **Legal acknowledgement** — read the critical excerpts, tick, confirm; recorded with a timestamp in the instance and in App 5.
-6. **Payment gateway** — link to Settings → Payment Gateways: choose Stripe or Paystack, optionally PayPal; secret keys go into the Vault; test mode on.
-7. **Brevo email** — link to Settings → Email Configuration: connect the client's Brevo account; key into the Vault; verify the sender on the client's domain; send a test email.
-8. **Onboarding complete** → the Owner is taken to the Dashboard.
+1. **Owner sets a password** from the welcome link and signs in → the onboarding wizard opens with a welcome and the progress indicator.
+2. **App language** — choose English, French, Portuguese, Spanish, German or Italian (the languages whose translation is complete); every later step and video follows the choice.
+3. **Business profile** — link to Settings → Business Profile tab; the AI helper offers the first website text from the profile.
+4. **Brand palette** — link to Settings → Brand Palette tab, with live preview.
+5. **System currency** — select from the list and confirm; locked once the first booking or invoice exists.
+6. **Legal acknowledgement** — read the critical excerpts, tick, confirm; recorded with a timestamp in the instance and in App 5.
+7. **Payment gateway** — link to Settings → Payment Gateways: choose Stripe or Paystack, optionally PayPal; secret keys go into the Vault; test mode on.
+8. **Connect the domain** — the wizard shows the website and email records; App 5 writes them in the client's Cloudflare DNS (or the Owner copies them into another domain provider) and the wizard checks them until every one is live. Where the domain already receives email elsewhere, the wizard says that switching moves all the domain's email into the Team Inbox and asks the Owner to confirm. The Owner's personal address and the default sender address are created.
+9. **Import contacts** — upload a CSV file exported from HubSpot, Mailchimp, Acuity or any other tool; the matching columns are filled in for the known tools; the Owner checks the mapping and imports; existing contacts with the same email are updated, not duplicated. The step can be skipped.
+10. **Onboarding complete** → the Owner is taken to the Dashboard, where the sample data banner shows.
 
 - **Bidirectional navigation:** the Settings form shows "Return to Onboarding" while onboarding is in progress.
 - **Resume:** an Owner who leaves mid-way returns to the next unfinished step.
 - **After onboarding:** Settings is used for all ongoing configuration (tabbed, role-governed). Credentials are changed only in the Vault (UF-04).
-- **Optional help:** the Owner can book the included 30-minute guided call, or request assisted setup.
+- **Help:** every step's help video opens from its tooltip; the Owner can request assisted setup through Help.
 
 ---
 
 ## UF-03 Staff invitation and sign-in (F-01, F-05)
 
 1. Owner or Manager opens Settings → Users and Permissions → Invite.
-2. Enters name, email and role (Manager, Admin or Staff); for Staff, assigns the services the provider delivers and sets the provider's schedule.
+2. Enters name, email and role (Manager, Admin or Staff); for Staff, assigns the services the provider delivers and sets the provider's schedule; chooses the invitee's personal email address on the client's domain and the desks the invitee belongs to (UF-39).
 3. The invitee receives an email with a link to set a password.
 4. The invitee signs in and lands on the Dashboard, seeing only what the role allows.
 5. Owner or Manager can change a role, deactivate or reactivate a user at any time; deactivated users cannot sign in.
@@ -135,7 +145,7 @@ Onboarding is a guided, resumable form, separate from Settings, with a progress 
 
 1. Owner opens Vault.
 2. Enters the current code from an authenticator app (required every time; no remembered session).
-3. Views, adds or replaces a credential (gateway keys, Brevo key, R2 keys, Wave credentials).
+3. Views, adds or replaces a credential (gateway keys, AWS keys, R2 keys).
 4. Closes the Vault. The Owner receives an email recording the access.
 
 ---
@@ -282,7 +292,7 @@ The client then manages the order (UF-12).
 
 **Recording payment:** online payments arrive through webhooks (UF-15); payments received another way (cash, bank transfer) are recorded manually → the invoice is marked paid and a receipt is emailed.
 
-**Refunds:** open a paid invoice → Refund (full or part) → the refund is processed through the original gateway, or recorded as a manual refund → the customer is emailed and the refund is sent to Wave if connected (F-28).
+**Refunds:** open a paid invoice → Refund (full or part) → the refund is processed through the original gateway, or recorded as a manual refund → the customer is emailed, and the refund appears in the accounts reports (F-28).
 
 ---
 
@@ -298,9 +308,11 @@ See [[[default:adr-global/adr-real-time-and-background-tasks|Real-Time Updates a
 
 ## UF-16 Content management (F-06, F-21)
 
-**Updating website pages:** Content & Website → Pages → select a page → edit text and images → Preview → Publish.
+**Editing a page on the page itself (Owner or Manager):** open any public page while signed in → Edit → each text, image and video becomes editable where it sits → select a text and open the AI helper to write or rewrite it → replace an image by uploading a new one → Save publishes at once; Cancel discards. The same edit mode works on landing pages and published blog posts.
 
-**Publishing a blog post:** Content & Website → Blog → New Post → write in the rich text editor → choose the post layout (classic centred, two-column with sidebar, full-width immersive) → set excerpt, category, tags, featured image, video and author → SEO settings (title, description, slug, keywords) → Publish Now, Save Draft, or Schedule (date and time).
+**Managing pages:** Content & Website → Pages → page name, SEO title, address and published state.
+
+**Publishing a blog post:** Content & Website → Blog → New Post → write in the rich text editor → choose the post layout (classic centred, two-column with sidebar, full-width immersive) → set excerpt, category, tags, featured image, video and author → SEO settings (title, description, slug, keywords) → Publish Now, Save Draft, or Schedule (date and time). On publishing, the social captions are written and the Share button appears (UF-42).
 
 **Comments:** Blog → Comments → approve, mark as spam or delete. Comments can be switched off in Settings.
 
@@ -329,7 +341,7 @@ Changes auto-save every 30 seconds. The configuration is stored in the `config` 
 
 1. Choose a template — Lead Capture, Event Registration or Video Sales Letter.
 2. Basic settings — title, address slug (generated, unique), status (draft or published).
-3. Configure the template's content.
+3. Configure the template's content, or open the page and edit it in edit mode (UF-16).
 4. Preview on the blank layout (no header or footer).
 5. Publish → validated, saved to `landing_pages`, shareable address shown.
 6. Share — copy the address, send a test email, share to social media, embed, add to an email campaign.
@@ -362,7 +374,7 @@ This is how a customer contacts the business with a question or a problem; there
 1. Visitor arrives from a campaign → page view recorded with the source.
 2. Views the content — headline, benefits, image or video, capture form.
 3. Submits the form.
-4. System: validates the email; creates the `leads` and `contacts` records together and sets `leads.converted_to_contact_id` at once; increments the conversion count; enrols the contact in the welcome sequence through Brevo Campaigns.
+4. System: validates the email; creates the `leads` and `contacts` records together and sets `leads.converted_to_contact_id` at once; increments the conversion count; enrols the contact in the welcome sequence.
 5. A thank-you message is shown.
 6. The lead receives the welcome email with content, a call to action and an unsubscribe link.
 
@@ -378,9 +390,11 @@ This is how a customer contacts the business with a question or a problem; there
 
 **Overview:** total contacts, status breakdown (Lead, Customer, Inactive), pre-built segments, search, contact grid.
 
-**Actions:** open a segment; search; open a contact (statistics, activity timeline, active campaigns, packages, open invoices, quick actions); add a contact; bulk actions (add tag, enrol in a campaign, CSV export); CSV import.
+**Actions:** open a segment; search; open a contact (statistics, company, activity timeline including every email, deals, quotes, active campaigns, packages, open invoices, quick actions); add a contact; bulk actions (add tag, enrol in a campaign, CSV export); CSV import with column mapping, as in onboarding step 9.
 
-**Automatic creation:** contacts are created or updated automatically from bookings, orders, enquiry forms and landing page captures.
+**Companies:** Customers & Marketing → Companies → a company's details and its contacts, deals, quotes and invoices.
+
+**Automatic creation:** contacts are created or updated automatically from bookings, orders, enquiry forms, landing page captures and Add as lead in the Team Inbox.
 
 ---
 
@@ -405,7 +419,7 @@ This is how a customer contacts the business with a question or a problem; there
 4. Review the email sequence — preview each email and its delay.
 5. Set the trigger — event type, segment and delay before the first email.
 6. Activate — confirm settings → Activate Campaign.
-7. The campaign runs automatically — contacts are enrolled, emails are sent on schedule, opens and clicks are tracked through Brevo webhooks (payloads written to R2).
+7. The campaign runs automatically — contacts are enrolled, emails are sent on schedule from the campaign's sender address, and opens, clicks, bounces and unsubscribes are reported by Amazon SES (payloads written to R2).
 
 **Background process:** an hourly background task processes active enrolments.
 
@@ -415,8 +429,8 @@ This is how a customer contacts the business with a question or a problem; there
 
 **Entry:** Customers & Marketing → Broadcasts
 
-1. New Broadcast → choose recipients (a segment or all contacts who have not unsubscribed).
-2. Write the email or start from a template; preview; send a test.
+1. New Broadcast → choose recipients (a segment or all contacts who have not unsubscribed) and the sender address (for example `marketing@`).
+2. Write the email in the email editor or start from a template; preview; send a test.
 3. Send now or schedule.
 4. View results — sent, opens, clicks, unsubscribes.
 
@@ -481,12 +495,13 @@ The client is responsible for the final wording being right for the client's bus
 **Entry:** customer sign-in on the client's website
 
 1. Customer signs in (or sets a password from the link in the first booking confirmation).
-2. My Dashboard — upcoming bookings, package balances, invoices due.
+2. My Dashboard — upcoming bookings, package balances, open quotes, invoices due.
 3. My Bookings — view, reschedule or cancel within the allowed window; book again.
 4. My Packages — balance and expiry.
-5. My Invoices — view, download PDF, pay online.
-6. My Reviews — reviews written and pending review requests.
-7. Account — profile, password, email preferences.
+5. My Quotes — view, download PDF, accept or decline (UF-41).
+6. My Invoices — view, download PDF, pay online.
+7. My Reviews — reviews written and pending review requests.
+8. Account — profile, password, email preferences.
 
 Every view shows only the signed-in customer's own records.
 
@@ -501,7 +516,7 @@ Every view shows only the signed-in customer's own records.
 5. Copy, edit, then Insert, Replace or Append into the form, or Cancel.
 6. If the AI is unavailable, the window says so and the form keeps working normally.
 
-Assists 9 (client sentiment summary) and 10 (booking and availability insights) appear once the client's data passes the threshold in `mybizz-ai-implementation-spec.md`.
+Assists 9 (client sentiment summary) and 10 (booking and availability insights) give results on the sample data from the first day, and on the client's own data once the sample data is cleared (UF-43); on thin real data they say what they need.
 
 ---
 
@@ -517,6 +532,8 @@ Assists 9 (client sentiment summary) and 10 (booking and availability insights) 
    - **Task** — "Create a task — call Priya on Thursday" → the task is created and confirmed aloud.
    - **Question** — "What is my schedule for tomorrow?" → the answer is shown and spoken.
    - **Navigation** — "Show me unpaid invoices" → the screen opens.
+   - **Form filling** — "New booking — Sarah Johnson, Swedish massage, Friday 2pm" → the booking form opens filled in, with any missing field highlighted; nothing is saved until the user confirms. Works for bookings, contacts, invoices, tasks, quotes and deals.
+   - **Business question** — "Which days of the week are my busiest?" → the answer is worked out from the client's own figures, shown and spoken.
 4. **Follow-up** — the user asks a further question in the same session; the answer takes the last answer into account. The session ends on close, after a pause, or on navigating away.
 5. If the data cannot be retrieved, Mybizz CS says so clearly.
 
@@ -526,14 +543,19 @@ Assists 9 (client sentiment summary) and 10 (booking and availability insights) 
 
 ---
 
-## UF-32 Connecting Wave (F-28)
+## UF-32 Expenses, accounts reports and export (F-28)
 
-**Entry:** Settings → Integrations → Wave
+**Recording an expense — Entry:** Finance & Reports → Expenses
+1. New Expense → date, supplier, category, amount, tax included, payment method, notes.
+2. Take or upload a photo of the receipt; the image is stored in the client's R2 bucket.
+3. Save. An expense entered in error is marked void; it is never deleted.
 
-1. Owner selects Connect Wave and signs in to Wave to authorise the connection.
-2. The Wave credentials are stored in the Vault.
-3. From then on, three events are sent to Wave automatically: invoice paid, new customer, refund issued.
-4. The Integrations tab shows the connection status and the last event sent. Disconnect stops all events.
+**Reports — Entry:** Finance & Reports → Accounts
+- Profit and loss by month, outstanding invoices, tax collected and tax paid, customer statements (PDF).
+
+**Export — Entry:** Finance & Reports → Accounts → Export
+1. Choose the period and the format: Wave, Xero, QuickBooks, or plain CSV for the accountant.
+2. Export → one file per record type (customers, invoices, invoice lines, payments, refunds, expenses) is downloaded and kept in the bucket's `exports/` folder.
 
 ---
 
@@ -567,16 +589,24 @@ Assists 9 (client sentiment summary) and 10 (booking and availability insights) 
 
 ---
 
-## UF-35 Upgrade to a dedicated account (F-04, F-33)
+## UF-35 Team Inbox: reading, replying and managing email (F-18)
 
-**Owner — Entry:** Dashboard → Upgrade
-1. The upgrade view shows the client's current usage and the limits of a dedicated Business account, and the new monthly price.
-2. Owner selects Request Upgrade and confirms.
+**Entry:** Inbox. Each staff member sees their own address and the desks the staff member belongs to; Owners see every address. Build detail: `team-inbox-spec.md`.
 
-**Mybizz — Entry:** App 5 → Upgrades
-3. Schedules the move and tells the Owner the time.
-4. Clones the instance to a new dedicated hosting account, restores the data, moves the domain, and retires the shared instance.
-5. Confirms to the Owner; billing changes from the next invoice.
+**Reading:**
+1. Choose an address on the left and a folder: Inbox, Drafts, Sent, Archive, Spam or Trash.
+2. Sort by date, sender, recipient or subject; filter by unread, starred, attachments, date range or sender; search across sender, recipient, subject, body and attachment names, in one address or in all of the user's addresses.
+3. Open an email to see the whole conversation. An email from a contact links to the contact's record; an email from an unknown sender offers **Add as lead**.
+
+**Replying and writing:**
+4. Reply, Reply All or Forward, or New Email: choose the sending address, add recipients (contacts are suggested while typing), subject, text and attachments; the address's signature is added.
+5. Ask the AI helper for a draft reply, in the app language, and edit it.
+6. Send. The email leaves from the client's own domain and is saved in Sent. A draft is saved automatically while it is written.
+
+**Organising:**
+7. Select one or many emails → mark as read or unread, star, archive, move to another address, move to Spam, or delete. Trash keeps deleted emails for 30 days, with Restore.
+
+**Unassigned:** an email to an address on the domain that does not exist lands in Unassigned, which Owners and Managers move to an address or delete.
 
 ---
 
@@ -613,7 +643,74 @@ Assists 9 (client sentiment summary) and 10 (booking and availability insights) 
 
 **AI or voice unavailable:** a clear message is shown or spoken; the form keeps working (UF-30, UF-31).
 
-**Integration unavailable (Brevo, Wave, R2):** the action is queued and retried in the background; the Owner is notified if it keeps failing.
+**Integration unavailable (Amazon SES, R2, a payment gateway):** the action is queued and retried in the background; the Owner is notified if it keeps failing.
+
+**Email not delivered:** a bounce or complaint reported by Amazon SES adds the address to the suppression list; the sender sees the failed email marked in Sent with the reason.
+
+---
+
+## UF-39 Email addresses and desks (F-18)
+
+**Entry:** Settings → Email (Owner, Manager)
+
+1. Add an address: the part before the `@`, personal or desk, display name, members, signature.
+2. A personal address is created for each staff member on invitation (UF-03); its member is that staff member.
+3. A desk address (for example `help@`, `accounts@`) has several members, who share its read and unread state.
+4. Set an auto-reply with a start and end date, or deactivate an address.
+5. The Domain tab shows whether every DNS record is live.
+
+---
+
+## UF-40 Deals, companies and quotes (F-35)
+
+**Deals — Entry:** Sales & Operations → Deals
+1. New Deal → title, contact (or company), owner, value, expected close date; the deal starts at stage `lead`.
+2. Move the deal through the stages on the board: lead, qualified, proposal, negotiation, won or lost (with a reason).
+3. Staff see and move only the deals they own; Owners, Managers and Admins see every deal.
+
+**Quotes — Entry:** Sales & Operations → Quotes, or Create Quote on a deal
+4. New Quote → customer, lines (typed or from services), the client's tax rate, validity date (default from Settings → Invoicing).
+5. Send → the PDF is emailed to the customer with a link to accept or decline (UF-41); the quote and a linked deal show on the contact's timeline.
+6. A quote past its validity date becomes **expired** the next morning.
+
+---
+
+## UF-41 Customer accepts a quote (F-35, F-24)
+
+1. The customer opens the link in the quote email (`/quote/{token}`) or My Quotes in the customer portal.
+2. Reads the quote and selects **Accept** or **Decline**.
+3. On acceptance, the invoice is created from the quote in the same step and emailed with a payment link; a linked deal moves to **won**; the business is notified.
+4. On decline, the business is notified and a linked deal stays open for follow-up.
+
+---
+
+## UF-42 Sharing a blog post (F-21)
+
+**Entry:** Blog → a published post → Share (Owner, Manager). Build detail: `sm-syndication-spec.md`.
+
+1. The Share panel shows the post's preview and one AI-written caption per platform, which can be edited or regenerated.
+2. Tap Facebook, LinkedIn, WhatsApp or Instagram: the caption is copied and the platform's own share window opens with the post's link and preview (Instagram, on a phone, through the phone's share menu with the post's image).
+3. Paste the caption and post.
+4. Visits and new contacts from each platform appear against the post.
+
+---
+
+## UF-43 Clearing the sample data (F-04, F-26)
+
+**Entry:** the sample data banner, or Settings → Data (Owner)
+
+1. Clear sample data → a dialog states that every sample record is removed, that the client's own records stay, and that the step cannot be undone.
+2. Confirm → a background task removes every sample record and recomputes the dashboard figures from the client's own data.
+3. The banner disappears; the activity log records who cleared the sample data and when.
+
+---
+
+## UF-44 Trying the demo apps (F-36)
+
+1. A prospect opens `demo.mybizz.live` (a business full of sample data) or `try.mybizz.live` (an empty Mybizz CS) from the Mybizz website and signs in with the prospect's own email address.
+2. The prospect uses every feature. Every email the app sends goes to the prospect's own address; payments run in test mode with the test card shown on screen.
+3. Every night both apps are reset and every demo sign-in is removed.
+4. The prospect registers from the demo's Register button (UF-01).
 
 ---
 

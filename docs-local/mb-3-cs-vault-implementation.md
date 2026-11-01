@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-vault-implementation"
 doc-id: "mb-fc24acf4"
-updated: "2026-10-22"
+updated: "2026-11-01"
 ---
 # Mybizz CS — Vault Implementation
 
@@ -11,17 +11,19 @@ updated: "2026-10-22"
 
 | Secret | Used by |
 |---|---|
-| `stripe_secret_key` | Payment Gateway (Stripe) |
+| `stripe_secret_key`, `stripe_webhook_secret` | Payment Gateway (Stripe) |
 | `paystack_secret_key` | Payment Gateway (Paystack) |
-| `paypal_secret` | Payment Gateway (deferred to V2) |
-| SMTP credentials / `smtp_password` | Email Configuration (Brevo SMTP) |
-| Brevo API key (`brevo_api_key`) | Brevo CRM integration |
-| Shared event push token | Mybizz_management event forwarding |
+| `paypal_client_secret`, `paypal_webhook_id` | Payment Gateway (PayPal) |
+| `aws_access_key_id`, `aws_secret_access_key` | Amazon SES sending and the client's received-email folder in S3 (`team-inbox-spec.md`); written by App 5 |
+| `ses_smtp_password` | Anvil's Email service, Custom Mail Server on the SES SMTP endpoint; written by App 5 |
+| `r2_access_key_id`, `r2_secret_access_key` | The client's R2 bucket; written by App 5 |
+| `app5_bearer_token` | Calls between the instance and App 5 |
+| `vault_totp_secret` | The Vault's authenticator-app code |
 
 Publishable keys (e.g. Stripe publishable key) are safe for client-side use and are stored in the `payment_config` table, not the Vault.
 
-**SMTP constants** (hardcoded — identical for all clients, not stored in Vault):
-- Host: `smtp-relay.brevo.com`
+**SMTP constants** (identical for all clients, not stored in the Vault):
+- Host: `email-smtp.eu-west-1.amazonaws.com`
 - Port: `587` (STARTTLS)
 
 ## 2. VaultForm UI

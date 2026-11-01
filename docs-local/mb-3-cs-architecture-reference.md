@@ -9,7 +9,7 @@ updated: "2026-11-01"
 
 This document is the build standard for the architecture of Mybizz CS. Agents build from this document. Where `mb-3-cs-concept.md` or `mb-3-cs-architecture-explainer.md` differs from this document on a technical fact, this document is correct.
 
-Every feature carries the number and name it has in `mb-3-cs-concept.md` section 7 (F-01 to F-34). Detail that has its own home is linked, not repeated:
+Every feature carries the number and name it has in `mb-3-cs-concept.md` section 7 (F-01 to F-36); the client-facing list of every feature is `mb-3-cs-feature-list.md`. Detail that has its own home is linked, not repeated:
 
 | Subject | Home |
 |---|---|
@@ -19,6 +19,8 @@ Every feature carries the number and name it has in `mb-3-cs-concept.md` section
 | Custom components | `docs-local/custom-component-requirements-matrix.md` |
 | AI, voice and sample data | `docs-local/mybizz-ai-implementation-spec.md` |
 | Calendar | `docs-local/calendar-feature-spec.md` |
+| Email and the Team Inbox | `docs-local/team-inbox-spec.md` |
+| Social media sharing | `docs-local/sm-syndication-spec.md` |
 | The Vault | `docs-local/mb-3-cs-vault-implementation.md`, [[[default:specifications-global/spec-vault-system\|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md) |
 | Testing | `docs-local/mb-3-cs-test-specification.md` |
 
@@ -33,7 +35,7 @@ The five-app model is Mybizz-wide ([[[default:specifications-global/spec-five-ap
 | App 1 | Development workspace | `mb-3-cs-app1` | Mybizz development account (Business plan) | `mb-3-cs-app1.mybizz.live` |
 | App 2 | `master_template` — the published dependency | `mb-3-cs-app2` | Mybizz development account | none |
 | App 3 | `blank_client_template` — the provisioning clone source | `mb-3-cs-app3` | Mybizz development account | none |
-| App 4 | Client instances, one per client | `[client-name]-cs` | Mybizz-owned client hosting accounts (Business plan), two client instances per account; one account per client on upgrade | the client's own domain |
+| App 4 | Client instances, one per client | `[client-name]-cs` | One Mybizz-owned Anvil Business account per client | the client's own domain |
 | App 5 | Mybizz management app | `mb-3-cs-app5` | Mybizz development account | `mb-3-cs-app5.mybizz.live` |
 
 ### App 1 — development workspace
@@ -54,7 +56,7 @@ The five-app model is Mybizz-wide ([[[default:specifications-global/spec-five-ap
 - Anvil cannot create tables programmatically; cloning App 3 is how every instance gets the schema.
 
 ### App 4 — client instances
-- Each client instance is cloned from App 3 into its assigned client hosting account.
+- Each client instance is cloned from App 3 into the client's own Mybizz-owned hosting account.
 - Holds the schema, the startup module and an active dependency on `master_template`. Nothing else.
 - Updated automatically: server logic, forms and UI arrive through the dependency. Schema changes are applied manually.
 - Clients never have access to the Anvil editor or to any source code. Clients use their app only.
@@ -78,32 +80,30 @@ A client instance inherits all logic and UI live from `master_template`. A form 
 
 ## 3. Data Isolation
 
-- Each client instance is a separate Anvil app with a separate database. `app_tables` always resolves to the current client's data. Cross-client access is architecturally impossible.
-- Two client instances on the same hosting account remain two apps with two databases.
+- Each client instance is a separate Anvil app with a separate database, on its own Anvil account. `app_tables` always resolves to the current client's data. Cross-client access is architecturally impossible.
 - `master_template` holds no client data. All state lives in the client's own data tables and the client's own R2 bucket.
 - Mybizz does not copy a client's customer data into App 5. App 5 holds client-level records only: registry, usage figures, health, billing, tickets and feedback.
 
 ---
 
-## 4. Hosting, Capacity and Fair Use (F-33)
+## 4. Hosting and Capacity (F-33)
 
 - **Plan:** every hosting account is an Anvil Business account owned by Mybizz. The Hobby plan is never used.
-- **Shared accounts:** two client instances per client hosting account.
-- **Fair-share cap per client on a shared account:** half of the account's Business limits — 500,000 data table rows and 50 GB of data table storage. The cap is enforced by the application.
-- **Usage reporting:** each client instance reports its row count, storage, heavy-job activity, last staff sign-in and last booking date to App 5 through the management endpoints, on a schedule.
-- **Heavy jobs:** imports, exports, backups, AI generation and briefings run as Anvil background tasks.
-- **Upgrade:** the upgrade feature (F-04) requests the move in App 5; Mybizz clones the instance to a dedicated client hosting account, restores its data, moves the domain and retires the shared instance.
+- **One account per client:** each client instance is the only client app on its hosting account and has the account's full Business limits: 1,000,000 data table rows and 100,000 Anvil emails a month (unused: email goes through Amazon SES, F-18).
+- **Usage reporting:** each client instance reports its row count, storage, email volume, heavy-job activity, last staff sign-in and last booking date to App 5 through the management endpoints, on a schedule.
+- **Heavy jobs:** imports, exports, backups, AI generation, briefings, campaign sending and inbound email processing run as Anvil background tasks.
 - **Capacity:** a hard limit of 100 client instances for Mybizz CS.
 
 ---
 
 ## 5. Provisioning and Registration (F-03, F-34)
 
-1. The client registers. App 5 creates the client record and the client reference number. As part of registration, the client opens a free Cloudflare account in the client's own name, adds a payment method, switches R2 on, and invites Mybizz's Cloudflare user as a member with the role Cloudflare R2 Admin.
-2. App 5 assigns the client a hosting account with a free place (one of two).
+1. The client registers. App 5 creates the client record and the client reference number. As part of registration, the client opens a free Cloudflare account in the client's own name, adds a payment method, switches R2 on, adds the client's domain to Cloudflare DNS, and invites Mybizz's Cloudflare user as a member with the roles Cloudflare R2 Admin and DNS.
+2. Mybizz opens a new Anvil Business account for the client.
 3. Mybizz clones App 3 into that account as `[client-name]-cs`.
-4. Mybizz sets the instance's Anvil Secret (`encryption_key`), the client's domain and the instance's Bearer token. App 5 accepts the client's Cloudflare invitation, creates the client's R2 bucket and a token for that bucket only, and writes the bucket's keys into the instance's Vault. The Bearer token and the client's Mybizz-side credentials are stored in App 5.
-5. The client completes onboarding in the instance (F-03).
+4. Mybizz sets the instance's Anvil Secret (`encryption_key`) and the instance's Bearer token. App 5 accepts the client's Cloudflare invitation, creates the client's R2 bucket and a token for that bucket only, creates the client's Amazon SES tenant, domain identity, receipt rule, SNS topics and scoped AWS keys (`team-inbox-spec.md`), and writes every key into the instance's Vault. Anvil's Email service in the instance is set to Custom Mail Server with the SES SMTP endpoint. The Bearer token and the client's Mybizz-side credentials are stored in App 5.
+5. App 5 loads the sample data for the client's trade (section 16).
+6. The client completes the onboarding wizard in the instance (F-03); its domain step has App 5 write the client's DNS records (website, MX, DKIM, MAIL FROM, SPF, DMARC) through the Cloudflare API.
 
 Procedure detail: [[[default:specifications-global/spec-client-activation-runbook|Client Instance Activation Runbook]]](C:/dev/project-library-global/specifications-global/spec-client-activation-runbook.md).
 
@@ -129,21 +129,26 @@ client_code/
   landing_pages/  layouts/        onboarding/     public_pages/
   services/       settings/       shared/
   orders/         packages/       time_tracking/  reviews/
-  portal/         ai/             support/
+  portal/         ai/             support/        inbox/
+  sales/          accounts/
 
 server_code/
   server_analytics/  server_auth/       server_blog/       server_bookings/
   server_customers/  server_dashboard/  server_marketing/  server_payments/
   server_services/   server_settings/   server_shared/
   server_orders/     server_packages/   server_time/       server_reviews/
-  server_automation/ server_ai/         server_storage/    server_integrations/
-  server_support/    server_management/
+  server_automation/ server_ai/         server_storage/    server_inbox/
+  server_support/    server_management/ server_sales/      server_accounts/
 ```
 
 - The client-side CRM and marketing package is `crm/`; the server-side package is `server_marketing/` ([[[mb-3-cs-project-context:adr-local/crm-package-replaces-marketing|Package Name: crm/ Replaces marketing/]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/adr-local/crm-package-replaces-marketing.md) ADR).
 - `server_payments/` holds invoices, payments, refunds and every gateway.
 - `server_storage/` holds all Cloudflare R2 access (F-29).
-- `server_integrations/` holds Wave (F-28).
+- `server_inbox/` holds the Team Inbox: addresses, received email, conversations and the SES endpoints (F-18).
+- `server_shared/email_service` sends every outgoing email through Amazon SES (F-18).
+- `server_sales/` holds deals, companies and quotes (F-35).
+- `server_accounts/` holds expenses, the accounts reports and the accounting export (F-28).
+- `shared/translations/` holds one translation module per app language; every screen text is read from it (F-25).
 - `server_management/` holds the management HTTP endpoints called by App 5.
 - `server_support/` sends Help messages to App 5 (F-32).
 - `components/` holds every shared custom component listed in `custom-component-requirements-matrix.md`.
@@ -163,21 +168,25 @@ General navigation patterns: [[[default:specifications-global/spec-m3-design-sta
 
 | Area | System |
 |---|---|
-| Admin and customer portal | Native M3 layouts (`NavigationRailLayout` / `NavigationDrawerLayout`) + plain `Link` components + lambda click handlers |
+| Admin and customer portal | Native M3 layouts (`NavigationRailLayout` / `NavigationDrawerLayout`) + the layouts' `NavigationLink` components + lambda click handlers |
 | Public website pages | Anvil Routing dependency (`@router.route`) |
 
-`HTMLTemplate` is banned; all layout shells use the native M3 layouts. Sidebar navigation uses plain `Link` components with lambda click handlers, not `NavigationLink`. `navigate_to` is not used. See [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR, [[[default:adr-global/adr-navigation-lambda-link-open-form|Navigation Standard: Lambda/Link/open_form]]](C:/dev/project-library-global/adr-global/adr-navigation-lambda-link-open-form.md) ADR, [[[default:adr-global/adr-ui-customization-approach|UI Customization Approach]]](C:/dev/project-library-global/adr-global/adr-ui-customization-approach.md) ADR.
+`HTMLTemplate` is banned; all layout shells use the native M3 layouts. Sidebar navigation uses the layouts' `NavigationLink` components with lambda click handlers that capture their loop variables (`lambda e, fn=form_name: self._nav_click(fn)`); parameterised navigation uses `open_form()`. `navigate_to` is never used. See [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR, [[[default:adr-global/adr-navigation-lambda-link-open-form|Navigation Standard: Lambda/Link/open_form]]](C:/dev/project-library-global/adr-global/adr-navigation-lambda-link-open-form.md) ADR, [[[default:adr-global/adr-ui-customization-approach|UI Customization Approach]]](C:/dev/project-library-global/adr-global/adr-ui-customization-approach.md) ADR.
 
 ### AdminLayout navigation
 ```
 Dashboard                          (always)
+Inbox                              (every staff role; unread count)
 ▼ Sales & Operations
   Bookings                         (always)
   Services                         (always)
   Orders                           (always)
   Packages                         (always)
+  Deals                            (always)
+  Quotes                           (always)
 ▼ Customers & Marketing
   Contacts                         (always)
+  Companies                        (always)
   Campaigns                        (marketing_enabled)
   Broadcasts                       (marketing_enabled)
   Segments                         (marketing_enabled)
@@ -192,6 +201,8 @@ Dashboard                          (always)
 ▼ Finance & Reports
   Invoices                         (always)
   Payments                         (always)
+  Expenses                         (always)
+  Accounts                         (always)
   Time Entries                     (always)
   Reports                          (always)
   Analytics                        (always)
@@ -206,6 +217,7 @@ Help                               (all staff roles)
 My Dashboard                       (always)
 My Bookings                        (always)
 My Packages                        (always)
+My Quotes                          (always)
 My Invoices                        (always)
 My Reviews                         (always)
 Account                            (always)
@@ -250,13 +262,15 @@ Each feature below states its packages, data, rules and links. Tables and fields
 
 ### F-02 The Vault
 - One Anvil Secret per instance: `encryption_key`, used only by `vault_service.py`.
-- Every other credential (gateway keys, Brevo key, R2 keys, Wave credentials) is encrypted in the Vault's data table with that key.
+- Every other credential (gateway keys, AWS keys for Amazon SES and S3, the SES SMTP password, R2 keys) is encrypted in the Vault's data table with that key.
 - Owner-only; every view requires a TOTP code with no remembered session; every access emails the owner; after 5 failed codes the Vault locks for 15 minutes and the owner is emailed.
 - Detail: `mb-3-cs-vault-implementation.md`, [[[default:specifications-global/spec-vault-system|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md).
 
 ### F-03 Registration, onboarding and setup
 - Registration happens in App 5 (section 5); App 5 issues the client reference number.
-- Onboarding in the instance is a guided, resumable sequence on `NavigationRailLayout` with a Sidesheet and a progress indicator: business profile → brand palette → system currency → legal acknowledgement (timestamped) → payment gateway → Brevo email.
+- Onboarding in the instance is a resumable wizard on `NavigationRailLayout` with a Sidesheet, a progress indicator and a help video on every step: app language → business profile → brand palette → system currency → legal acknowledgement (timestamped) → payment gateway → connect the client's domain (website and email DNS records, written by App 5 and checked until live) → import existing contacts.
+- The contact import reads a CSV file, with ready-made column mappings for the exports of HubSpot, Mailchimp and Acuity and a manual mapping for any other file; it matches existing contacts by email.
+- The AI helper's bio/profile writer offers the first website text from the business profile.
 - Progress is saved after each step; onboarding and Settings link to each other.
 - Packages: `onboarding/`, `server_settings/`. Engineering plan: [[[default:specifications-global/spec-onboarding-implementation-plan|Mybizz CS Onboarding System - Engineering Plan]]](C:/dev/project-library-global/specifications-global/spec-onboarding-implementation-plan.md).
 
@@ -264,11 +278,11 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Metric cards (revenue, bookings, customers) with current value, percentage change and trend; trend charts; activity feed; period comparison (week, month, custom range).
 - Dashboard figures are read from pre-computed summary tables, refreshed by background task, not computed on page load.
 - Advanced analytics: revenue by service and by provider, marketing return on investment per campaign and landing page, PDF and CSV export, scheduled reports emailed by background task.
-- Upgrade feature: shows the dedicated account's limits and the client's current usage; the request is sent to App 5 through the management endpoints (section 4).
+- The sample data banner and the Owner's Clear sample data button (section 16).
 - Packages: `dashboard/`, `analytics/`, `server_dashboard/`, `server_analytics/`.
 
 ### F-05 Settings Hub
-- One tabbed form; tabs: Business Profile, Brand Palette, System Currency (read-only), Display Currency, Legal Acknowledgement (read-only), Payment Gateways (test/live), Invoicing (default payment terms, numbering), Users and Permissions, Email Configuration, Theme, Feature Switches (`marketing_enabled`, `blog_enabled`, comments), Integrations (Wave), Legal Pages (Clause Builder, F-22), Data (history view and export, F-29). The Invoicing tab also holds the tax rate (default 0), tax label and tax registration number; the Theme tab holds the public website header style only.
+- One tabbed form; tabs: Business Profile (including the app language), Brand Palette, System Currency (read-only), Display Currency, Legal Acknowledgement (read-only), Payment Gateways (test/live), Invoicing (default payment terms, numbering, quote validity), Users and Permissions, Email (addresses, desks, members, signatures, auto-replies), Domain (DNS record status), Theme, Feature Switches (`marketing_enabled`, `blog_enabled`, comments), Legal Pages (Clause Builder, F-22), Data (history view, export, sample data, F-29). The Invoicing tab also holds the tax rate (default 0), tax label and tax registration number; the Theme tab holds the public website header style only.
 - Tabs are shown per role: Owner sees all; Manager sees operational tabs, not financial or security tabs.
 - Packages: `settings/`, `server_settings/`.
 
@@ -276,9 +290,10 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Public pages are served through Anvil Routing: Home, About, Contact, Services listing and detail, Blog listing and post, Privacy Policy, Terms and Conditions, landing pages.
 - The contact form creates a contact and a follow-up task (F-17, F-20).
 - Google Maps embed on Contact and in the footer, optional.
-- Meta tags, semantic structure and clean addresses on every public page; fully responsive.
-- The instance runs on the client's own domain: an Anvil custom domain on the instance's environment, with a DNS `A` record at the client's domain provider.
-- Packages: `public_pages/`, `layouts/`.
+- Meta tags, semantic structure and clean addresses on every public page; fully responsive. Every public route sets its title, description and Open Graph tags on the server through the Routing dependency's `Route.meta` (`sm-syndication-spec.md`).
+- Front-end editing: for an Owner or Manager signed in, every public page shows an Edit button. Edit mode makes each text, image and video element of the page editable in place; the AI helper writes or rewrites the selected text; Save writes the page's content (`pages.components`, `config.home_config`, `landing_pages.config`, `blog_posts.content`) in one server call and publishes it; Cancel discards. Images are uploaded to `files`. Every save is recorded in `activity_log`.
+- The instance runs on the client's own domain: an Anvil custom domain on the instance's environment, with a DNS `A` record written by App 5 in the client's Cloudflare DNS (section 5).
+- Packages: `public_pages/`, `layouts/`, `components/` (the edit mode).
 
 ### F-07 Homepage templates
 - Four layouts — Classic, Services, Booking, Minimalist — plus further layouts, all composed from the same section components; a layout is a section order and visibility set.
@@ -287,6 +302,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 
 ### F-08 Landing pages
 - Templates: Lead Capture, Event Registration, Video Sales Letter, on a blank layout with no header or footer.
+- A landing page is created in LandingPageEditorForm (template, slug, tracking); its content is edited on the page itself in edit mode (F-06).
 - Each landing page counts views and conversions.
 - Packages: `landing_pages/`, `server_marketing/`.
 
@@ -335,7 +351,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Packages: `time_tracking/`, `server_time/`.
 
 ### F-15 Invoicing and payments
-- Invoices are generated automatically on booking completion, and created manually or from time entries, orders and packages.
+- Invoices are generated automatically on booking completion and on quote acceptance (F-35), and created manually or from time entries, orders and packages.
 - Payment terms per invoice (due on receipt, 7 days, 30 days, or set days); the due date is calculated from the issue date; default terms are set in Settings → Invoicing.
 - Tax: each client sets a tax rate (default 0), a tax label and a registration number in Settings → Invoicing; the rate at issue is stored on the invoice; no tax line appears when the rate is 0.
 - Lifecycle: draft → sent → paid; overdue set by a nightly task, with a reminder email to the customer; cancelled. Sequential numbering per instance (`INV-{year}-{sequence}`).
@@ -351,18 +367,21 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Display currency optional per service; display only. All stored amounts, totals and reports are in the system currency.
 
 ### F-17 CRM and contacts
-- One `contacts` record per person with status Lead, Customer or Inactive; activity timeline from bookings, emails, notes, forms.
-- Contacts are created automatically by bookings, enquiries and landing page forms.
+- One `contacts` record per person with status Lead, Customer or Inactive, optionally linked to a company (F-35); activity timeline from bookings, emails (received and sent, F-18), quotes, deals, notes, forms.
+- Contacts are created automatically by bookings, enquiries, landing page forms and Add as lead in the Team Inbox.
 - Pre-built segments (New Leads, Active Customers, Inactive Customers, High Value) and a custom segment builder over tags, status, total spend and booking history.
 - CSV import and export.
 - Packages: `crm/`, `server_customers/`, `server_marketing/`.
 
 ### F-18 Email
-- System email: Anvil built-in email (sign-in, confirmation, reset).
-- Transactional email: Brevo SMTP with the client's Brevo account and the client's own domain as sender.
-- Marketing email: Brevo Campaigns — sequences, broadcasts, segment targeting, open and click tracking from Brevo webhooks, unsubscribe handling.
-- Brevo webhook payloads are written to R2 (F-29); only current status is kept in the data tables.
-- Packages: `crm/`, `server_marketing/`. Patterns: [[[default:specifications-global/spec-integration|Integration Specification]]](C:/dev/project-library-global/specifications-global/spec-integration.md).
+- Build detail: `team-inbox-spec.md`.
+- Every email received and sent goes through Amazon SES in Mybizz's AWS account (`eu-west-1`), one SES tenant per client. Anvil's own email quota is not used.
+- Receiving: the client domain's MX record points to SES; SES scans each email, stores it in S3 and notifies the instance's endpoint `/_/api/email/inbound`; a background task stores it in `email_messages`, moves attachments to R2 and links it to a contact.
+- Team Inbox (`inbox/TeamInboxForm`): unlimited personal and desk addresses (`email_addresses`); each staff member sees the addresses the staff member belongs to; Inbox, Drafts, Sent, Archive, Spam, Trash; reply, reply all, forward; sort, filter, search; star, mark as unread; bulk actions; conversations by `Message-ID`; Add as lead; AI assist 6 drafts replies.
+- Sending: `server_shared/email_service` sends every email through the SES API from the client's domain, DKIM-signed: Team Inbox email, transactional email (confirmations, reminders, invoices, receipts) and marketing email. Anvil's Users service email goes through Anvil's Email service set to Custom Mail Server with the SES SMTP endpoint.
+- Marketing email: sequences, broadcasts and newsletters, segment targeting, SES open and click tracking, one-click unsubscribe (`List-Unsubscribe` and `List-Unsubscribe-Post`), suppression of bounces and complaints (`email_suppressions`), sending in batches within the SES rate.
+- SES events and inbound notifications are recorded in `webhook_log` (`gateway` = `ses`) with their payloads in R2 (F-29).
+- Packages: `inbox/`, `crm/`, `server_inbox/`, `server_marketing/`, `server_shared/`.
 
 ### F-19 Lead capture and marketing funnel
 - A lead capture submission creates the lead and the contact in one server call, linked, with source recorded.
@@ -382,6 +401,8 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - SEO title, description, slug and keywords per post; statuses draft, scheduled, published, archived (scheduled posts publish at their set time by background task); categories; view counts.
 - Public listing in tiled grid or list-with-thumbnails view.
 - Comments with moderation (approve, spam, delete), switchable in Settings.
+- New posts are written in BlogEditorForm; published posts are corrected in edit mode on the page itself (F-06).
+- Social media sharing: the Share panel, AI captions per platform (`blog_posts.share_captions`), platform share links, `?ref=` tracking, the `/_/api/blog-image/{slug}` endpoint and reader share buttons, as `sm-syndication-spec.md` specifies.
 - Packages: `blog/`, `server_blog/`.
 
 ### F-22 Clause Builder
@@ -397,15 +418,17 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Packages: `reviews/`, `server_reviews/`; the star rating is `StarRatingComponent` in `components/`.
 
 ### F-24 Customer portal
-- CustomerLayout (section 9): My Dashboard, My Bookings, My Packages, My Invoices, My Reviews, Account.
+- CustomerLayout (section 9): My Dashboard, My Bookings, My Packages, My Quotes, My Invoices, My Reviews, Account.
 - Customers set their password from the link in their first booking confirmation.
-- Customers book, reschedule, pay invoices and edit their profile; every server function filters to the signed-in customer's own records.
+- Customers book, reschedule, pay invoices, accept or decline quotes and edit their profile; every server function filters to the signed-in customer's own records.
 - No customer ticket system; customer contact goes through the contact form (F-06).
 - Packages: `portal/`.
 
-### F-25 Ease of use and in-app help
-- Tooltips on every feature, with a per-user on/off setting.
-- Process-flow videos attached to the screens they explain, using the video component (F-09).
+### F-25 Ease of use, in-app help and language
+- Every feature carries a tooltip; the tooltip opens the feature's short help video in a pop-up, using the video component (F-09); per-user on/off setting.
+- Help videos are held per language; the pop-up plays the video in the app language.
+- App language: `business_profile.app_language` (`en` / `fr` / `pt` / `es` / `de` / `it`). English is complete at launch; a language is offered once its translation is complete and checked.
+- Translation: every piece of screen text is read from `shared/translations/` — one module per language, one entry per phrase key — and is never typed into the Designer; component text is set in code from the phrase key. Email templates are stored per language (`email_templates.language`). AI (Groq) produces each translation; a native speaker checks each language once. No right-to-left language is offered.
 - Packages: `components/`, `shared/`.
 
 ### F-26 AI assistance
@@ -413,6 +436,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - One reusable AI helper component, `AIHelperComponent` in `components/` (`custom-component-requirements-matrix.md`), with trigger button, floating window, assist selector, dynamic working area, result area, copy, insert/replace/append into the host form.
 - Context awareness: the host form passes its context; the helper preselects the matching assist.
 - One shared AI request layer (`server_ai/`): prompt composition, model call, result return, error handling. Each assist is defined by identity, input fields, context mapping, prompt template and result handling.
+- Two further AI functions use the same helper: the website-text assist in edit mode (F-06, F-08, F-21) and the social caption assist (F-21, `sm-syndication-spec.md`).
 - All ten assists are built. Assists 9 (client sentiment summary) and 10 (booking and availability insights) run on the sample data (section 16) until the client clears it, then on the client's real data; on thin real data each says so and names what is needed.
 - AI requests are routed through App 5, which holds Mybizz's AI provider keys and records usage per client. Client instances hold no Mybizz AI keys.
 - The core application never depends on the AI: every AI failure returns a clear message and leaves the form usable.
@@ -428,17 +452,20 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Voice tier 5, business intelligence by voice: the question is mapped to a fixed set of analysis functions that run in the instance's server code against its own tables and summary tables; the figures go to the AI layer with every person's name replaced by a placeholder label, and the instance puts the names back.
 - Every voice query fails gracefully with a spoken message.
 
-### F-28 Wave accounting
-- One-way, event-driven push from the instance to the client's Wave account on three events: invoice paid, new customer, refund issued.
-- Customer records are created or matched in Wave before a payment is pushed.
-- Connection once in Settings → Integrations; Wave credentials in the Vault.
-- No pull from Wave, no sync back, no mapping screens. Optional per client.
-- Packages: `server_integrations/`.
+### F-28 Accounts
+- Expenses (`expenses`, `expense_categories`): date, supplier, category, amount, tax, payment method, notes and a receipt image stored in R2 (`expenses/receipts/`).
+- Reports, computed in server code: profit and loss by month (payments less refunds, against expenses), outstanding invoices, tax collected (invoices) and tax paid (expenses), customer statements (PDF).
+- Export: one click produces one CSV file per record type — customers, invoices, invoice lines, payments, refunds, expenses — for a chosen period, in the import columns of Wave, Xero or QuickBooks; dates `YYYY-MM-DD`, plain decimal amounts, no currency symbols, UTF-8; the files are written to R2 (`exports/`) and downloaded.
+- Sample data is never exported.
+- Packages: `accounts/`, `server_accounts/`.
 
 ### F-29 Data, backups and history
 - Each client has one Cloudflare R2 bucket, in a free Cloudflare account in the client's own name; Mybizz reaches it as an invited member. The bucket's access keys are held in the client's Vault. Detail: `integration-architecture.md` (Client Storage).
+- Folders of the bucket: `backups/daily/`, `backups/weekly/`, `history/{table}/`, `audit/{year}/{month}/`, `webhooks/{service}/{year}/{month}/`, `email/messages/{address}/{year}/{month}/`, `email/attachments/`, `expenses/receipts/`, `exports/`.
 - Backups: scheduled background task exports every data table to the bucket daily; the last 7 daily and 4 weekly backups are kept.
-- Webhook payloads (Stripe, Paystack, PayPal, Brevo) are written to the bucket on receipt; the data tables keep only the current state they produce.
+- Webhook payloads (Stripe, Paystack, PayPal, Amazon SES) are written to the bucket on receipt; the data tables keep only the current state they produce.
+- Emails: bodies older than 90 days move to the bucket nightly and the row stays as an index; attachments are always in the bucket.
+- Exit: Mybizz writes the full export, `encryption_key` and the decrypted Vault into the bucket, then leaves the client's Cloudflare account.
 - History is not kept in the data tables; history records go to the bucket.
 - Audit trail: the last 30 days stay in the audit table; a scheduled task moves older entries to the bucket.
 - View: Settings → Data reads history from the bucket and displays it. Restore: Mybizz restores data from the bucket into the tables at the Owner's request. Export: all data as CSV at any time.
@@ -463,13 +490,27 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Response targets: within 24 hours on business days; a problem that stops a client's business is acknowledged within 4 business hours.
 - No customer data is sent with a ticket unless the client includes it.
 
-### F-33 Hosting, fair use and upgrade
+### F-33 Hosting
 - Section 4.
 
 ### F-34 Mybizz management app
 - App 5, `mb-3-cs-app5`, built before the first paying client.
-- Functions: client registry and registration (client reference numbers, credentials), provisioning (section 5), usage monitoring (section 4), health monitoring, billing (monthly invoices to clients), update distribution, support tickets and feedback (F-32), the AI and voice gateway (F-26, F-27).
+- Functions: client registry and registration (client reference numbers, credentials), provisioning (section 5) including the Anvil account, R2 bucket, Amazon SES identity and DNS records, usage monitoring (section 4), health monitoring, billing (monthly invoices to clients), update distribution, support tickets and feedback (F-32), the AI and voice gateway (F-26, F-27), the demo apps (F-36).
+- App 5 holds Mybizz's AWS account access (SES, S3, SNS) and Mybizz's Cloudflare user.
 - At-risk alerts: each client instance reports its last staff sign-in and last booking date with its usage report. App 5 alerts the founder when a client has no staff sign-in for 14 days, no bookings for 30 days, or a support ticket unanswered for 3 days.
+
+### F-35 Sales pipeline, companies and quotes
+- Companies (`companies`): a business customer; contacts link to it through `contacts.company_id`.
+- Deals (`deals`): title, contact, company, owner, stage (`lead` / `qualified` / `proposal` / `negotiation` / `won` / `lost`), value, expected close date, linked quote; a board view by stage and a list view; Staff see the deals they own, enforced on the server.
+- Quotes (`quotes`, `quote_items`): numbered `QT-{year}-{sequence}`, lines, the client's tax rate, validity date, PDF; sent by email with a link to `/quote/{token}`, where the customer accepts or declines; acceptance creates the invoice in the same server call, links it to the quote and moves a linked deal to `won`; a quote past its validity date becomes `expired` nightly.
+- Quotes and deals appear on the contact's timeline (F-17).
+- Packages: `sales/`, `server_sales/`.
+
+### F-36 Demo apps
+- Two instances of Mybizz CS on Mybizz's development account: `demo.mybizz.live` (sample data, section 16) and `try.mybizz.live` (empty), each with `config.demo_mode` set.
+- A scheduled task resets both instances every night: every table is emptied, and the demo instance's sample data is loaded again.
+- In demo mode, `email_service` sends every email to the signed-in visitor's own address, whatever its recipient; payments use each gateway's test keys and test cards; the Vault, Users and Permissions and Domain tabs are read-only.
+- Visitors register for a demo sign-in with their email address; demo sign-ins are removed at the nightly reset.
 
 ---
 
@@ -485,10 +526,10 @@ Each feature below states its packages, data, rules and links. Tables and fields
 | Anvil Secrets | `encryption_key` only | Used only by `vault_service.py` |
 | Storage, backups, history | Cloudflare R2 | One bucket per client |
 | Payments | Stripe, Paystack, PayPal | One gateway-agnostic service |
-| Email | Anvil built-in; Brevo SMTP; Brevo Campaigns | Client's own Brevo account |
+| Email | Amazon SES (sending, receiving, tracking) | Mybizz's AWS account, one tenant per client; Anvil's Email service set to the SES SMTP endpoint |
 | AI text | Groq (provider configurable in App 5) | Called through App 5 |
 | Speech | Groq Whisper (speech-to-text); browser SpeechSynthesis and Groq TTS (text-to-speech) | Groq called through App 5 |
-| Accounting | Wave API | Optional, one-way |
+| Translation | `shared/translations/` | One module per app language |
 | Video | YouTube, Vimeo, Dailymotion, direct video addresses | Embedded |
 | Maps | Google Maps embed | Optional |
 
@@ -513,7 +554,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 | [[[default:specifications-global/spec-five-app-architecture-model\|Five-App Architecture Model (Specification)]]](C:/dev/project-library-global/specifications-global/spec-five-app-architecture-model.md) | Five-app model (Mybizz-wide) |
 | [[[default:specifications-global/spec-client-activation-runbook\|Client Instance Activation Runbook]]](C:/dev/project-library-global/specifications-global/spec-client-activation-runbook.md) | Provisioning and activation |
 | [[[default:specifications-global/spec-api-specification\|API Specification (HTTP Endpoints)]]](C:/dev/project-library-global/specifications-global/spec-api-specification.md) | Webhook and management endpoints |
-| [[[default:specifications-global/spec-integration\|Integration Specification]]](C:/dev/project-library-global/specifications-global/spec-integration.md) | Brevo, Stripe, Paystack patterns |
+| [[[default:specifications-global/spec-integration\|Integration Specification]]](C:/dev/project-library-global/specifications-global/spec-integration.md) | Stripe, Paystack, PayPal patterns |
 | [[[default:specifications-global/spec-security-architecture\|Security & Secrets Architecture]]](C:/dev/project-library-global/specifications-global/spec-security-architecture.md) | Role limits, token security |
 | [[[default:specifications-global/spec-security\|Security Specification]]](C:/dev/project-library-global/specifications-global/spec-security.md) | Security patterns, rate limiting |
 | [[[default:specifications-global/spec-vault-system\|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md) | Vault architecture |
@@ -528,7 +569,7 @@ Specified in `mybizz-ai-implementation-spec.md` (Sample Data).
 
 - Provisioning loads three months of sample data for the client's trade, in the client's system currency and app language, into every business table, and computes the summary tables from it.
 - Every sample row is recorded in `sample_rows` (table name, row id).
-- Sample contacts use `example.com` addresses. The email, reminder, campaign, payment and Wave services skip every sample record.
+- Sample contacts use `example.com` addresses. The email, reminder, campaign and payment services and the accounts export skip every sample record.
 - A banner on every screen shows while `sample_rows` holds rows.
 - **Clear sample data** (Owner only, on the banner and in Settings, with a confirmation dialog) runs a background task: delete every recorded row, empty the links from real records to sample records, empty `sample_rows`, recompute the summary tables, record the action in `activity_log`.
 - Packages: `server_settings/` (`sample_data_service`: loading, the clearing task and the banner state).

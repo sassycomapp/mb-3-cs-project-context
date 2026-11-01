@@ -12,7 +12,7 @@ updated: "2026-11-01"
 
 ## Context
 
-In Mybizz CS, CRM and marketing are one concern: contacts, segments, tasks, automations, campaigns, broadcasts and lead capture all work on the same contact records (F-17 to F-20). The client-side package that holds these forms needs one name that every document, prompt and agent uses.
+In Mybizz CS, CRM and marketing are one concern: contacts, companies, segments, tasks, automations, campaigns, broadcasts and lead capture all work on the same contact records (F-17 to F-20, F-35). The client-side package that holds these forms needs one name that every document, prompt and agent uses.
 
 ---
 
@@ -23,6 +23,7 @@ In Mybizz CS, CRM and marketing are one concern: contacts, segments, tasks, auto
 - The admin menu group is labelled **Customers & Marketing**. The label is what users see; the package name is what code uses. They differ by design.
 - The server-side package is `server_marketing/`. The two names are not interchangeable: `crm/` is client code, `server_marketing/` is server code.
 - The forms in `crm/` are listed in `scaffold-spec.md` (Package Structure).
+- Companies are in `crm/` with the contacts they group; deals and quotes are in `sales/` (client) and `server_sales/` (server); the Team Inbox is in `inbox/` and `server_inbox/`.
 
 ---
 

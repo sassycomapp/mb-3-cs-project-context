@@ -13,7 +13,7 @@ updated: "2026-11-01"
 
 This document is the concept of Mybizz CS: what the business is, who it serves, what the product does, how it is positioned, how it is priced and how it goes to market. Every statement in it is a decision.
 
-Every feature of Mybizz CS is named and numbered in section 7. The same feature number and name are used in `mb-3-cs-architecture-explainer.md`, which explains how each feature is built, and in `mb-3-cs-architecture-reference.md`, which specifies each feature for the build. Where a technical fact is stated, `mb-3-cs-architecture-reference.md` is the standard.
+Every feature of Mybizz CS is named and numbered in section 7. The client-facing list of every feature, by category, is `mb-3-cs-feature-list.md`. The same feature number and name are used in `mb-3-cs-architecture-explainer.md`, which explains how each feature is built, and in `mb-3-cs-architecture-reference.md`, which specifies each feature for the build. Where a technical fact is stated, `mb-3-cs-architecture-reference.md` is the standard.
 
 This document serves three purposes:
 - Strategic guidance for AI-assisted planning and development
@@ -26,7 +26,7 @@ This document serves three purposes:
 
 Mybizz CS is a complete, standalone online business platform for consulting businesses and for service businesses, delivered as a subscription SaaS product. Mybizz CS is one of the Mybizz businesses.
 
-Every client receives their own fully operational, isolated application instance. The instance includes, among many other features, a website, booking system, payment processing, CRM, email marketing, invoicing, time tracking, a blog, analytics, reviews, AI assistance and voice access — in a single platform, at a single monthly price, with nothing to integrate. The costs a client pays outside the monthly price are listed in section 9.5.
+Every client receives their own fully operational, isolated application instance. The instance includes, among many other features, a website, booking system, payment processing, CRM with a sales pipeline, a team email inbox, email marketing, invoicing, built-in accounts, time tracking, a blog, analytics, reviews, AI assistance and voice access — in a single platform, at a single monthly price, with nothing to integrate. The costs a client pays outside the monthly price are listed in section 9.5.
 
 Mybizz CS is not a booking app, not a CRM and not a website builder. It is all of them at once: a complete, private, owned operating system for a consulting or service business, at one monthly price, with no add-ons, no commissions and no data sharing. Mybizz CS is therefore compared with competitors as a different category of product — an integrated operating system against single-purpose tools — and never feature by feature against a booking app.
 
@@ -64,7 +64,7 @@ Mybizz CS solves all five at once.
 
 The result is what Mybizz CS was built to eliminate: bookings that take far too long, several browser tabs open at once, client data typed into more than one system, and no reliable view of how the business is actually performing.
 
-Mybizz CS connects the client's payment and email accounts into one system. The client signs up once with each provider and never has to integrate anything.
+Mybizz CS connects the client's payment accounts into one system, and provides the client's email, email marketing and accounts itself. The client signs up once with a payment provider and never has to integrate anything.
 
 **Mybizz CS is one setup. One platform. One price.**
 
@@ -113,10 +113,10 @@ Either kind may work on the ground, in person, or in the cloud, online — or bo
 ### 4.2 Business size
 
 Mybizz CS is built for:
-- Solo practitioners
-- Small practices of 2–10 providers
+- Teams of every size, with unlimited staff at no extra cost: owners, managers, administrators, providers and salespeople
+- Solo practitioners, who receive the full platform at the same price
 
-Each team member gets their own calendar, services and access level, so team-based businesses are supported from day one, while a one-person business can run it alone.
+Each team member gets their own sign-in, access level and email address; each provider gets their own calendar and services; each salesperson works their own deals. A team grows without the price changing.
 
 ### 4.3 How services are delivered
 
@@ -137,6 +137,7 @@ Mybizz CS is global from launch:
 - Paystack for South African and African clients (Stripe does not accept South African businesses directly)
 - Two currencies: a system currency for all accounting, and an optional display currency per service
 - UTC storage with display in each user's time zone
+- Six app languages: English, French, Portuguese, Spanish, German and Italian, chosen by each client; English at launch, the other languages added one at a time
 
 South Africa is the founder's home market and the primary focus for direct, personal client relationships. International clients are acquired through content and digital marketing.
 
@@ -151,15 +152,16 @@ Ranked by how acutely the target market feels each need:
 | 3 | A professional website without a web designer | High | F-06 Public website, F-07 Homepage templates |
 | 4 | Client records without a spreadsheet | High | F-17 CRM and contacts |
 | 5 | Professional invoices | High | F-15 Invoicing and payments |
-| 6 | Marketing email without a separate tool | Medium-high | F-18 Email |
-| 7 | Understand how the business is performing | Medium | F-04 Dashboard and analytics |
-| 8 | Blog content for search engines and trust | Medium | F-21 Blog and content |
-| 9 | Landing pages for campaigns | Medium | F-08 Landing pages |
-| 10 | Control who sees what | Medium | F-01 Accounts, roles and access |
-| 11 | Protect credentials | Medium | F-02 The Vault |
-| 12 | Legal pages | Medium-low | F-22 Clause Builder |
-| 13 | AI help with content and proposals | Emerging | F-26 AI assistance |
-| 14 | Running the business by voice from a phone | Emerging | F-27 WhatsUp voice |
+| 6 | Email addresses, an inbox and marketing email without a separate tool | Medium-high | F-18 Email |
+| 7 | Understand how the business is performing | Medium | F-04 Dashboard and analytics, F-28 Accounts |
+| 8 | Follow up every sale | Medium | F-35 Sales pipeline, companies and quotes |
+| 9 | Blog content for search engines and trust, shared to social media | Medium | F-21 Blog and content |
+| 10 | Landing pages for campaigns | Medium | F-08 Landing pages |
+| 11 | Control who sees what | Medium | F-01 Accounts, roles and access |
+| 12 | Protect credentials | Medium | F-02 The Vault |
+| 13 | Legal pages | Medium-low | F-22 Clause Builder |
+| 14 | AI help with content and proposals | Emerging | F-26 AI assistance |
+| 15 | Running the business by voice from a phone | Emerging | F-27 WhatsUp voice |
 
 The first five are felt by every service business owner. The rest make Mybizz CS more complete than anything else at its price.
 
@@ -198,36 +200,51 @@ Mybizz CS fills the gap between them: a complete, integrated operating system at
 
 Mybizz CS replaces a set of separate tools. The fair comparison is the full set of tools a business needs to match what Mybizz CS includes.
 
-**One person, separate tools (monthly billing, list prices):**
+**A team of six, separate tools (list prices, 2026):** an owner, a manager, an administrator, one provider and two salespeople.
 
 | Need | Typical tool | Per month |
 |---|---|---|
-| Website, hosting, security certificate, blog | Squarespace Core | $39 |
-| Online booking with reminders, intake forms and payment at booking | Acuity Scheduling Standard | $34 |
-| CRM | HubSpot Starter | $20 per user |
-| Email marketing | Mailchimp Standard (500 contacts) | $20 |
-| Invoicing | FreshBooks Lite | $23 |
-| **Total** | | **about $136** |
+| Website, hosting, security certificate, blog | Squarespace Core (annual billing) | $23 |
+| Online booking with reminders, intake forms and payment at booking | Acuity Scheduling Standard (up to 6 calendars) | $34 |
+| CRM, sales pipeline and email marketing | HubSpot Starter Customer Platform, 6 seats at $20 | $120 |
+| Invoicing and time tracking | FreshBooks Lite, plus 5 team members at $11 | $78 |
+| AI writing assistant | Jasper Pro, 1 seat | $69 |
+| **Total** | | **$324** |
 
-That total does not include a tool to connect the separate tools, time tracking, an AI assistant, voice access, backups, legal pages, landing pages, tasks, reviews, analytics, or the cost of having it all set up. Each extra staff member adds further per-user fees.
+That total does not include a team email inbox, voice access, backups, legal pages, reviews, a customer portal, accounts, or the cost of having it all set up, and every further staff member adds more per-seat fees.
+
+**All-in-one platforms, for the same team of six:**
+
+| | HoneyBook Premium | GoHighLevel Starter | **Mybizz CS** |
+|---|---|---|---|
+| Price per month | $129, plus a website at $23 | $97, plus $97 for unlimited AI | **$150** |
+| Same price at any team size | no — 10 people maximum | yes | **yes** |
+| Payments through any gateway, no processor markup | no — 2.9% + $0.25 through HoneyBook | — | **yes** |
+| Paystack built in, for Africa | — | — | **yes** |
+| No usage billing (SMS, calls, AI) | — | no — billed per use | **yes** |
+| Voice assistant and spoken morning briefing | no | no | **yes** |
+| Backups in the client's own storage | no | no | **yes** |
+| Leave at any time with all data and backups | — | — | **yes** |
+| Month-to-month, no contract | — | — | **yes** |
+| Support straight from the founder | no | no | **yes** |
 
 **Booking platforms with a marketplace:**
 
 | | Booksy | Vagaro | Mindbody | **Mybizz CS** |
 |---|---|---|---|---|
-| Base price | $29.99/mo | about $30/mo | $99–$699/mo | **$100/mo** |
+| Base price | $29.99/mo | about $30/mo | $99–$699/mo | **$150/mo** |
 | Per-staff fee | +$20/person | +$10/calendar | included | **included** |
 | Processing fee | 2.49–2.69% | 2.2–3.5% | 3.5% | **gateway rate only** |
 | Marketplace commission | up to $49.99/mo (Boost) | none | 20% new customer | **none** |
 | Add-ons required | none listed | forms, SMS, storage | many | **none** |
 | Website included | no | add-on | no | **yes** |
-| CRM, email marketing, invoicing, blog included | no | partly, with add-ons | partly | **yes** |
+| CRM, team inbox, email marketing, invoicing, accounts, blog included | no | partly, with add-ons | partly | **yes** |
 | AI assistance and voice included | no | no | no | **yes** |
 | Hosting included | no | no | no | **yes** |
 | Client owns data | no | no | no | **yes** |
 | Competitors on the business's page | yes | yes | yes | **no** |
 
-Mybizz CS costs less than the separate tools it replaces, and the gap grows with every staff member, because Mybizz CS charges no per-staff fee.
+Mybizz CS costs less than half of the separate tools it replaces for a team of six, and the gap grows with every staff member, because Mybizz CS charges no per-staff fee.
 
 ### 6.3 The ownership argument
 
@@ -235,11 +252,11 @@ On any marketplace platform, the business's customers are the platform's custome
 
 On Mybizz CS, the client's customer database is structurally isolated. It exists only in the client's application instance. No other business can access it. No algorithm affects the client's visibility. The client's customers are the client's customers on day one and remain the client's permanently.
 
-Every client's data is also backed up to the client's own Cloudflare R2 bucket, and can be exported as CSV at any time. The client can take the client's data and leave at any time.
+Every client's data is also backed up to the client's own Cloudflare R2 bucket, and can be exported as CSV at any time. There is no contract: billing is month to month, and the client can take the client's data, emails and backups and leave at any time.
 
 ### 6.4 The simplicity advantage
 
-Marketplace platforms do one thing: booking and discovery. Businesses using them still set up and pay for a website, a blog, landing pages, a CRM with email marketing and invoicing separately. Mybizz CS replaces all of those tools — all in one platform, all working together, all included in the price.
+Marketplace platforms do one thing: booking and discovery. Businesses using them still set up and pay for a website, a blog, landing pages, a CRM, email addresses and an inbox, email marketing, invoicing and accounts separately. Mybizz CS replaces all of those tools — all in one platform, all working together, all included in the price.
 
 ### 6.5 The Africa advantage
 
@@ -259,22 +276,24 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 - Full audit trail of every significant action
 
 **F-02 The Vault**
-- Encrypted store for every credential (payment keys, email keys, integration keys) — owner-only
+- Encrypted store for every credential (payment keys, email service keys, storage keys) — owner-only
 - Every view requires a code from an authenticator app, with no "remember me", and the owner is emailed on every access
 
 **F-03 Registration, onboarding and setup**
-- Self-registration: registration creates the client's reference number and records the client in the Mybizz management app
-- Guided first-run setup with a visible progress indicator, in the natural order: business profile, brand palette, system currency, legal acknowledgement, payment gateway, Brevo email
+- Self-registration: registration creates the client's reference number, records the client in the Mybizz management app and connects the client's Cloudflare R2 storage
+- An onboarding wizard with a progress indicator and a help video on every step, in this order: app language, business profile, brand palette, system currency, legal acknowledgement, payment gateway, connect the client's domain (website and email), import existing contacts
+- The import brings in contacts from HubSpot, Mailchimp, Acuity or any CSV file, with ready-made column matching
+- AI writes the first website text from the business profile
 - Setup can be left and resumed without losing progress; onboarding and Settings link to each other
-- A 30-minute guided setup call with the founder is included; assisted setup, where Mybizz configures the instance, costs $200 once-off
+- Assisted setup, where Mybizz configures the instance, costs $200 once-off
 
 **F-04 Dashboard and analytics**
 - Revenue, bookings and customer totals with period comparison, metric cards, trend charts and an activity feed
 - Advanced analytics: revenue by service and by provider, marketing return on investment, PDF and CSV export, scheduled reports by email
-- The upgrade feature: shows the limits of a dedicated hosting account and moves the client to it through Mybizz
+- While sample data is present, a banner on every screen says so, with the Owner's **Clear sample data** button (section 8)
 
 **F-05 Settings Hub**
-- One tabbed control panel: business profile, brand palette, system currency (view), display currency, legal acknowledgement (view), payment gateways with test and live modes, invoicing defaults, users and permissions, email configuration, theme, feature switches, integrations, legal pages, data
+- One tabbed control panel: business profile (including the app language), brand palette, system currency (view), display currency, legal acknowledgement (view), payment gateways with test and live modes, invoicing defaults, users and permissions, email (addresses, desks and signatures), domain, theme, feature switches, legal pages, data
 - Each role sees only the tabs its role allows
 
 ### The client's public presence
@@ -282,7 +301,8 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 **F-06 Public website**
 - Home, About, Contact (enquiry form into the CRM, with an optional Google Maps location), Services listing and detail, Blog, Privacy Policy, Terms and Conditions
 - A consistent footer with credentials, social links, contact details, policy links and optional map
-- Mobile-responsive, search-engine optimised, clean addresses, managed entirely from the admin panel
+- Mobile-responsive, search-engine optimised, clean addresses
+- Owners and Managers edit website pages on the page itself: an Edit button makes every text, image and video editable where it sits, AI writes or rewrites any text on request, and Save publishes the changes immediately
 - Runs on the client's own domain
 
 **F-07 Homepage templates**
@@ -291,6 +311,7 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 
 **F-08 Landing pages**
 - Three templates — Lead Capture, Event Registration, Video Sales Letter — with no site header or footer
+- New landing pages are set up in the landing page editor, where the template and tracking are chosen; Owners and Managers edit a landing page's text, images and video on the page itself, with AI on request
 - Views and conversions tracked per landing page
 
 **F-09 Visual and media presentation**
@@ -328,7 +349,7 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 - Hours reported per provider, per customer and per service
 
 **F-15 Invoicing and payments**
-- Automatic invoice on booking completion; manual invoices for any other work; invoices from time entries, orders and packages
+- Automatic invoice on booking completion; manual invoices for any other work; invoices from time entries, orders, packages and accepted quotes
 - Payment terms on every invoice (for example, due on receipt or 30 days), with a default set by the client; overdue invoices trigger a reminder to the customer
 - Tax set by each client — rate, label (VAT, GST, Sales Tax) and registration number — with no tax by default
 - Invoice lifecycle: draft, sent, paid, overdue, cancelled; automatic sequential numbering
@@ -339,19 +360,31 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 - A system currency set at onboarding, used for all accounting and fixed once the first transaction exists
 - An optional display currency per service, shown to customers while all accounting stays in the system currency
 
+**F-28 Accounts**
+- Built-in accounts: invoices, payments, refunds and expenses in one place, with a photo of every receipt
+- Reports: profit and loss by month, outstanding invoices, tax collected and tax paid, and customer statements
+- One-click export of customers, invoices, invoice lines, payments, refunds and expenses, in the import formats of Wave, Xero and QuickBooks, or for the client's accountant
+- No accounting subscription needed
+
 ### Customers and marketing
 
 **F-17 CRM and contacts**
 - One contact record per person: Lead, Customer or Inactive
-- Full activity timeline; name, email, phone, source, tags, notes, preferences, lifetime value, total bookings, average transaction value, last contact date
-- Contacts created automatically from bookings, enquiries and landing page forms
+- Full activity timeline, including every email to and from the contact; name, email, phone, company, source, tags, notes, preferences, lifetime value, total bookings, average transaction value, last contact date
+- Contacts created automatically from bookings, enquiries, landing page forms and emails
 - Pre-built segments (New Leads, Active Customers, Inactive Customers, High Value) and a custom segment builder (tags, status, spend, booking history)
 - CSV import and export
 
 **F-18 Email**
-- System email: sign-in, password reset and account messages, built in, no setup
-- Transactional email through the client's Brevo account: confirmations, reminders, invoices, receipts — branded with the client's name
-- Marketing email through Brevo Campaigns: sequences (New Client Welcome, Appointment Follow-Up, Re-engagement, Referral Request), broadcasts, segment targeting, open and click tracking, campaign metrics, automatic unsubscribe handling
+- Unlimited email addresses on the client's own domain: personal (`john@abc.com`) and desk (`help@`, `marketing@`, `accounts@`)
+- A Team Inbox inside Mybizz CS: each staff member sees their own address and the desks the staff member belongs to; Inbox, Drafts, Sent, Archive, Spam and Trash; reply, reply all and forward; sort, filter and search; star and mark as unread; act on many emails at once; conversations grouped; an AI-drafted reply on request; works in the phone browser
+- Every email from a known contact appears on the contact's timeline; an unknown sender becomes a lead in one click
+- Spam and virus filtering on every incoming email
+- Confirmations, reminders, invoices, receipts, sign-in and password emails sent from the client's own domain
+- Marketing email: sequences (New Client Welcome, Appointment Follow-Up, Re-engagement, Referral Request), broadcasts and newsletters, segment targeting, open and click tracking, campaign metrics, one-click unsubscribe, bounces and complaints blocked automatically
+- Every email signed with DKIM; Mybizz sets up the client's domain automatically
+- Emails older than 90 days kept in the client's own storage, searchable, and part of the client's data at exit
+- No email account to set up and no email bill: every email travels through Amazon SES, paid by Mybizz (`team-inbox-spec.md`)
 
 **F-19 Lead capture and marketing funnel**
 - Lead capture forms that create the lead and the contact together
@@ -367,9 +400,11 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 
 **F-21 Blog and content**
 - Rich text editor, three post layouts (classic centred, two-column with sidebar, full-width immersive), pullquotes, featured image and video
-- SEO per post, statuses (draft, published, archived), categories, view counts
+- SEO per post, statuses (draft, scheduled, published, archived), categories, view counts
+- New posts are written in the blog editor; Owners and Managers fix published posts on the page itself with the Edit button
 - Public listing in tiled grid or list-with-thumbnail view
 - Comment moderation, switchable on or off
+- A Share button on every published post sends the post to Facebook, LinkedIn, WhatsApp or Instagram in one tap, with an AI-written caption in the client's language and a full preview; readers share posts too; visits and new contacts from every share are counted per platform (`sm-syndication-spec.md`)
 
 **F-22 Clause Builder**
 - Privacy Policy and Terms and Conditions built from pre-written clauses: edit, add, group, reorder, switch on or off, publish
@@ -382,19 +417,26 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 
 **F-24 Customer portal**
 - Each customer of the client signs in to: My Dashboard, My Bookings, My Packages, My Invoices, My Reviews, Account
-- Customers book, reschedule, pay invoices and update their profile themselves
+- Customers book, reschedule, pay invoices, accept quotes and update their profile themselves
 - Customers contact the business through the contact form; there is no ticket system for customers
+
+**F-35 Sales pipeline, companies and quotes**
+- Deals pipeline: sales stages from lead to won or lost, with value, owner and expected close date
+- Companies: a business customer with several contacts
+- Quotes: a priced quote with lines and tax, sent by email, accepted by the customer online, and turned into an invoice on acceptance
+- Each salesperson sees and works the deals assigned to the salesperson
 
 ### Help, AI and voice
 
-**F-25 Ease of use and in-app help**
+**F-25 Ease of use, in-app help and language**
 - Every workflow follows the natural order of the task
-- Plain-language tooltips on every feature, switchable on or off
-- Short process-flow videos placed exactly where the user is working
+- Every feature has a plain-language tooltip that opens a short help video in a pop-up; tooltips are switchable on or off
+- The client chooses the app's language: English, French, Portuguese, Spanish, German or Italian; screens, emails and help videos follow that choice; English at launch, the other languages added one at a time
 
 **F-26 AI assistance**
 - One AI helper on every relevant page: a button opens a floating window, so the user never leaves the page; the helper preselects the assist that fits the page
 - Ten assists: bio/profile writer, service description generator, FAQ generator, proposal generator, blog post drafts, email response suggestions, invoice message generator, terms and conditions plain-language explainer, client sentiment summary, booking and availability insights
+- AI also writes website text in edit mode (F-06, F-08, F-21) and the social media captions of every published post (F-21)
 - Every result can be copied, edited and inserted into the form it belongs to
 - Client sentiment summary and booking insights work from the client's first day on sample data, and on the client's real data once the sample data is cleared
 - The core application never depends on the AI
@@ -411,19 +453,17 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 - A natural-sounding voice, used where the browser's own voice is not good enough
 - Voice questions fail gracefully: if the data cannot be retrieved, Mybizz CS says so clearly
 
-**F-28 Wave accounting**
-- Optional, one-way: Mybizz CS sends three events to the client's free Wave account — invoice paid, new customer, refund issued
-- The client connects Wave once in the Settings Hub; the credentials are kept in the Vault
-
 ### Data, security and design
 
 **F-29 Data, backups and history**
-- Every client's backups go to the client's own Cloudflare R2 bucket
-- Webhook responses (the messages Stripe, Paystack, PayPal and Brevo send back) go to the R2 bucket
+- Every client's backups go to the client's own Cloudflare R2 bucket: 7 daily and 4 weekly backups kept
+- The bucket keeps each kind of record in its own folder: backups, history, the activity log, payment and email service messages, emails, attachments, receipts and exports
+- Webhook responses (the messages Stripe, Paystack, PayPal and Amazon SES send back) go to the R2 bucket
 - History is not kept in the app's data tables; history goes to the R2 bucket
-- The last 30 days of the audit trail stay in the app; older entries go to the R2 bucket
+- The last 30 days of the audit trail stay in the app; older entries go to the R2 bucket; emails older than 90 days and every attachment go to the R2 bucket
 - The client can view history from the R2 bucket in Settings, and Mybizz restores data from the bucket on request
 - All data can be exported as CSV at any time
+- On leaving, the client receives a full export and the decrypted Vault in the client's own R2 bucket
 
 **F-30 Security and compliance**
 - POPIA, GDPR and PCI DSS alignment
@@ -444,23 +484,28 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 - Tickets and feedback are handled in the Mybizz management app; the founder is notified; response target within 24 hours on business days
 - A problem that stops a client's business is acknowledged within 4 business hours, and the fix reaches every client through `master_template` as soon as it is proven
 
-**F-33 Hosting, fair use and upgrade**
-- Two clients share one Mybizz-owned Anvil Business account, each in a separate app with a separate database, on the client's own domain
-- Each client's app is held to a fair share of the account's limits; heavy jobs run as background tasks
-- A client who outgrows the shared account moves to a dedicated account through the upgrade feature (F-04)
+**F-33 Hosting**
+- Each client runs on its own Mybizz-owned Anvil Business account, in its own app with its own database, on the client's own domain
+- Each client's app has the full Business limits of its account: 1,000,000 data table rows; heavy jobs run as background tasks
+- Improvements reach every client automatically, with nothing for the client to install
 
 **F-34 Mybizz management app**
 - Built and running before the first paying client
-- Client registry and registration, provisioning of new client instances, client reference numbers and credentials
+- Client registry and registration, provisioning of new client instances (the Anvil account, the client's R2 bucket, the client's Amazon SES identity and the client's DNS records), client reference numbers and credentials
 - Usage monitoring per client, health monitoring, billing, update distribution
 - At-risk alerts: Mybizz is alerted when a client has no staff sign-in for 14 days, no bookings for 30 days, or a support ticket unanswered for 3 days, so the founder can act before the client leaves
 - Support tickets and feedback (F-32)
+
+**F-36 Demo apps**
+- `demo.mybizz.live`: a full working business loaded with sample data; `try.mybizz.live`: an empty Mybizz CS for exploring setup
+- Both apps reset every night, so visitors can change or break anything
+- Every email the demo apps send goes to the visitor's own email address; payments run in the gateways' test mode with test cards, so no real money moves
 
 ---
 
 ## 8. Sample Data
 
-Every new client starts with three months of sample data for a business in the client's own trade, so the dashboard, reports, AI assists and voice questions show real-looking results from the first day. A banner on every screen says the client is viewing sample data. The Owner clears all of it with one button, **Clear sample data**, and everything the client created stays. Sample data never sends an email, takes a payment or reaches Wave. Specified in `mybizz-ai-implementation-spec.md` (Sample Data).
+Every new client starts with three months of sample data for a business in the client's own trade, so the dashboard, reports, AI assists and voice questions show real-looking results from the first day. A banner on every screen says the client is viewing sample data. The Owner clears all of it with one button, **Clear sample data**, and everything the client created stays. Sample data never sends an email, takes a payment or appears in the client's accounts export. Specified in `mybizz-ai-implementation-spec.md` (Sample Data).
 
 ---
 
@@ -468,53 +513,52 @@ Every new client starts with three months of sample data for a business in the c
 
 ### 9.1 Price
 
-**$100 per client per month.** One price for every client. Every staff member is included. There is no commission on bookings or payments.
+**$150 per client per month.** One price for every client. Unlimited staff are included. There is no commission on bookings or payments, and no add-on: AI, voice, email, accounts and hosting are all in the price.
 
 ### 9.2 Billing model
 
-Billing is monthly. Mybizz invoices each client at the start of each month.
+Billing is monthly, month to month, with no contract. Mybizz invoices each client at the start of each month. A client can leave at any time, taking the client's R2 bucket with every backup, email and export in it.
 
-There is no free trial. The first paid month carries a 30-day money-back guarantee, and a prospective client can see the product in a live demo on Mybizz's own instance.
+There is no free trial and no money-back period. A prospective client sees the whole product before paying in the two demo apps (F-36): `demo.mybizz.live`, a working business with sample data, and `try.mybizz.live`, an empty Mybizz CS for trying setup.
 
 ### 9.3 Hosting
 
-- Mybizz owns and pays for the Anvil Business accounts that run the client instances.
-- Two clients share one Anvil Business account. Each client runs in a separate app with a separate database, on the client's own domain.
+- Mybizz owns and pays for the Anvil Business account that runs each client instance: one account per client.
+- Each client runs in its own app with its own database, on the client's own domain, with the full limits of its account.
 - Anvil's Hobby plan is not used, because Anvil licenses the Hobby plan for personal projects only.
 
-### 9.4 Upgrade to a dedicated account
+### 9.4 Assisted setup
 
-A client who outgrows the shared account upgrades, through the upgrade feature on the dashboard, to a dedicated Anvil Business account. A client on a dedicated account pays **$200 per month**. Mybizz moves the client's instance to the dedicated account.
+The onboarding wizard (F-03) takes a client from registration to a working business without help, with a help video on every step. A client who wants Mybizz to do the setup pays **$200 once-off** for assisted setup.
 
 ### 9.5 Costs outside the monthly price
 
 New costs are added to this list as they are identified.
 
 **Paid by the client:**
-- **Brevo:** the client starts on a free Brevo account and upgrades to a paid Brevo plan when the client's email marketing grows beyond the free plan.
-- **Stripe, Paystack and PayPal:** the connection is free; the client pays the provider's own fees on each payment.
+- **Stripe, Paystack and PayPal:** the connection is free; the client pays the provider's own fees on each payment. Mybizz adds no markup.
 - **Domain name:** the client registers and owns the client's own domain name.
-- **Cloudflare R2:** the client's backups and history are kept in a free Cloudflare account in the client's own name, set up at registration. Cloudflare asks for a payment method; storage above the free 10 GB a month is billed by Cloudflare to the client.
+- **Cloudflare R2:** the client's backups and history are kept in a free Cloudflare account in the client's own name, set up at registration. Cloudflare asks for a payment method; storage above the free 10 GB a month is billed by Cloudflare to the client, at $0.015 per GB a month.
 
 **Absorbed by Mybizz:**
-- **The Anvil account** that runs the client's application instance.
+- **The Anvil Business account** that runs the client's application instance.
+- **Email:** every email received and sent, through Amazon SES, at $0.10 per 1,000 emails.
 - **AI voice:** speech-to-text and natural-sounding speech (Groq).
 - **AI text:** the AI writing service behind the assists (Groq).
-- **Wave:** the integration uses Wave's free plan.
 
 ### 9.6 Revenue model
 
 | | Monthly | Yearly |
 |---|---|---|
-| Revenue at capacity (100 clients × $100) | $10,000 | $120,000 |
-| Hosting (50 shared Business accounts at $89, billed annually) | $4,450 | $53,400 |
-| **Gross margin before other costs** | **$5,550** | **$66,600** |
+| Revenue at capacity (100 clients × $150) | $15,000 | $180,000 |
+| Hosting (100 Business accounts at $89, billed annually) | $8,900 | $106,800 |
+| **Gross margin before other costs** | **$6,100** | **$73,200** |
 
-Clients who upgrade to a dedicated account do not reduce the margin, because the $200 price covers the dedicated account.
+Email and AI cost a few dollars per client per month and are recorded per client in the Mybizz management app (F-34).
 
 ### 9.7 Domain
 
-Every client's application instance runs on the client's own domain. A domain of the client's own is required, because Brevo needs it to send the client's email reliably. Mybizz connects the client's domain to the client's application instance.
+Every client's application instance runs on the client's own domain, and every email address of the client is on that domain. The onboarding wizard connects the client's domain to the client's application instance and to the client's email in one step (F-03).
 
 ---
 
@@ -626,10 +670,10 @@ The visual identity is the design system in F-31: the Anvil Material 3 theme wit
 *What happens to your customers when you leave? On marketplace platforms, they stay behind. On Mybizz CS your customer list is yours on day one and yours on the last day. Take it anywhere. No one else has a copy.*
 
 **On pricing:**
-*A website, a booking system, a CRM, email marketing and invoicing, bought separately, cost one person well over $100 a month — and every staff member adds more. Mybizz CS is $100 a month for all of it, for your whole team, with AI and voice included.*
+*A website, a booking system, a CRM, email marketing, invoicing and an AI writer, bought separately for a team of six, cost over $300 a month — and every staff member adds more. Mybizz CS is $150 a month for all of it and more, for your whole team, with email, accounts, AI and voice included. No contract, no add-ons.*
 
 **On simplicity:**
-*Set up your business once. Website, booking, payments, CRM, email, invoicing — all connected, all working, all in one place. Then run your business.*
+*Set up your business once. Website, booking, payments, CRM, sales, email, invoicing, accounts — all connected, all working, all in one place. Then run your business.*
 
 **On voice:**
 *Ask your business a question and hear the answer. "What is my schedule for tomorrow?" "Which invoices are outstanding?" From your phone, wherever you are.*
@@ -646,7 +690,7 @@ The visual identity is the design system in F-31: the Anvil Material 3 theme wit
 
 ### 13.1 Self-service first
 
-Mybizz CS is designed to be operated without technical knowledge. Every feature carries plain-language tooltips and short process-flow videos placed where the user is working (F-25). The platform is the support system.
+Mybizz CS is designed to be operated without technical knowledge. Every feature carries a plain-language tooltip that opens a short help video, in the client's app language (F-25). The platform is the support system.
 
 ### 13.2 Direct support
 
@@ -656,11 +700,10 @@ Clients reach Mybizz through the Help button in their app (F-32). A client's mes
 
 | Option | Onboarding | Cost |
 |---|---|---|
-| Self-setup | The client registers and sets up their own instance through the guided setup (F-03). Registration creates the client's reference number and records the client in the Mybizz management app. | Included |
-| Guided call | 30-minute call — the founder walks the client through initial setup | Included |
+| Self-setup | The client registers and sets up their own instance through the onboarding wizard (F-03), with a help video on every step. Registration creates the client's reference number and records the client in the Mybizz management app. | Included |
 | Assisted setup | Mybizz configures the client's instance on their behalf | $200 (one-time) |
 
-Onboarding is streamlined and self-serving: the guided setup takes a client from registration to a working business without help. There is no compulsory setup fee. The guided call and assisted setup are there for clients who want them.
+Onboarding is streamlined and self-serving: the wizard takes a client from registration to a working business without help. There is no compulsory setup fee. Assisted setup is there for clients who want it.
 
 ---
 
@@ -674,7 +717,7 @@ The following are not part of Mybizz CS:
 - A multi-vertical feature toggle system
 - A marketplace or shared directory of Mybizz clients
 - A support-ticket system for the client's own customers
-- A knowledge base, events management, expense tracking
+- A knowledge base, events management
 
 ---
 
@@ -684,7 +727,7 @@ The following are not part of Mybizz CS:
 |---|---|
 | First clients onboarded | 10 |
 | Total clients at capacity | 100 |
-| Annual recurring revenue at capacity | $120,000 |
+| Annual recurring revenue at capacity | $180,000 |
 | Client retention (year 1 to year 2) | >90% |
 | Average onboarding-to-live time | <7 days |
 | Support tickets per client per month | <2 |
@@ -695,11 +738,11 @@ The following are not part of Mybizz CS:
 
 **Founder capacity.** Every support ticket lands with the founder; at 100 clients, three tickets per client per month is 300 tickets. Mybizz CS answers with self-service help on every screen (F-25), built before launch, a support target of under two tickets per client per month, and at-risk alerts (F-34) that show where attention is needed first.
 
-**Early churn.** A client who does not see value in the first weeks leaves quietly. Mybizz CS answers with the at-risk alerts (F-34), a streamlined self-serving setup (F-03), and the included guided call.
+**Early churn.** A client who does not see value in the first weeks leaves quietly. Mybizz CS answers with the at-risk alerts (F-34), a streamlined self-serving setup with a help video on every step (F-03), sample data that shows every report working from the first day (section 8), and the demo apps that show the product before the client pays (F-36).
 
 **Competitors copying.** Features can be copied. Mybizz CS's defence is what cannot be copied easily: the Africa and Paystack positioning, founder-direct support, and an ownership architecture that marketplace platforms cannot offer.
 
-**Cost per client.** Hosting, AI and voice have a real cost per client. The Mybizz management app records each client's hosting and AI usage (F-33, F-34), the fair-use cap holds each client within a shared account, and the cost per client is reviewed every month.
+**Cost per client.** Hosting, AI and voice have a real cost per client. The Mybizz management app records each client's hosting, email and AI usage (F-33, F-34), each client has an Anvil account of its own, and the cost per client is reviewed every month.
 
 **A problem with no name.** Business owners feel overwhelmed by tools and costs, but do not name the problem. Mybizz CS marketing names the problem — the five-tool problem — before it sells the features.
 

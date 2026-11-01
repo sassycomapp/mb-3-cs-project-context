@@ -20,7 +20,8 @@ Check these first; they are the most common failures.
 - **No hardcoded colour.** Every colour comes from the Anvil M3 Colour Scheme: `%color:Name%` in the Designer and in `theme.css`, `var(--anvil-m3-…)` in CSS read at runtime. A translucent colour is made with `color-mix()` from a token. No hex, `rgb()`, `rgba()`, `hsl()` or `hsla()` value anywhere, including shadows. No exception exists.
 - **No component outside [[[default:specifications-global/spec-m3_component_mapping|M3 Component Mapping]]](C:/dev/project-library-global/specifications-global/spec-m3_component_mapping.md)** (Approved Components and Writeback).
 - **No legacy `Label`.** Use `Text`.
-- **No `HTMLTemplate`**, no `NavigationLink`, no `navigate_to` (`scaffold-spec.md`, Navigation Architecture).
+- **No `HTMLTemplate`**, no `navigate_to`. Menu items in the layouts are the layouts' `NavigationLink` components with lambda click handlers that capture their loop variables (`scaffold-spec.md`, Navigation Architecture).
+- **No visible text typed into the Designer.** Every visible text (headings, labels, button text, placeholders, tooltips, empty states) is set in code from a phrase key with `t(key)` from `shared/translations/` (F-25). The Designer holds component names and Designer-only properties, never visible words.
 - **No MUI component, `sx` property, MUI import or MUI script.** The MUI influence is the set of project deviations in `DESIGN.md`, applied through `theme.css`; nothing else.
 - **No data rule, credential or secret in a form.** Forms show data and call server functions; every rule lives on the server.
 - **No schema change.** A schema change Anvil's AI proposes is not applied; it goes back to Step 17.
@@ -56,15 +57,16 @@ Roboto, with the M3 scale and this project's weights (`DESIGN.md`, Type Scale): 
 - It holds no `--md-sys-color-*` property (the M3 theme does not read them), no typed colour value, no rule for the classic Anvil theme (`.btn`, `.app-bar`, `.left-nav`, `.structure`), and no rule that repaints every `ColumnPanel`.
 - It ends with the reduced-motion rule: under `prefers-reduced-motion: reduce`, animations and transitions are reduced to near zero.
 
-### Breakpoints
+### Responsive behaviour
 
-| Width | Layout |
-|---|---|
-| Below 600px | Compact: one column; navigation in a drawer |
-| 600px to 997px | Medium: content reflows; navigation in a drawer |
-| 998px and above | Expanded: navigation rail or sidebar fixed (260px in AdminLayout) |
+Responsive behaviour is set per container with `wrap_on`, never with a breakpoint table ([[[default:adr-global/adr-responsive-behaviour-mechanism|Responsive Behaviour Mechanism]]](C:/dev/project-library-global/adr-global/adr-responsive-behaviour-mechanism.md) ADR):
 
-Every form works at every width down to 375px, with no sideways scrolling. Containers that stack on narrow screens set `wrap_on = "mobile"`; containers that keep their shape set `wrap_on = "never"`.
+- A container whose contents stack on a phone sets `wrap_on = "mobile"`.
+- A container whose contents stack on a tablet as well sets `wrap_on = "tablet"`.
+- A container that keeps its shape at every width sets `wrap_on = "never"`.
+- Navigation collapses into a drawer by itself in the native M3 layouts; no form sets it.
+
+Every form works at every width down to 375px, with no sideways scrolling, and with text up to 40% longer than the English (French, Portuguese, Spanish, German, Italian): buttons and labels wrap or grow, never cut text off.
 
 **Maximum width by form type:**
 
@@ -100,7 +102,7 @@ Prefixes follow [[[default:specifications-global/spec-nomenclature|Nomenclature]
 | Text | `text_` | `text_subtitle` |
 | TextBox, TextArea | `txt_` | `txt_from_email` |
 | Heading | `hdg_` | `hdg_page_title` |
-| Link | `nav_` | `nav_forgot_password` |
+| Link, NavigationLink | `nav_` | `nav_forgot_password` |
 | DropdownMenu | `dd_` | `dd_timezone` |
 | DatePicker | `dp_` | `dp_date_from` |
 | Checkbox | `cb_` | `cb_gateway_connected` |
@@ -200,7 +202,9 @@ Anvil's own form: `{component_name}_{event}` — `btn_save_click`, `txt_email_ch
 
 ## Custom HTML Components
 
-- Only the seven shared custom components in `custom-component-requirements-matrix.md` exist: `VideoDisplayComponent`, `FooterComponent`, `TimeLapseCarouselComponent`, `ParallaxComponent`, `ClauseBuilder`, `AIHelperComponent`, `StarRatingComponent`. They live in `client_code/components/`.
+- Only the eleven shared custom components in `custom-component-requirements-matrix.md` exist: `VideoDisplayComponent`, `FooterComponent`, `TimeLapseCarouselComponent`, `ParallaxComponent`, `ClauseBuilder`, `AIHelperComponent`, `StarRatingComponent`, `HelpTooltipComponent`, `EditModeComponent`, `SharePanelComponent`, `ReaderShareComponent`. They live in `client_code/components/`.
+- Every public page form, landing page template and blog post template carries `EditModeComponent` and registers its editable elements (`DESIGN.md`, Edit Mode).
+- Every feature heading and field that has help carries `HelpTooltipComponent` with its `help_key`.
 - One local component exists: `PaletteSettingsForm`, in SettingsForm's folder.
 - No new custom component is created for a single form. A page template (a homepage, blog or landing page layout) is a form in its parent's folder, not a custom component (`scaffold-spec.md`).
 - The booking calendar is a feature module built to `calendar-feature-spec.md`, not a custom component.
@@ -259,6 +263,8 @@ A Button's `icon_alignment` is set to match the screen PNG (`leading` or `traili
    - writeback, row-template, appearance and `hide_text` set in the Designer;
    - icons matched and correctly placed;
    - no hardcoded colour;
+   - no visible text in the Designer; every text set from a phrase key;
+   - `wrap_on` set on every container that must stack;
    - names and event handlers follow Naming Conventions.
 6. The result is pulled locally at Step 30 and validated (`anvil --json validate`) with the UI conformance scans of Step 29.
 

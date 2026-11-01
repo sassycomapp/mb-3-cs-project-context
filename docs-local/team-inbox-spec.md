@@ -68,7 +68,7 @@ An email to an address on the domain that does not exist lands in **Unassigned**
 1. SES receives the email for the client's domain, checks it for spam and viruses, checks its SPF, DKIM and DMARC, and stores the raw email in Mybizz's S3 bucket under the client's prefix.
 2. SES notifies the client's instance through its SNS topic, which calls the instance's endpoint `/_/api/email/inbound`.
 3. The endpoint verifies the SNS signature, and dispatches a background task.
-4. The background task reads the raw email from S3, parses it with Python's `email` library, and writes one row to `email_messages`: the address it was sent to, the sender, the recipients, the subject, the text and HTML bodies, the threading headers and the SES verdicts. Attachments go to the client's R2 bucket. The raw email is deleted from S3.
+4. The background task reads the raw email from S3, parses it with Python's `email` library, and writes one row to `email_messages`: the address it was sent to, the sender, the recipients, the subject, the text and HTML bodies, the threading headers and the SES verdicts. Attachments go to the client's R2 bucket, in `email/attachments/`. The raw email is deleted from S3.
 5. A sender who matches a contact's email links the message to that contact, and the email appears on the contact's activity timeline.
 
 An email whose virus verdict fails is deleted unread and never stored. An email whose spam or DMARC verdict fails goes to the **Spam** folder; Spam is emptied after 30 days.
@@ -110,18 +110,20 @@ Campaigns, broadcasts and sequences (F-18) are written in the email editor and s
 
 ## 9. Storage
 
-Every email stays in `email_messages` for 90 days. After 90 days, a nightly background task writes the email's bodies to the client's R2 bucket and keeps the row as an index (address, sender, subject, date, `r2_key`), so the email stays searchable and opens from R2. Attachments are always in R2. The client's email is part of the data export at exit.
+Every email stays in `email_messages` for 90 days. After 90 days, a nightly background task writes the email's bodies to the client's R2 bucket, in `email/messages/{address}/{year}/{month}/`, and keeps the row as an index (address, sender, subject, date, `r2_key`), so the email stays searchable and opens from R2. Attachments are always in R2. The client's email is part of the data export at exit.
 
 ## 10. Data
 
-| Table | Change |
+The tables of the Team Inbox and email, in `authoritative-schema.md`:
+
+| Table | Columns |
 |---|---|
-| `email_addresses` | New: `address`, `kind` (`personal` / `desk`), `display_name`, `member_ids` (links → users), `signature`, `auto_reply_text`, `auto_reply_from`, `auto_reply_until`, `is_active` |
-| `email_messages` | New: `address_id` (link → email_addresses; empty for Unassigned), `folder` (`inbox` / `drafts` / `sent` / `archive` / `spam` / `trash`), `direction` (`incoming` / `outgoing`), `from_address`, `from_name`, `to_addresses`, `cc_addresses` (simpleObject), `subject`, `body_text`, `body_html`, `attachments` (simpleObject: R2 keys, names, sizes), `message_id`, `in_reply_to`, `thread_id`, `contact_id` (link → contacts), `is_read`, `is_starred`, `deleted_at`, `spam_verdict`, `virus_verdict`, `dmarc_verdict`, `r2_key`, `received_at`, `sent_at` |
-| `email_suppressions` | New: `email`, `reason` (`bounce` / `complaint` / `unsubscribe`), `scope` (`all` / `marketing`), `created_at` |
-| `email_config` | Replaces the Brevo settings: `domain`, `ses_tenant`, `dns_verified`, `dkim_verified`, `mail_from_verified`, `mx_verified`, `verified_at` |
-| `email_log` | `brevo_message_id` becomes `ses_message_id` |
-| `webhook_log` | `gateway` adds `ses` for the SES event and inbound notifications |
+| `email_addresses` | `address`, `kind` (`personal` / `desk`), `display_name`, `member_ids` (links → users), `signature`, `auto_reply_text`, `auto_reply_from`, `auto_reply_until`, `is_active` |
+| `email_messages` | `address_id` (link → email_addresses; empty for Unassigned), `folder` (`inbox` / `drafts` / `sent` / `archive` / `spam` / `trash`), `direction` (`incoming` / `outgoing`), `from_address`, `from_name`, `to_addresses`, `cc_addresses` (simpleObject), `subject`, `body_text`, `body_html`, `attachments` (simpleObject: R2 keys, names, sizes), `message_id`, `in_reply_to`, `thread_id`, `contact_id` (link → contacts), `is_read`, `is_starred`, `deleted_at`, `spam_verdict`, `virus_verdict`, `dmarc_verdict`, `r2_key`, `received_at`, `sent_at` |
+| `email_suppressions` | `email`, `reason` (`bounce` / `complaint` / `unsubscribe`), `scope` (`all` / `marketing`), `created_at` |
+| `email_config` | One row: `domain`, `ses_tenant`, `default_from_address_id` (link → email_addresses), `dns_verified`, `dkim_verified`, `mail_from_verified`, `mx_verified`, `verified_at` |
+| `email_log` | `ses_message_id` identifies each sent email in SES reports |
+| `webhook_log` | `gateway` = `ses` for SES event and inbound notifications |
 
 ## 11. Server modules and endpoints
 
@@ -147,7 +149,7 @@ App 5 holds the SES account, creates each client's SES tenant, domain identity, 
 | Document | What it holds for this feature |
 |---|---|
 | `authoritative-schema.md` | The tables of section 10 |
-| `integration-architecture.md` | SES alongside the payment gateways, R2 and Wave |
+| `integration-architecture.md` | SES alongside the payment gateways and R2 |
 | `scaffold-spec.md` | `server_inbox/`, `email_service`, the endpoints |
 | `DESIGN.md` | TeamInboxForm and Settings → Email |
 | `user-flows.md` | Reading, replying, managing addresses, connecting the domain |

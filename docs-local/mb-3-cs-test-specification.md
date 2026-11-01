@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-test-specification"
 doc-id: "mb-d8dcf41a"
-updated: "2026-10-22"
+updated: "2026-11-01"
 ---
 # Mybizz CS — Test Specification (Canonical)
 
@@ -44,7 +44,7 @@ service selection to payment confirmation"
 | 7 | Fill intake form | Review/confirmation step is displayed |
 | 8 | Confirm booking | Call 3 (`confirm_booking`) processes payment and creates booking |
 | 9 | Confirmation screen | Booking confirmation displayed with booking ID, date, time, service, provider |
-| 10 | Check `bookings` table | New row exists with status `CONFIRMED`, payment_intent_id set |
+| 10 | Check `bookings` table | New row exists with status `confirmed`; a `payments` row holds the gateway reference |
 | 11 | Check `contacts` table | Contact auto-created (if new) or linked (if existing) |
 | 12 | Check `invoice` table | Invoice auto-generated with correct amount |
 
@@ -98,7 +98,7 @@ tests"
 
 **Expected:**
 - User sees "Payment failed" error with retry option
-- `bookings` row created with status `PENDING` (not `CONFIRMED`)
+- `bookings` row created with status `pending` (not `confirmed`)
 - `webhook_log` row has `processed=True`, `error_message` set
 - No invoice generated
 - User can retry payment without re-entering booking details
@@ -130,13 +130,13 @@ tests"
 - Reconciliation task picks up the orphaned row within 5 minutes
 - Background task eventually processes the webhook
 
-### 2.4 Brevo API Rate Limit (429)
+### 2.4 Amazon SES Throttling
 
-**Scenario:** Brevo returns 429 on campaign email send
+**Scenario:** Amazon SES refuses a campaign email with a throttling error
 
 **Steps:**
 1. Campaign enrollment task attempts to send email
-2. Brevo API returns 429
+2. SES returns a throttling error
 
 **Expected:**
 - Contact skipped in this run (not marked as failed)
@@ -201,7 +201,7 @@ forms/tabs"
 | **Manager** | Most forms and settings; some tabs restricted |
 | **Admin** | Operational forms; limited settings access |
 | **Staff** | Own bookings, own schedule, limited contacts |
-| **Customer** | Own bookings only (V2 — customer portal) |
+| **Customer** | Own bookings, packages, quotes, invoices and reviews, in the customer portal |
 
 ### Form Access Matrix
 
@@ -224,6 +224,14 @@ forms/tabs"
 | BlogEditorForm | ✅ | ✅ | ❌ | ❌ | ❌ |
 | LandingPageListForm | ✅ | ✅ | ❌ | ❌ | ❌ |
 | LandingPageEditorForm | ✅ | ✅ | ❌ | ❌ | ❌ |
+| TeamInboxForm | ✅ (every address) | ✅ (own addresses and desks) | ✅ (own addresses and desks) | ✅ (own addresses and desks) | ❌ |
+| DealBoardForm | ✅ | ✅ | ✅ | ✅ (own deals) | ❌ |
+| QuoteEditorForm | ✅ | ✅ | ✅ | ❌ | ❌ |
+| CompanyListForm | ✅ | ✅ | ✅ | ❌ | ❌ |
+| ExpenseEditorForm | ✅ | ✅ | ❌ | ❌ | ❌ |
+| AccountsForm | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Edit mode on public pages | ✅ | ✅ | ❌ | ❌ | ❌ |
+| SharePanelComponent | ✅ | ✅ | ❌ | ❌ | ❌ |
 | VaultForm | ✅ | ❌ | ❌ | ❌ | ❌ |
 | OnboardingForm | ✅ | ❌ | ❌ | ❌ | ❌ |
 
@@ -239,7 +247,9 @@ forms/tabs"
 | Payment Gateway | ✅ | ❌ | ❌ | ❌ |
 | Services | ✅ | ✅ | ❌ | ❌ |
 | Users & Permissions | ✅ | ❌ | ❌ | ❌ |
-| Email Configuration | ✅ | ✅ | ❌ | ❌ |
+| Email | ✅ | ✅ | ❌ | ❌ |
+| Domain | ✅ | ❌ | ❌ | ❌ |
+| Data (including Clear sample data) | ✅ | ❌ | ❌ | ❌ |
 | Theme | ✅ | ✅ | ❌ | ❌ |
 | Feature Flags | ✅ | ❌ | ❌ | ❌ |
 
@@ -265,6 +275,31 @@ def get_contacts():
 
 **Test:** Grep all server functions in `server_*/` for `@authenticated_endpoint` or equivalent
 decorator. Any function without one is a bug.
+
+---
+
+## 4. Feature Tests
+
+Each test runs against App 1 with the test suite's mail catcher in place of Amazon SES, unless it states otherwise.
+
+| # | Feature | Test | Expected |
+|---|---|---|---|
+| 4.1 | F-18 receiving | Send an email to `help@` (a desk with two members) | One `email_messages` row in `help@`'s Inbox, visible to both members and to no other Staff user; attachments in R2; linked to the contact with the sender's email |
+| 4.2 | F-18 unknown address | Send an email to `nobody@` | The email lands in Unassigned, visible to Owner and Manager only |
+| 4.3 | F-18 spam and virus | Deliver an SES notification with a failed virus verdict, then one with a failed spam verdict | The first is never stored; the second lands in Spam |
+| 4.4 | F-18 suppression | Report a hard bounce for an address, then send it a confirmation and a campaign | Both are refused; `email_suppressions` holds the address with scope `all` |
+| 4.5 | F-18 unsubscribe | Post to the one-click unsubscribe endpoint for a contact | The contact receives no further marketing email and still receives confirmations |
+| 4.6 | F-35 quote acceptance | Accept a sent quote at `/quote/{token}` | In one server call the quote is `accepted`, an invoice exists with the quote's lines and total, and a linked deal is `won`; a second acceptance changes nothing |
+| 4.7 | F-35 deal ownership | A Staff user lists deals | Only deals the Staff user owns are returned by the server |
+| 4.8 | F-27 voice tier 4 | Speak "New booking — Sarah Johnson, Swedish massage, Friday 2pm" | The booking form is filled in; no booking row exists until the user confirms |
+| 4.9 | F-27 voice tier 5 | Ask "Who are my top 5 clients by spend?" | The answer matches the instance's own figures; the request sent to App 5 contains no contact name |
+| 4.10 | Sample data | Create a real booking for a sample service, then Clear sample data | Every row in `sample_rows` is gone, the real booking stays with its service link empty, `sample_rows` is empty, the banner is gone, `activity_log` records the action |
+| 4.11 | Sample data | Run the reminder, campaign and accounts export tasks with sample data present | No email is sent to an `example.com` address and the export contains no sample record |
+| 4.12 | F-06 edit mode | As Manager, edit a page's heading and save; as Admin, open the same page | The heading is published; the Admin sees no Edit button and the save function refuses an Admin |
+| 4.13 | F-21 preview tags | Fetch a published post's address without running scripts | The first response carries the post's `og:title`, `og:description`, `og:image` and `og:url` |
+| 4.14 | F-28 export | Export one month for Xero | One UTF-8 CSV per record type, dates `YYYY-MM-DD`, plain decimal amounts, no void expense |
+| 4.15 | F-36 demo mode | With `demo_mode` on, send a booking confirmation to a customer address | The email reaches the signed-in visitor's own address only |
+| 4.16 | F-25 language | Switch `app_language` to `fr` | Every screen of the admin menu shows no English phrase key or English text; emails use the French templates |
 
 ---
 

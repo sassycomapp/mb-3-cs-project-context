@@ -39,9 +39,9 @@ logger.info("payment_recorded", extra={"function": "record_payment", "invoice_id
 ### Rules
 
 - Function entry and exit at DEBUG, with argument names and row ids only, never values.
-- Every call to an outside service (gateway, Brevo, R2, Wave, App 5) at INFO, with its duration.
+- Every call to an outside service (gateway, Amazon SES, R2, App 5) at INFO, with its duration.
 - Every caught and re-raised exception at ERROR, and written to `error_log`.
-- Never logged: credentials, keys, tokens, card data, passwords, TOTP codes, the content of Vault entries, or customer personal data beyond row ids (POPIA, GDPR, F-30).
+- Never logged: credentials, keys, tokens, card data, passwords, TOTP codes, the content of Vault entries, the content of emails, or customer personal data beyond row ids (POPIA, GDPR, F-30).
 
 ### Log levels
 
@@ -88,12 +88,13 @@ Dashboards and reports read summary tables, never compute on page load ([[[defau
 |---|---|
 | Every Vault access | Email to the Owner (F-02) |
 | 5 failed Vault codes | Vault locked for 15 minutes; email to the Owner |
-| An integration call (Brevo, Wave, R2) still failing after its retries | Email to the Owner and a notice on the Dashboard |
+| An integration call (Amazon SES, R2) still failing after its retries | Email to the Owner and a notice on the Dashboard |
+| A DNS record of the client's domain no longer live | Notice on the Dashboard and in Settings → Domain |
 | A webhook that could not be applied | Notice on the Dashboard; the event stays unprocessed in `webhook_log` |
 
 ### In App 5 (to Mybizz)
 
-App 5 shows every client instance on one dashboard: last heartbeat, release version, background task health, error count and last error, usage against the fair-use cap, billing status, open tickets.
+App 5 shows every client instance on one dashboard: last heartbeat, release version, background task health, error count and last error, usage against the account's limits, email volume, bounce and complaint rates, billing status, open tickets.
 
 **Critical — act now:**
 - No heartbeat from an instance for 45 minutes (three missed heartbeats).
@@ -101,10 +102,12 @@ App 5 shows every client instance on one dashboard: last heartbeat, release vers
 - A background task failing on three consecutive runs.
 - Payment failures above 10% of payment attempts in one day.
 - A support ticket of type problem that stops a client's business, unacknowledged after 4 business hours (F-32).
+- A client's SES complaint rate above 0.1% or bounce rate above 5% over the last day: the client's marketing email is paused until Mybizz reviews it.
 
 **Warning — watch:**
 - An instance's release version differs from `master_template`'s current release.
-- Usage above 80% of the fair-use cap of 500,000 rows or 50 GB (F-33).
+- Usage above 80% of the account's 1,000,000 rows (F-33).
+- A demo app's nightly reset failed (F-36).
 - A background task running longer than twice its usual time.
 
 **At-risk (F-34):** no staff sign-in for 14 days; no bookings for 30 days; a support ticket unanswered for 3 days.
@@ -115,7 +118,7 @@ App 5 shows every client instance on one dashboard: last heartbeat, release vers
 
 - Sent every 15 minutes by `server_management/heartbeat_tasks`, as an HTTP POST to App 5 with the instance's Bearer token ([[[default:specifications-global/spec-api-specification|API Specification (HTTP Endpoints)]]](C:/dev/project-library-global/specifications-global/spec-api-specification.md)).
 - Contents: instance status, release version, schema fingerprint, background task status, error count since the last heartbeat, last error, queued retries.
-- The daily usage report adds: row count, data table storage, heavy-job activity, last staff sign-in, last booking date.
+- The daily usage report adds: row count, data table storage, emails sent and received, heavy-job activity, last staff sign-in, last booking date.
 - No customer personal data is sent to App 5. Neither the heartbeat nor the usage report contains names, emails, or the content of any record.
 - A heartbeat that cannot be delivered is written to `health_log` and sent with the next one.
 
@@ -129,6 +132,7 @@ App 5 shows every client instance on one dashboard: last heartbeat, release vers
 | `health_log` | 30 days | Deleted |
 | `error_log` | 90 days | Deleted |
 | `webhook_log` rows | 90 days | Deleted; the payloads stay in R2 |
+| `email_messages` bodies | 90 days | Moved to the client's R2 bucket nightly; the row stays as an index |
 | Webhook payloads | — (never in the tables) | R2, for the life of the client |
 | Anvil App Logs | As Anvil keeps them | — |
 

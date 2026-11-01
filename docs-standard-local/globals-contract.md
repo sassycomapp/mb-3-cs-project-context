@@ -32,9 +32,9 @@ This document defines every shared state variable in `client_code/shared/globals
 
 | Field | Value |
 |-------|-------|
-| **Type** | `dict` — `role` (`owner`, `manager`, `admin`, `staff`, `customer`), `name`, `email`, `preferences` (`tooltips`, `morning_briefing`) — or `None` |
+| **Type** | `dict` — `role` (`owner`, `manager`, `admin`, `staff`, `customer`), `name`, `email`, `preferences` (`tooltips`, `morning_briefing`), `is_demo_visitor` (`bool`) — or `None` |
 | **Set by** | `LoginForm` after sign-in; `AccountForm` when preferences change |
-| **Read by** | `AdminLayout`, `CustomerLayout` (which menu items to show), every form that shows tooltips, `WhatsUpForm` (briefing) |
+| **Read by** | `AdminLayout`, `CustomerLayout` (which menu items to show), `HelpTooltipComponent`, `EditModeComponent` (Owner or Manager), `WhatsUpForm` (briefing) |
 | **When None** | Open `auth.LoginForm` |
 
 Display only: it decides what the interface shows. Every server function checks the role itself.
@@ -47,6 +47,24 @@ Display only: it decides what the interface shows. Every server function checks 
 | **Set by** | `LoginForm` after sign-in; `SettingsForm` (Feature Switches tab) on save |
 | **Read by** | `AdminLayout` (menu items), `BlogPostForm` (comments) |
 | **When None** | Treat every switch as off and reload from the server |
+
+### app_language
+
+| Field | Value |
+|-------|-------|
+| **Type** | `str` — `en`, `fr`, `pt`, `es`, `de`, `it` — or `None` |
+| **Set by** | `LoginForm` and `PublicLayout` at startup, from `business_profile.app_language`; `OnboardingForm` step 2 and `BusinessProfileTab` on save |
+| **Read by** | `shared/translations` (`t(key)`), `HelpTooltipComponent` (video language) |
+| **When None** | Use `en` |
+
+### sample_data_present
+
+| Field | Value |
+|-------|-------|
+| **Type** | `bool` or `None` |
+| **Set by** | `LoginForm` after sign-in; `DataTab` and the banner after Clear sample data |
+| **Read by** | `AdminLayout` (the sample data banner) |
+| **When None** | Ask the server |
 
 ### palette_key
 
@@ -92,6 +110,42 @@ Display only: it decides what the interface shows. Every server function checks 
 | **Set by** | `InvoiceListForm` (on selection), `BookingViewerForm` and `OrderViewerForm` (View Invoice), `TimeEntryListForm` (after Create Invoice) |
 | **Read by** | `InvoiceViewerForm`, `InvoiceEditorForm` |
 | **When None** | Open `invoices.InvoiceListForm` |
+
+### current_company
+
+| Field | Value |
+|-------|-------|
+| **Type** | `app_tables.companies` row or `None` |
+| **Set by** | `CompanyListForm` (on selection) |
+| **Read by** | `CompanyViewerForm`, `DealEditorForm`, `QuoteEditorForm` |
+| **When None** | Open `crm.CompanyListForm` |
+
+### current_deal
+
+| Field | Value |
+|-------|-------|
+| **Type** | `app_tables.deals` row or `None` |
+| **Set by** | `DealBoardForm` (on selection) |
+| **Read by** | `DealEditorForm`, `QuoteEditorForm` (Create Quote on a deal) |
+| **When None** | Open `sales.DealBoardForm` |
+
+### current_quote
+
+| Field | Value |
+|-------|-------|
+| **Type** | `app_tables.quotes` row or `None` |
+| **Set by** | `QuoteListForm` (on selection), `DealEditorForm` (Create Quote) |
+| **Read by** | `QuoteEditorForm` |
+| **When None** | Open `sales.QuoteListForm` |
+
+### inbox_selection
+
+| Field | Value |
+|-------|-------|
+| **Type** | `dict` — `address_id` (`str` row id or `None` for Unassigned), `folder` (`inbox`, `drafts`, `sent`, `archive`, `spam`, `trash`), `sort`, `filters` (`dict`) — or `None` |
+| **Set by** | `TeamInboxForm` on every change of address, folder, sort or filter |
+| **Read by** | `TeamInboxForm` (restores the view on return), `ComposeForm` (the From address) |
+| **When None** | The user's own personal address, folder `inbox`, newest first, no filter |
 
 ### booking_flow_state
 

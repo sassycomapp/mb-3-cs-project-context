@@ -7,9 +7,9 @@ updated: "2026-11-01"
 
 Every table and column of a Mybizz CS client instance: name, type and allowed values.
 
-**Authority:** this document is the single home of the schema. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct. Feature numbers (F-01 to F-34) are those of `mb-3-cs-concept.md`. The changes that bring App 1's tables to this schema are in `schema-migration-log.md`.
+**Authority:** this document is the single home of the schema. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct. Feature numbers (F-01 to F-36) are those of `mb-3-cs-concept.md`. The changes that bring App 1's tables to this schema are in `schema-migration-log.md`.
 
-**Total tables:** 55
+**Total tables:** 65
 **Platform:** Anvil Data Tables. Every table has `client: none` and `server: full`: the browser never reads a table directly; server functions return rows and results.
 
 ---
@@ -19,8 +19,8 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 - **One instance, one client.** No table carries a client or instance column; isolation comes from the instance (reference section 3).
 - **UTC.** Every `datetime` is stored in UTC and shown in `business_profile.timezone` (an IANA time zone).
 - **One currency.** Every amount is in `business_profile.system_currency` (F-16).
-- **Never deleted.** Rows of `bookings`, `orders`, `invoice` and `payments` are never deleted; their status changes.
-- **History outside the tables.** Backups, history, webhook payloads and audit entries older than 30 days are kept in the client's R2 bucket (F-29).
+- **Never deleted.** Rows of `bookings`, `orders`, `invoice`, `payments`, `quotes` and `expenses` are never deleted; their status changes.
+- **History outside the tables.** Backups, history, webhook payloads, audit entries older than 30 days, email bodies older than 90 days, email attachments and expense receipts are kept in the client's R2 bucket (F-29).
 - **Credentials only in the Vault**, encrypted.
 - **Names** follow [[[default:specifications-global/spec-nomenclature|Nomenclature]]](C:/dev/project-library-global/specifications-global/spec-nomenclature.md). A link column is named `{target}_id`, or in the plural for a multiple link. A link to a provider (a staff user who delivers services) is always `provider_id`. A link to a bookable room or piece of equipment is always `resource_id`.
 - **Allowed values** are lowercase strings, written in this document as `value1` / `value2`. Code compares against these exact strings.
@@ -45,16 +45,17 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 
 | Group | Tables | Count |
 |---|---|---|
-| Core and configuration | `activity_log`, `business_profile`, `config`, `email_config`, `files`, `payment_config`, `rate_limits`, `theme_config`, `users`, `vault` | 10 |
+| Core and configuration | `activity_log`, `business_profile`, `config`, `email_config`, `files`, `payment_config`, `rate_limits`, `sample_rows`, `theme_config`, `users`, `vault` | 11 |
 | Services and bookings | `services`, `resources`, `group_sessions`, `availability_rules`, `availability_exceptions`, `booking_metadata_schemas`, `bookings`, `recurring_series` | 8 |
 | Orders and packages | `orders`, `packages`, `customer_packages` | 3 |
-| Finance | `invoice`, `invoice_items`, `payments`, `time_entries` | 4 |
+| Finance | `invoice`, `invoice_items`, `payments`, `time_entries`, `expenses`, `expense_categories` | 6 |
 | CRM and marketing | `contacts`, `contact_counter`, `contact_events`, `contact_submissions`, `segments`, `tasks`, `leads`, `lead_captures`, `email_campaigns`, `contact_campaigns`, `automation_rules`, `automation_runs` | 12 |
-| Email and webhooks | `email_templates`, `email_log`, `webhook_log` | 3 |
+| Sales | `companies`, `deals`, `quotes`, `quote_items` | 4 |
+| Email and webhooks | `email_templates`, `email_log`, `webhook_log`, `email_addresses`, `email_messages`, `email_suppressions` | 6 |
 | Content and policy | `blog_categories`, `blog_posts`, `blog_comments`, `landing_pages`, `pages`, `privacy_policy`, `t_and_c` | 7 |
 | Reviews | `reviews`, `testimonials` | 2 |
 | Summary and health | `daily_summary`, `service_performance`, `provider_performance`, `campaign_metrics`, `health_log`, `error_log` | 6 |
-| **Total** | | **55** |
+| **Total** | | **65** |
 
 ---
 
@@ -92,6 +93,8 @@ One row: the client's business.
 | `postal_code` | string | |
 | `timezone` | string | IANA time zone, e.g. `Africa/Johannesburg` |
 | `system_currency` | string | ISO 4217; set at onboarding; locked once a booking or invoice exists |
+| `app_language` | string | `en` / `fr` / `pt` / `es` / `de` / `it`; default `en`; set in onboarding step 1 (F-25) |
+| `trade` | string | The client's trade, chosen at registration; selects the sample data set |
 | `entity_type` | string | `individual` / `business` |
 | `social_facebook` | string | |
 | `social_instagram` | string | |
@@ -144,24 +147,29 @@ Key–value settings.
 | `blog_enabled` | features | bool |
 | `home_config` | content | Homepage sections (UF-17) |
 | `invoice_sequence` | sequence | Last invoice number used this year: `{"year": 2026, "last": 41}` |
+| `quote_sequence` | sequence | As above, for `QT-` numbers |
 | `booking_sequence` | sequence | As above, for `BK-` numbers |
 | `order_sequence` | sequence | As above, for `ORD-` numbers |
 | `r2_bucket` | integration | Bucket name and endpoint; the keys are in the Vault |
 | `app5_endpoint` | integration | App 5's base address |
-| `wave_connection` | integration | Wave business id and last event sent; the tokens are in the Vault |
+| `ses` | integration | SES region, tenant name, configuration set and the S3 prefix for received email; the keys are in the Vault |
+| `demo_mode` | features | bool; True only in the demo apps (F-36) |
 
 Sequence keys are read and incremented inside a transaction, so that no number repeats or is skipped.
 
 ### 1.4 `email_config`
-Brevo sender settings (F-18).
+One row: the client's email domain (F-18, `team-inbox-spec.md`).
 
 | Column | Type | Notes |
 |---|---|---|
-| `from_email` | string | Address on the client's own domain |
-| `from_name` | string | |
-| `configured` | bool | |
-| `configured_at` | datetime | |
-| `sender_domain_verified` | bool | Transactional email stays unavailable until True |
+| `domain` | string | The client's own domain, e.g. `abc.com` |
+| `ses_tenant` | string | The client's SES tenant |
+| `default_from_address_id` | link → email_addresses | Sender of confirmations, reminders, invoices and receipts |
+| `dns_verified` | bool | Every record of the domain step is live |
+| `dkim_verified` | bool | |
+| `mail_from_verified` | bool | |
+| `mx_verified` | bool | Receiving into the Team Inbox is on |
+| `verified_at` | datetime | |
 
 ### 1.5 `files`
 Files held by the instance: the media library, order briefs and deliveries.
@@ -202,7 +210,16 @@ Counters for rate limiting, sign-in lockout and the Vault lock.
 | `reset_time` | datetime | When the counter or lock ends; for `vault:` 15 minutes after the 5th wrong code |
 | `last_request` | datetime | |
 
-### 1.8 `theme_config`
+### 1.8 `sample_rows`
+Every row of sample data (`mybizz-ai-implementation-spec.md`, Sample Data). Empty once the Owner clears the sample data.
+
+| Column | Type | Notes |
+|---|---|---|
+| `table_name` | string | |
+| `row_id` | string | The row's Anvil id |
+| `created_at` | datetime | |
+
+### 1.9 `theme_config`
 One row: the public website's header style (Settings → Theme). Colours come from the palette.
 
 | Column | Type | Notes |
@@ -210,7 +227,7 @@ One row: the public website's header style (Settings → Theme). Colours come fr
 | `header_style` | string | |
 | `updated_at` | datetime | |
 
-### 1.9 `users`
+### 1.10 `users`
 Every person who signs in: Owner, staff and customers. Extends the Anvil Users service.
 
 | Column | Type | Notes |
@@ -235,9 +252,10 @@ Every person who signs in: Owner, staff and customers. Extends the Anvil Users s
 | `contact_id` | link → contacts | For a customer: the customer's contact record |
 | `permissions` | simpleObject | Extra permission flags within the role |
 | `preferences` | simpleObject | `{"tooltips": bool, "morning_briefing": bool}` |
+| `is_demo_visitor` | bool | A demo app sign-in, removed at the nightly reset (F-36) |
 | `created_at` | datetime | |
 
-### 1.10 `vault`
+### 1.11 `vault`
 Every credential, encrypted with `encryption_key` by `vault_service` (F-02).
 
 | Column | Type | Notes |
@@ -248,7 +266,7 @@ Every credential, encrypted with `encryption_key` by `vault_service` (F-02).
 | `updated_at` | datetime | |
 | `updated_by` | link → users | |
 
-**Names:** `stripe_secret_key`, `stripe_webhook_secret`, `paystack_secret_key`, `paypal_client_secret`, `paypal_webhook_id`, `brevo_smtp_key`, `brevo_api_key`, `brevo_webhook_secret`, `r2_access_key_id`, `r2_secret_access_key`, `wave_access_token`, `wave_refresh_token`, `app5_bearer_token`, `vault_totp_secret`.
+**Names:** `stripe_secret_key`, `stripe_webhook_secret`, `paystack_secret_key`, `paypal_client_secret`, `paypal_webhook_id`, `aws_access_key_id`, `aws_secret_access_key`, `ses_smtp_password`, `r2_access_key_id`, `r2_secret_access_key`, `app5_bearer_token`, `vault_totp_secret`.
 
 ---
 
@@ -545,6 +563,36 @@ Time worked (F-14).
 | `invoice_id` | link → invoice | |
 | `created_at` | datetime | |
 
+### 4.5 `expenses`
+Expenses of the business (F-28).
+
+| Column | Type | Notes |
+|---|---|---|
+| `expense_id` | string | Unique id |
+| `expense_date` | date | |
+| `supplier` | string | |
+| `category_id` | link → expense_categories | |
+| `description` | string | |
+| `amount` | number | Total paid, tax included |
+| `tax_amount` | number | Tax included in `amount`; `0` when none |
+| `currency` | string | The system currency |
+| `payment_method` | string | `card` / `bank_transfer` / `cash` / `other` |
+| `receipt_r2_key` | string | The receipt image in R2 (`expenses/receipts/`) |
+| `status` | string | `recorded` / `void`; a void expense is left out of every report and export |
+| `recorded_by` | link → users | |
+| `notes` | string | |
+| `created_at` | datetime | |
+| `updated_at` | datetime | |
+
+### 4.6 `expense_categories`
+Expense categories, seeded with common categories and editable.
+
+| Column | Type | Notes |
+|---|---|---|
+| `name` | string | |
+| `description` | string | |
+| `is_active` | bool | |
+
 ---
 
 ## 5. CRM and Marketing
@@ -559,10 +607,11 @@ One record per person (F-17).
 | `last_name` | string | |
 | `email` | string | Matching key for automatic creation; may be empty for walk-ins |
 | `phone` | string | |
+| `company_id` | link → companies | Optional (F-35) |
 | `address` | simpleObject | Shown on invoices |
 | `status` | string | `lead` / `customer` / `inactive` |
 | `lifecycle_stage` | string | `new` / `active` / `at_risk` / `lost`; recalculated nightly |
-| `source` | string | `booking` / `order` / `enquiry` / `landing_page` / `import` / `manual` |
+| `source` | string | `booking` / `order` / `enquiry` / `landing_page` / `social` / `email` / `import` / `manual` |
 | `tags` | simpleObject | List of tags |
 | `total_spent` | number | Updated with each payment |
 | `total_transactions` | number | |
@@ -589,7 +638,7 @@ The contact timeline.
 |---|---|---|
 | `event_id` | string | Unique id |
 | `contact_id` | link → contacts | |
-| `event_type` | string | `booking` / `order` / `payment` / `email` / `enquiry` / `note` / `review` / `no_show` |
+| `event_type` | string | `booking` / `order` / `payment` / `email` / `enquiry` / `note` / `review` / `no_show` / `quote` / `deal` |
 | `event_date` | datetime | |
 | `event_data` | simpleObject | |
 | `related_id` | string | Id of the related row |
@@ -681,7 +730,7 @@ Sequences and broadcasts (F-18).
 | `campaign_type` | string | `sequence` / `broadcast` |
 | `status` | string | `draft` / `scheduled` / `active` / `paused` / `completed` |
 | `segment_id` | link → segments | Recipients; empty = all contacts not opted out |
-| `brevo_campaign_id` | string | |
+| `from_address_id` | link → email_addresses | Sender, e.g. `marketing@` |
 | `campaign_settings` | simpleObject | Emails, delays, trigger |
 | `emails_sent` | number | |
 | `opens` | number | |
@@ -734,9 +783,90 @@ Each run of an automation.
 
 ---
 
-## 6. Email and Webhooks
+## 6. Sales
 
-### 6.1 `email_templates`
+### 6.1 `companies`
+Business customers (F-35).
+
+| Column | Type | Notes |
+|---|---|---|
+| `company_id` | string | Unique id |
+| `name` | string | |
+| `website` | string | |
+| `phone` | string | |
+| `email` | string | |
+| `address` | simpleObject | |
+| `tax_number` | string | |
+| `industry` | string | |
+| `notes` | string | |
+| `created_at` | datetime | |
+| `updated_at` | datetime | |
+
+### 6.2 `deals`
+The sales pipeline (F-35).
+
+| Column | Type | Notes |
+|---|---|---|
+| `deal_id` | string | Unique id |
+| `title` | string | |
+| `contact_id` | link → contacts | |
+| `company_id` | link → companies | Optional |
+| `owner_id` | link → users | The salesperson; Staff see only their own deals |
+| `stage` | string | `lead` / `qualified` / `proposal` / `negotiation` / `won` / `lost` |
+| `value` | number | |
+| `expected_close_date` | date | |
+| `quote_id` | link → quotes | Optional |
+| `lost_reason` | string | For `lost` |
+| `won_at` | datetime | |
+| `lost_at` | datetime | |
+| `created_at` | datetime | |
+| `updated_at` | datetime | |
+
+### 6.3 `quotes`
+Quotes (F-35).
+
+| Column | Type | Notes |
+|---|---|---|
+| `quote_id` | string | Unique id |
+| `quote_number` | string | `QT-{year}-{sequence}` |
+| `contact_id` | link → contacts | |
+| `company_id` | link → companies | Optional |
+| `deal_id` | link → deals | Optional |
+| `issue_date` | datetime | |
+| `valid_until` | datetime | |
+| `subtotal` | number | Sum of `quote_items.amount` |
+| `tax_rate` | number | The rate at issue |
+| `tax_amount` | number | |
+| `total_amount` | number | |
+| `currency` | string | The system currency |
+| `status` | string | `draft` / `sent` / `accepted` / `declined` / `expired` |
+| `accept_token` | string | Unique; public address `/quote/{token}` |
+| `accepted_at` | datetime | |
+| `declined_at` | datetime | |
+| `invoice_id` | link → invoice | Created on acceptance |
+| `pdf_url` | string | R2 key of the generated PDF |
+| `notes` | string | |
+| `created_at` | datetime | |
+| `updated_at` | datetime | |
+
+### 6.4 `quote_items`
+Quote lines.
+
+| Column | Type | Notes |
+|---|---|---|
+| `quote_id` | link → quotes | |
+| `service_id` | link → services | Optional |
+| `description` | string | |
+| `quantity` | number | |
+| `unit_price` | number | |
+| `amount` | number | `quantity` × `unit_price` |
+| `sort_order` | number | |
+
+---
+
+## 7. Email and Webhooks
+
+### 7.1 `email_templates`
 Transactional email templates.
 
 | Column | Type | Notes |
@@ -746,10 +876,11 @@ Transactional email templates.
 | `subject` | string | |
 | `body_html` | string | |
 | `body_text` | string | |
-| `template_type` | string | `welcome` / `confirmation` / `reminder` / `invoice` / `receipt` / `order_update` / `review_request` / `auto_reply` |
+| `template_type` | string | `welcome` / `confirmation` / `reminder` / `invoice` / `receipt` / `order_update` / `review_request` / `auto_reply` / `quote` |
+| `language` | string | `en` / `fr` / `pt` / `es` / `de` / `it`; one template per type and language |
 | `is_active` | bool | |
 
-### 6.2 `email_log`
+### 7.2 `email_log`
 Emails sent.
 
 | Column | Type | Notes |
@@ -757,17 +888,17 @@ Emails sent.
 | `recipient` | string | |
 | `subject` | string | |
 | `template_id` | link → email_templates | |
-| `brevo_message_id` | string | |
+| `ses_message_id` | string | |
 | `sent_at` | datetime | |
 | `status` | string | `sent` / `failed` / `opened` / `clicked` |
 | `error_message` | string | |
 
-### 6.3 `webhook_log`
+### 7.3 `webhook_log`
 Index of webhook events received. The payloads are in R2.
 
 | Column | Type | Notes |
 |---|---|---|
-| `gateway` | string | `stripe` / `paystack` / `paypal` / `brevo` |
+| `gateway` | string | `stripe` / `paystack` / `paypal` / `ses` |
 | `event_id` | string | The sender's event id; an id already present is refused |
 | `event_type` | string | |
 | `r2_key` | string | Where the payload is stored |
@@ -777,11 +908,67 @@ Index of webhook events received. The payloads are in R2.
 | `received_at` | datetime | |
 | `processed_at` | datetime | |
 
+### 7.4 `email_addresses`
+The client's email addresses (F-18, `team-inbox-spec.md`).
+
+| Column | Type | Notes |
+|---|---|---|
+| `address` | string | Unique; the part before the `@` |
+| `kind` | string | `personal` / `desk` |
+| `display_name` | string | Sender name shown to recipients |
+| `member_ids` | links → users | Staff who read and send from the address |
+| `signature` | string | |
+| `auto_reply_text` | string | Empty = no auto-reply |
+| `auto_reply_from` | datetime | |
+| `auto_reply_until` | datetime | |
+| `is_active` | bool | |
+| `created_at` | datetime | |
+
+### 7.5 `email_messages`
+Every email received and sent through the Team Inbox. Bodies older than 90 days move to R2; the row stays as an index.
+
+| Column | Type | Notes |
+|---|---|---|
+| `address_id` | link → email_addresses | Empty = Unassigned |
+| `folder` | string | `inbox` / `drafts` / `sent` / `archive` / `spam` / `trash` |
+| `direction` | string | `incoming` / `outgoing` |
+| `from_address` | string | |
+| `from_name` | string | |
+| `to_addresses` | simpleObject | List of addresses |
+| `cc_addresses` | simpleObject | List of addresses |
+| `subject` | string | |
+| `body_text` | string | Empty once archived to R2 |
+| `body_html` | string | Empty once archived to R2 |
+| `attachments` | simpleObject | List of R2 keys, names and sizes |
+| `message_id` | string | The `Message-ID` header |
+| `in_reply_to` | string | The `In-Reply-To` header |
+| `thread_id` | string | The conversation |
+| `contact_id` | link → contacts | |
+| `is_read` | bool | Shared per address |
+| `is_starred` | bool | |
+| `spam_verdict` | string | From SES |
+| `virus_verdict` | string | From SES |
+| `dmarc_verdict` | string | From SES |
+| `r2_key` | string | Bodies in R2, once archived |
+| `received_at` | datetime | |
+| `sent_at` | datetime | |
+| `deleted_at` | datetime | Moved to Trash; deleted for good 30 days later |
+
+### 7.6 `email_suppressions`
+Addresses no email is sent to.
+
+| Column | Type | Notes |
+|---|---|---|
+| `email` | string | |
+| `reason` | string | `bounce` / `complaint` / `unsubscribe` |
+| `scope` | string | `all` / `marketing` |
+| `created_at` | datetime | |
+
 ---
 
-## 7. Content and Policy
+## 8. Content and Policy
 
-### 7.1 `blog_categories`
+### 8.1 `blog_categories`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -790,7 +977,7 @@ Index of webhook events received. The payloads are in R2.
 | `slug` | string | |
 | `description` | string | |
 
-### 7.2 `blog_posts`
+### 8.2 `blog_posts`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -814,10 +1001,11 @@ Index of webhook events received. The payloads are in R2.
 | `scheduled_at` | datetime | For `scheduled` |
 | `published_at` | datetime | |
 | `view_count` | number | |
+| `share_captions` | simpleObject | One caption per platform: `facebook`, `linkedin`, `whatsapp`, `instagram` (`sm-syndication-spec.md`) |
 | `created_at` | datetime | |
 | `updated_at` | datetime | |
 
-### 7.3 `blog_comments`
+### 8.3 `blog_comments`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -829,7 +1017,7 @@ Index of webhook events received. The payloads are in R2.
 | `created_at` | datetime | |
 | `updated_at` | datetime | |
 
-### 7.4 `landing_pages`
+### 8.4 `landing_pages`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -845,7 +1033,7 @@ Index of webhook events received. The payloads are in R2.
 | `created_at` | datetime | |
 | `updated_at` | datetime | |
 
-### 7.5 `pages`
+### 8.5 `pages`
 Website pages (About, Contact and the others managed under Content & Website → Pages).
 
 | Column | Type | Notes |
@@ -854,13 +1042,14 @@ Website pages (About, Contact and the others managed under Content & Website →
 | `page_name` | string | Public name |
 | `page_title` | string | SEO title |
 | `slug` | string | |
-| `components` | simpleObject | Page content |
+| `components` | simpleObject | Page content, one entry per editable element, keyed by element id; written by edit mode (F-06) |
+| `updated_by` | link → users | |
 | `is_published` | bool | |
 | `view_count` | number | |
 | `created_at` | datetime | |
 | `updated_at` | datetime | |
 
-### 7.6 `privacy_policy` and 7.7 `t_and_c`
+### 8.6 `privacy_policy` and 8.7 `t_and_c`
 Clauses of the Privacy Policy and of the Terms and Conditions (F-22). Both tables have the same columns.
 
 | Column | Type | Notes |
@@ -876,9 +1065,9 @@ Clauses of the Privacy Policy and of the Terms and Conditions (F-22). Both table
 
 ---
 
-## 8. Reviews
+## 9. Reviews
 
-### 8.1 `reviews`
+### 9.1 `reviews`
 Customer reviews (F-23).
 
 | Column | Type | Notes |
@@ -896,7 +1085,7 @@ Customer reviews (F-23).
 | `submitted_at` | datetime | |
 | `approved_at` | datetime | |
 
-### 8.2 `testimonials`
+### 9.2 `testimonials`
 Testimonials typed in by the business (F-23).
 
 | Column | Type | Notes |
@@ -913,11 +1102,11 @@ At most 10 reviews and testimonials together have `show_on_homepage` set.
 
 ---
 
-## 9. Summary and Health
+## 10. Summary and Health
 
 Written by background tasks only (`integration-architecture.md`, Background Tasks); dashboards read them and never aggregate source tables.
 
-### 9.1 `daily_summary`
+### 10.1 `daily_summary`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -928,7 +1117,7 @@ Written by background tasks only (`integration-architecture.md`, Background Task
 | `new_contacts` | number | |
 | `created_at` | datetime | |
 
-### 9.2 `service_performance`
+### 10.2 `service_performance`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -939,7 +1128,7 @@ Written by background tasks only (`integration-architecture.md`, Background Task
 | `completed_count` | number | For the completion rate |
 | `created_at` | datetime | |
 
-### 9.3 `provider_performance`
+### 10.3 `provider_performance`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -949,7 +1138,7 @@ Written by background tasks only (`integration-architecture.md`, Background Task
 | `booking_count` | number | |
 | `created_at` | datetime | |
 
-### 9.4 `campaign_metrics`
+### 10.4 `campaign_metrics`
 
 | Column | Type | Notes |
 |---|---|---|
@@ -962,7 +1151,7 @@ Written by background tasks only (`integration-architecture.md`, Background Task
 | `unsubscribes` | number | |
 | `created_at` | datetime | |
 
-### 9.5 `health_log`
+### 10.5 `health_log`
 Kept 30 days.
 
 | Column | Type | Notes |
@@ -972,7 +1161,7 @@ Kept 30 days.
 | `metrics` | simpleObject | Release version, schema fingerprint, background task status, queued retries, error count |
 | `created_at` | datetime | |
 
-### 9.6 `error_log`
+### 10.6 `error_log`
 Kept 90 days.
 
 | Column | Type | Notes |
@@ -989,4 +1178,4 @@ Kept 90 days.
 
 ---
 
-*End of file — authoritative-schema.md (55 tables)*
+*End of file — authoritative-schema.md (65 tables)*

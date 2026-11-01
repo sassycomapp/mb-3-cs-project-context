@@ -20,7 +20,8 @@ How a release moves from App 1 through App 2 to the client instances, and how it
 | App 1 — `mb-3-cs-app1` | Development and testing; each release is tagged here (`vMAJOR.MINOR.PATCH`) | Mybizz development account |
 | App 2 — `mb-3-cs-app2`, `master_template` | The release: holds exactly App 1's latest released tag; every client instance depends on it | Mybizz development account |
 | App 3 — `mb-3-cs-app3`, `blank_client_template` | The released schema, no data, the scheduled tasks; new instances are cloned from it | Mybizz development account |
-| App 4 — `[client-name]-cs` | Each client instance: schema, startup module, dependency on App 2 | Mybizz-owned client hosting accounts (Business plan), two instances per account; one account per client on a dedicated plan |
+| App 4 — `[client-name]-cs` | Each client instance: schema, startup module, dependency on App 2 | One Mybizz-owned client hosting account (Business plan) per client |
+| Demo apps — `demo.mybizz.live`, `try.mybizz.live` | Two instances of the release for prospects (F-36), reset nightly | Mybizz development account |
 | App 5 — `mb-3-cs-app5` | Receives heartbeats and usage reports; records releases; sends release notes | Mybizz development account |
 
 ### The update flow
@@ -97,7 +98,7 @@ Anvil has no programmatic API for creating or changing Data Tables. Every schema
 After every push into App 2:
 
 1. App 2 loads without errors.
-2. The private test instance shows the new release and passes its smoke test: sign-in, a booking with payment in test mode, an invoice, a transactional email.
+2. The private test instance shows the new release and passes its smoke test: sign-in, a booking with payment in test mode, an invoice, a transactional email through SES, an email received in the Team Inbox. The demo apps show the new release.
 3. Every instance's next heartbeat reports the new release version and the expected schema fingerprint (`observability-requirements.md`).
 4. `error_log` across instances shows no new error type in the first hour.
 5. Background task status in the heartbeats shows every task running.
@@ -174,12 +175,13 @@ Anvil cannot roll back a schema change automatically.
 The account structure has two levels of risk:
 
 - **The Mybizz development account** holds App 1, App 2, App 3 and App 5. Every client instance depends on App 2, so this account is the single point of failure for every client.
-- **Each client hosting account** holds two client instances (one on a dedicated plan). A failure of one hosting account affects only its own clients.
+- **Each client hosting account** holds one client instance. A failure of one hosting account affects only its own client.
 
 | Scenario | Detection | Recovery | Prevention |
 |---|---|---|---|
 | Development account suspended | Email from Anvil; App 2 and App 5 unavailable; heartbeats stop arriving | Contact Anvil support at once; there is no self-service recovery | Billing kept current with a backup payment method; Anvil terms followed; Anvil's answer on Mybizz's account structure kept on file |
-| Hosting account suspended | Heartbeats from its two instances stop; App 5 raises a critical alert | Contact Anvil support; if the account cannot be restored, clone the instances into a new hosting account from App 3 and restore their data from R2, then move the domains | Billing kept current; usage held under the fair-use cap (F-33) |
+| Hosting account suspended | Heartbeats from its instance stop; App 5 raises a critical alert | Contact Anvil support; if the account cannot be restored, clone the instance into a new hosting account from App 3, restore its data from R2, and move the domain | Billing kept current; usage watched in App 5 (F-33) |
+| Mybizz's AWS account or SES sending suspended | SES errors on every send; App 5 raises a critical alert | Contact AWS support; outgoing email is queued in each instance's retry queue and sent when sending returns; senders' mail servers retry the delivery of received email for several days | Bounce and complaint rates watched per client; marketing paused for a client above the thresholds (`observability-requirements.md`); two-factor authentication on the AWS account |
 | Any account compromised | Unexpected commits in GitHub, unknown collaborators, unknown sessions | Change the account's credentials; contact Anvil support; audit Git history and revert unauthorised commits; audit data tables; rotate every Bearer token and Vault credential that may be exposed; tell affected clients under POPIA and GDPR | Strong unique passwords and two-factor authentication on every Anvil and GitHub account; no collaborators beyond Mybizz |
 | Anvil platform outage | Every app unreachable; Anvil status page | None possible; wait for Anvil; tell clients through the Mybizz website | Recovery expectations stated in the client terms |
 

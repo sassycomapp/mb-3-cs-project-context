@@ -9,7 +9,7 @@ The structure of App 1: its packages, forms, modules, navigation and startup.
 
 **Standard:** [[[default:specifications-global/spec-anvil-platform-standards]]](C:/dev/project-library-global/specifications-global/spec-anvil-platform-standards.md)
 
-**Authority:** where this document differs from `mb-3-cs-architecture-reference.md` on a technical fact, the architecture reference is correct. Feature numbers (F-01 to F-34) are those of `mb-3-cs-concept.md`. Detail that has its own home is linked, not repeated:
+**Authority:** where this document differs from `mb-3-cs-architecture-reference.md` on a technical fact, the architecture reference is correct. Feature numbers (F-01 to F-36) are those of `mb-3-cs-concept.md`. Detail that has its own home is linked, not repeated:
 
 | Subject | Home |
 |---|---|
@@ -17,7 +17,9 @@ The structure of App 1: its packages, forms, modules, navigation and startup.
 | Custom components | `docs-local/custom-component-requirements-matrix.md` |
 | Design system | `docs-local/DESIGN.md`, `docs-local/palette-tokens.md` |
 | Calendar forms | `docs-local/calendar-feature-spec.md` |
-| AI and voice | `docs-local/mybizz-ai-implementation-spec.md` |
+| AI, voice and sample data | `docs-local/mybizz-ai-implementation-spec.md` |
+| Email and the Team Inbox | `docs-local/team-inbox-spec.md` |
+| Social media sharing | `docs-local/sm-syndication-spec.md` |
 | Shared client state | `docs-standard-local/globals-contract.md` |
 | Screen building rules | `docs-standard-local/anvil-ui-build-standard.md` |
 
@@ -33,6 +35,7 @@ The structure of App 1: its packages, forms, modules, navigation and startup.
 - Imports between modules are relative (`from ...shared import formatting_utils`), never by the app's package name: in a client instance the code runs from `master_template`'s package, so an import by App 1's package name fails there.
 - All money, date and time logic is in server modules (Skulpt, reference section 14).
 - Forms marked **(local)** are used inside one parent form only and live in that parent's folder.
+- No visible text is typed into the Designer: every screen text is set in code from a phrase key in `shared/translations/` (F-25).
 
 ### Client code
 
@@ -44,13 +47,14 @@ client_code/
 │   └── SetPasswordForm/           set a password from an emailed link (new Owner, staff, customer, reset)
 │
 ├── onboarding/                    F-03
-│   └── OnboardingForm/            8 steps, resumable (DESIGN.md OnboardingForm)
+│   ├── OnboardingForm/            10 steps, resumable (DESIGN.md OnboardingForm)
+│   │   ├── DomainStep/            (local) DNS records and live status
+│   │   └── ImportStep/            (local) CSV upload and column mapping
 │
 ├── dashboard/                     F-04
 │   ├── DashboardForm/
 │   │   ├── MetricCard/            (local)
 │   │   └── ActivityFeed/          (local)
-│   └── UpgradeForm/               usage, dedicated-account limits, request upgrade (F-33)
 │
 ├── analytics/                     F-04
 │   ├── DashboardAnalyticsForm/    revenue by service and provider
@@ -60,21 +64,21 @@ client_code/
 ├── settings/                      F-02, F-05, F-22
 │   ├── SettingsForm/              14 tabs (DESIGN.md SettingsForm)
 │   │   ├── PaletteSettingsForm/   (local) Brand Palette tab
-│   │   ├── BusinessProfileTab/    (local)
+│   │   ├── BusinessProfileTab/    (local) including the app language
 │   │   ├── CurrencyTab/           (local) system currency (read-only), display currency
-│   │   ├── InvoicingTab/          (local) payment terms, tax, numbering
+│   │   ├── InvoicingTab/          (local) payment terms, tax, numbering, quote validity
 │   │   ├── FeatureSwitchesTab/    (local)
-│   │   ├── IntegrationsTab/       (local) Wave
-│   │   └── DataTab/               (local) history from R2, export as CSV
+│   │   └── DataTab/               (local) history from R2, export as CSV, Clear sample data
 │   ├── VaultForm/                 Owner only, TOTP on every open
-│   ├── EmailSetupForm/            Email Configuration tab
+│   ├── EmailSettingsForm/         Email tab: addresses, desks, signatures, auto-replies
+│   ├── DomainSettingsForm/        Domain tab: DNS record status
 │   ├── PaymentGatewayForm/        Payment Gateways tab
 │   ├── ThemeConfigForm/           Theme tab: public website header style only
 │   ├── UserManagementForm/        Users and Permissions
 │   └── PolicyEditorForm/          Legal Pages tab; hosts ClauseBuilder
 │
 ├── layouts/
-│   ├── AdminLayout/               NavigationRailLayout; admin menu
+│   ├── AdminLayout/               NavigationRailLayout; admin menu; the sample data banner (DESIGN.md Sample Data Banner)
 │   ├── CustomerLayout/            NavigationDrawerLayout; customer portal menu
 │   ├── PublicLayout/              NavigationDrawerLayout; public website header and FooterComponent
 │   ├── BlankLayout/               no header, no navigation: sign-in, landing pages, errors
@@ -92,8 +96,7 @@ client_code/
 │   ├── ServiceDetailPage/         public service detail; start of the booking and order flows
 │   ├── PrivacyPolicyPage/
 │   ├── TermsConditionsPage/
-│   ├── PageListForm/              admin: Content & Website → Pages
-│   ├── PageEditorForm/            admin: edit, preview, publish a page
+│   ├── PageListForm/              admin: Content & Website → Pages (name, SEO title, address, published)
 │   ├── HomepageEditorForm/        admin: homepage layout, sections, testimonials (UF-17)
 │   └── MediaLibraryForm/          admin: Content & Website → Media
 │
@@ -136,7 +139,9 @@ client_code/
 │   ├── ContactListForm/
 │   ├── ContactEditorForm/
 │   ├── ContactViewerForm/
-│   ├── ContactImportForm/         CSV import
+│   ├── ContactImportForm/         CSV import with column mapping (the same mapping as onboarding)
+│   ├── CompanyListForm/
+│   ├── CompanyViewerForm/
 │   ├── SegmentManagerForm/
 │   ├── TaskListForm/
 │   ├── AutomationListForm/
@@ -144,6 +149,7 @@ client_code/
 │   ├── EmailCampaignListForm/
 │   ├── EmailCampaignEditorForm/
 │   ├── EmailBroadcastForm/
+│   ├── EmailEditorComponent/      (local to the campaign and broadcast forms) the email template editor
 │   └── LeadCaptureForm/
 │
 ├── landing_pages/                 F-08, F-19
@@ -162,8 +168,8 @@ client_code/
 │   │   ├── BlogPostClassicTemplate/     (local)
 │   │   ├── BlogPostTwoColumnTemplate/   (local)
 │   │   └── BlogPostFullWidthTemplate/   (local)
-│   ├── BlogAdminListForm/         admin: Content & Website → Blog
-│   ├── BlogEditorForm/
+│   ├── BlogAdminListForm/         admin: Content & Website → Blog; Share on each published post
+│   ├── BlogEditorForm/            new posts; Share after publishing
 │   ├── CategoryManagementForm/
 │   └── CommentModerationForm/
 │
@@ -176,9 +182,26 @@ client_code/
 │   ├── MyDashboardForm/
 │   ├── MyBookingsForm/
 │   ├── MyPackagesForm/
+│   ├── MyQuotesForm/
 │   ├── MyInvoicesForm/
 │   ├── MyReviewsForm/
 │   └── AccountForm/               profile, password, email preferences, morning briefing switch
+│
+├── inbox/                         F-18
+│   ├── TeamInboxForm/             addresses and folders, message list, conversation (DESIGN.md Team Inbox Design)
+│   └── ComposeForm/               new email, reply, forward; drafts saved automatically
+│
+├── sales/                         F-35
+│   ├── DealBoardForm/             board by stage and list view
+│   ├── DealEditorForm/
+│   ├── QuoteListForm/
+│   ├── QuoteEditorForm/
+│   └── QuoteAcceptPage/           public: accept or decline a quote
+│
+├── accounts/                      F-28
+│   ├── ExpenseListForm/
+│   ├── ExpenseEditorForm/         with receipt photo
+│   └── AccountsForm/              profit and loss, outstanding, tax, statements, export
 │
 ├── ai/                            F-27
 │   └── WhatsUpForm/               mobile voice view, opened from the home screen shortcut
@@ -193,14 +216,19 @@ client_code/
 │   ├── ParallaxComponent/
 │   ├── ClauseBuilder/
 │   ├── AIHelperComponent/
-│   └── StarRatingComponent/
+│   ├── StarRatingComponent/
+│   ├── HelpTooltipComponent/
+│   ├── EditModeComponent/
+│   ├── SharePanelComponent/
+│   └── ReaderShareComponent/
 │
 └── shared/
     ├── globals.py                 shared client state: globals-contract.md
     ├── navigation_helpers.py
     ├── validation_utils.py
     ├── formatting_utils.py
-    └── palette_utils.py           palette and dark mode: palette-tokens.md
+    ├── palette_utils.py           palette and dark mode: palette-tokens.md
+    └── translations/              one module per app language (en, fr, pt, es, de, it); `t(key)` returns the phrase in the app language
 ```
 
 The four homepage templates, two blog list templates, three blog post templates and three landing page templates are the 12 page templates of `DESIGN.md` (Template and Layout Architecture). Each is a form in its parent's folder, loaded into the parent's content panel by the parent's template field (`business_profile.homepage_template`, `business_profile.blog_list_view`, `blog_posts.template`, `landing_pages.template_type`).
@@ -210,9 +238,10 @@ The four homepage templates, two blog list templates, three blog post templates 
 ```
 server_code/
 ├── server_auth/          rbac (role decorators), auth_service (invitations, set-password links, lockout)
-├── server_dashboard/     dashboard_service, upgrade_service
+├── server_dashboard/     dashboard_service
 ├── server_analytics/     reporting_service, report_export_service, summary_tasks
-├── server_settings/      settings_service, vault_service, vault_totp_service, policy_service, onboarding_service
+├── server_settings/      settings_service, vault_service, vault_totp_service, policy_service, onboarding_service,
+│                         sample_data_service, domain_service, page_content_service
 ├── server_services/      catalogue_service, resource_service, group_session_service
 ├── server_bookings/      booking_service, availability_service, calendar_service, intake_service, booking_tasks
 ├── server_orders/        order_service
@@ -220,26 +249,30 @@ server_code/
 ├── server_time/          time_entry_service
 ├── server_payments/      payment_service, stripe_gateway, paystack_gateway, paypal_gateway,
 │                         invoice_service, invoice_pdf, refund_service, webhook_handlers, invoice_tasks
-├── server_customers/     contact_service, segment_service, contact_import_export
+├── server_customers/     contact_service, company_service, segment_service, contact_import_export
 ├── server_marketing/     campaign_service, broadcast_service, lead_capture_service, landing_page_service,
-│                         brevo_campaigns, campaign_tasks
+│                         campaign_tasks, unsubscribe_endpoint
 ├── server_automation/    task_service, automation_service, automation_tasks
-├── server_blog/          blog_service, comment_service, blog_tasks
+├── server_blog/          blog_service, comment_service, share_service, blog_image_endpoint, blog_tasks
 ├── server_reviews/       review_service, testimonial_service
 ├── server_ai/            ai_request_layer, assists, voice_service, briefing_service
 ├── server_storage/       r2_service, backup_tasks, history_service, audit_archive_tasks
-├── server_integrations/  wave_service
+├── server_inbox/         inbox_service, address_service, inbound_endpoint, events_endpoint, inbound_tasks
+├── server_sales/         deal_service, quote_service, quote_pdf, quote_tasks
+├── server_accounts/      expense_service, accounts_report_service, accounting_export_service
 ├── server_support/       help_service
 ├── server_management/    management_endpoints, heartbeat_tasks, usage_service
 └── server_shared/        config, constants, exceptions, logging_config, validators, time_utils,
-                          transactional_email, export_service, retry_queue
+                          email_service, export_service, retry_queue, demo_service
 ```
 
 - `vault_service` is the only module that reads the `encryption_key` Anvil Secret (F-02). It holds the encryption and decryption; no other module encrypts or decrypts.
 - `payment_service` is the single gateway-agnostic payment service; client code and other server modules call it, never a gateway module directly (F-15).
 - `ai_request_layer` is the single route for every AI and speech request, through App 5 (F-26, F-27).
 - `r2_service` is the only module that talks to Cloudflare R2 (F-29).
-- `management_endpoints` holds the HTTP endpoints App 5 calls; `webhook_handlers` holds the gateway and Brevo webhook endpoints.
+- `email_service` is the only module that sends email; every email goes through Amazon SES; in demo mode it delivers to the signed-in visitor only (F-18, F-36).
+- `inbound_endpoint` and `events_endpoint` receive SES's notifications; `unsubscribe_endpoint` handles the unsubscribe link and one-click unsubscribe; `blog_image_endpoint` serves published posts' featured images (`sm-syndication-spec.md`).
+- `management_endpoints` holds the HTTP endpoints App 5 calls; `webhook_handlers` holds the gateway webhook endpoints.
 - Every `*_tasks` module holds that package's background tasks; the schedule is in `integration-architecture.md` (Background Tasks).
 
 ### Server function pattern
@@ -256,7 +289,7 @@ server_code/
 
 A custom component is a reusable element that the Anvil Material 3 theme does not provide and that is used in more than one place. An element used in one place only is a local form in its parent's folder.
 
-- The seven shared custom components, where each is used and its implementation notes: `custom-component-requirements-matrix.md`.
+- The eleven shared custom components, where each is used and its implementation notes: `custom-component-requirements-matrix.md`.
 - Every shared custom component lives in `client_code/components/`, takes its settings as properties set by the host form, and uses only the tokens, typography, spacing and roles in `DESIGN.md`.
 - Components inside a custom component are only those in [[[default:specifications-global/spec-m3_component_mapping|M3 Component Mapping]]](C:/dev/project-library-global/specifications-global/spec-m3_component_mapping.md); browser features are reached through `anvil.js`, never `eval`.
 - Not built: animated button, card, link and image components; an onboarding palette form; chip components (matrix, Not built).
@@ -265,15 +298,15 @@ A custom component is a reusable element that the Anvil Material 3 theme does no
 
 ## Database Schema
 
-The tables, their columns, types and allowed values are in `authoritative-schema.md`: 55 tables. The changes that bring App 1's tables to that schema, and the prompts that apply them, are in `schema-migration-log.md`. Every schema change is made in App 1, recorded in `schema-migration-log.md`, and applied to App 3.
+The tables, their columns, types and allowed values are in `authoritative-schema.md`: 65 tables. The changes that bring App 1's tables to that schema, and the prompts that apply them, are in `schema-migration-log.md`. Every schema change is made in App 1, recorded in `schema-migration-log.md`, and applied to App 3.
 
 ### Rules
 
 - One client instance has one database. No table carries a client or instance column; isolation comes from the instance (reference section 3).
 - All datetimes are stored in UTC and shown in the business's IANA time zone (`business_profile.timezone`).
 - Amounts are stored in the system currency (F-16).
-- Bookings, invoices, orders and payments are never deleted; their status changes.
-- History, backups and webhook payloads are kept in the client's R2 bucket, not in the tables (F-29).
+- Bookings, invoices, orders, payments, quotes and expenses are never deleted; their status changes.
+- History, backups, webhook payloads, old email bodies, attachments and receipts are kept in the client's R2 bucket, not in the tables (F-29).
 - Credentials are kept only in `vault`, encrypted.
 - `activity_log` is the audit table.
 
@@ -295,13 +328,13 @@ The tables, their columns, types and allowed values are in `authoritative-schema
 
 | Area | Mechanism |
 |---|---|
-| Admin area | `AdminLayout` (`NavigationRailLayout`), plain `Link` components with lambda click handlers, `open_form()` |
+| Admin area | `AdminLayout` (`NavigationRailLayout`), the layout's `NavigationLink` components with lambda click handlers, `open_form()` |
 | Customer portal | `CustomerLayout` (`NavigationDrawerLayout`), the same mechanism |
 | Public website | `PublicLayout`, Anvil Routing (`@router.route`) |
 
 - Each page form names its layout in the Designer. Opening a page is `open_form('package.FormName')`; the layout stays.
 - Click handlers capture the loop variable: `lambda e, fn=form_name: self._nav_click(fn)`.
-- `NavigationLink`, `navigate_to` and `HTMLTemplate` are not used ([[[default:adr-global/adr-navigation-lambda-link-open-form|Navigation Standard: Lambda/Link/open_form]]](C:/dev/project-library-global/adr-global/adr-navigation-lambda-link-open-form.md) ADR, [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR).
+- `navigate_to` and `HTMLTemplate` are not used ([[[default:adr-global/adr-navigation-lambda-link-open-form|Navigation Standard: Lambda/Link/open_form]]](C:/dev/project-library-global/adr-global/adr-navigation-lambda-link-open-form.md) ADR, [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR).
 - The menu items, their order and who sees them are defined in `mb-3-cs-architecture-reference.md` section 9. The forms behind them:
 
 ### AdminLayout menu → forms
@@ -309,11 +342,15 @@ The tables, their columns, types and allowed values are in `authoritative-schema
 | Menu item | Form | Shown to |
 |---|---|---|
 | Dashboard | `dashboard.DashboardForm` | all staff roles |
+| Inbox | `inbox.TeamInboxForm` | all staff roles |
 | Sales & Operations → Bookings | `bookings.BookingListForm` (Calendar: `bookings.BookingCalendarForm`) | all staff roles |
 | Sales & Operations → Services | `services.ServicesForm` | all staff roles |
 | Sales & Operations → Orders | `orders.OrderListForm` | all staff roles |
 | Sales & Operations → Packages | `packages.PackageListForm` | all staff roles |
+| Sales & Operations → Deals | `sales.DealBoardForm` | all staff roles |
+| Sales & Operations → Quotes | `sales.QuoteListForm` | Owner, Manager, Admin |
 | Customers & Marketing → Contacts | `crm.ContactListForm` | all staff roles |
+| Customers & Marketing → Companies | `crm.CompanyListForm` | Owner, Manager, Admin |
 | Customers & Marketing → Campaigns | `crm.EmailCampaignListForm` | when `marketing_enabled` |
 | Customers & Marketing → Broadcasts | `crm.EmailBroadcastForm` | when `marketing_enabled` |
 | Customers & Marketing → Segments | `crm.SegmentManagerForm` | when `marketing_enabled` |
@@ -326,6 +363,8 @@ The tables, their columns, types and allowed values are in `authoritative-schema
 | Content & Website → Media | `public_pages.MediaLibraryForm` | all staff roles |
 | Finance & Reports → Invoices | `invoices.InvoiceListForm` | all staff roles |
 | Finance & Reports → Payments | `invoices.PaymentListForm` | all staff roles |
+| Finance & Reports → Expenses | `accounts.ExpenseListForm` | Owner, Manager |
+| Finance & Reports → Accounts | `accounts.AccountsForm` | Owner, Manager |
 | Finance & Reports → Time Entries | `time_tracking.TimeEntryListForm` | all staff roles |
 | Finance & Reports → Reports | `analytics.RevenueReportForm` | all staff roles |
 | Finance & Reports → Analytics | `analytics.DashboardAnalyticsForm` | all staff roles |
@@ -343,6 +382,7 @@ Within each item, what a role may see or do is enforced by the server (F-01).
 | My Dashboard | `portal.MyDashboardForm` |
 | My Bookings | `portal.MyBookingsForm` |
 | My Packages | `portal.MyPackagesForm` |
+| My Quotes | `portal.MyQuotesForm` |
 | My Invoices | `portal.MyInvoicesForm` |
 | My Reviews | `portal.MyReviewsForm` |
 | Account | `portal.AccountForm` |
@@ -365,7 +405,10 @@ Within each item, what a role may see or do is enforced by the server (F-01).
 | `/terms` | `public_pages.TermsConditionsPage` |
 | `/landing/:slug` | `landing_pages.LandingPage` |
 | `/review/:token` | `reviews.ReviewSubmitForm` |
+| `/quote/:token` | `sales.QuoteAcceptPage` |
 | `/whatsup` | `ai.WhatsUpForm` (signed-in staff only) |
+
+Every public route sets its title, description and Open Graph tags in `Route.meta` (`sm-syndication-spec.md`). The HTTP endpoints `/_/api/email/inbound`, `/_/api/email/events`, `/_/api/email/unsubscribe` and `/_/api/blog-image/{slug}` are served by the server modules above.
 
 ---
 
@@ -395,7 +438,7 @@ At startup the palette module applies `business_profile.palette` and starts the 
 ### Other services
 
 - Data Tables.
-- Email: Anvil built-in email, for system email only (sign-in, confirmation, reset). Transactional email goes through Brevo SMTP from `server_shared/transactional_email` (`integration-architecture.md`).
+- Email: Anvil's Email service with **Use Custom Mail Server** set to the SES SMTP endpoint (`email-smtp.eu-west-1.amazonaws.com`, port 587), its password from the Vault's `ses_smtp_password`, set at provisioning; it carries only the Users service's sign-in, confirmation and reset email. Every other email goes through `server_shared/email_service` and the SES API (`team-inbox-spec.md`).
 
 ---
 

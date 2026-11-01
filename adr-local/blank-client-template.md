@@ -39,7 +39,9 @@ Three ways of giving a new instance its tables exist:
 | Server modules | No | Never added |
 | Forms | No | Forms live in `master_template` |
 | Anvil Secrets | No | `encryption_key` is set per instance at provisioning |
-| Custom domain | No | The client's own domain is connected per instance at provisioning |
+| Custom domain | No | The client's own domain is connected per instance at onboarding step 8 |
+| Email service setting | No | Anvil's Email service is set to Custom Mail Server with the SES SMTP endpoint per instance at provisioning |
+| Data | No | The sample data for the client's trade is loaded per instance at provisioning, and recorded in `sample_rows` |
 
 ### The startup module
 
@@ -56,7 +58,7 @@ open_form(LoginForm())
 
 ### Provisioning
 
-1. App 5 assigns the client a hosting account with a free place.
+1. Mybizz opens a new Mybizz-owned Anvil Business account for the client.
 2. App 3 is cloned into that account and named `[client-name]-cs`.
 3. The clone has the schema, the startup module, the scheduled tasks, the README and the dependency on `master_template`.
 4. The remaining steps follow `mb-3-cs-architecture-reference.md` section 5 and the [[[default:specifications-global/spec-client-activation-runbook|Client Instance Activation Runbook]]](C:/dev/project-library-global/specifications-global/spec-client-activation-runbook.md).

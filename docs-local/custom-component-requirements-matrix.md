@@ -5,7 +5,7 @@ updated: "2026-11-01"
 ---
 # Mybizz CS — Custom Component Requirements Matrix
 
-Every custom component Mybizz CS needs, where each one is used, and why no native Anvil Material 3 component serves. This document is the single home of the component list; `DESIGN.md` defines the tokens, typography and roles every component uses. Feature numbers (F-01 to F-34) are those of `mb-3-cs-concept.md`.
+Every custom component Mybizz CS needs, where each one is used, and why no native Anvil Material 3 component serves. This document is the single home of the component list; `DESIGN.md` defines the tokens, typography and roles every component uses. Feature numbers (F-01 to F-36) are those of `mb-3-cs-concept.md`.
 
 ---
 
@@ -30,17 +30,21 @@ All custom components:
 
 ## Custom Component Matrix
 
-### Shared custom components (7)
+### Shared custom components (11)
 
 | Component | Feature | Used in | Uses | Why no native component serves |
 |---|---|---|---|---|
-| VideoDisplayComponent | F-09, F-25 | HomePage, services page, ServiceViewerForm, blog posts, process-flow help videos | 5 | The M3 theme has no video embed; the native YouTube component handles one source only |
+| VideoDisplayComponent | F-09, F-25 | HomePage, services page, ServiceViewerForm, blog posts, HelpTooltipComponent | 5 | The M3 theme has no video embed; the native YouTube component handles one source only |
 | FooterComponent | F-06 | Every public page (HomePage, About, Contact, Services, Blog listing, Blog post, Privacy Policy, Terms and Conditions) | 8 | No footer component; the footer combines logo, credentials, social links, policy links, map and contact |
 | TimeLapseCarouselComponent | F-09 | HomePage, services page | 2 | No carousel component |
 | ParallaxComponent | F-09 | HomePage hero, About, Services, landing pages | 4 | No parallax effect |
 | ClauseBuilder | F-22 | PolicyEditorForm for the Privacy Policy and for Terms and Conditions | 2 | No clause-level document editor |
-| AIHelperComponent | F-26, F-27 | Business Profile, ServiceEditorForm, FAQ editor, proposal editor, BlogEditorForm, email reply, InvoiceEditorForm, Clause Builder explainer, ContactViewerForm, BookingCalendar insights | 10 | No floating AI assistant with assist selection, voice input and spoken output |
+| AIHelperComponent | F-26, F-27 | Business Profile, ServiceEditorForm, FAQ editor, proposal editor, QuoteEditorForm, BlogEditorForm, Team Inbox compose, InvoiceEditorForm, Clause Builder explainer, ContactViewerForm, BookingCalendar insights, EditModeComponent, SharePanelComponent | 13 | No floating AI assistant with assist selection, voice input and spoken output |
 | StarRatingComponent | F-23 | Customer review form, ReviewViewerForm, homepage testimonials, customer portal My Reviews | 4 | No star rating input or display |
+| HelpTooltipComponent | F-25 | Every feature on every admin screen, every onboarding step | many | The native `tooltip` property shows text only; no tooltip opens a video pop-up |
+| EditModeComponent | F-06, F-08, F-21 | Every public page, every landing page template, every blog post template | 15 | No in-place editing of a published page |
+| SharePanelComponent | F-21 | BlogEditorForm, BlogListForm | 2 | No share panel with captions and platform share links |
+| ReaderShareComponent | F-21 | BlogPostClassicTemplate, BlogPostTwoColumnTemplate, BlogPostFullWidthTemplate | 3 | No social share buttons |
 
 ### Local components (1)
 
@@ -112,6 +116,28 @@ All custom components:
 - Microphone input (speech-to-text through the server) and spoken output (browser speech synthesis, or Groq TTS where the natural-sounding voice is on).
 - Every request goes through the shared AI request layer in `server_ai/`, routed through App 5.
 - On failure, shows a clear message and leaves the host form working.
+
+### HelpTooltipComponent
+
+- A small help icon button placed beside a feature's heading or field; its accessible label is the feature's plain-language tooltip text.
+- Pressing it opens a pop-up with the tooltip text and the feature's help video (VideoDisplayComponent) in the app language; Close returns focus to the icon.
+- Properties: `help_key` (the feature's help entry), set in code. Hidden when the user has switched tooltips off (`users.preferences.tooltips`).
+- Help entries (text and video address per language) are held in `master_template`, so every client receives new and corrected videos.
+
+### EditModeComponent
+
+- Placed once on each public page form, landing page template and blog post template; visible only to a signed-in Owner or Manager.
+- Shows the Edit button; in edit mode marks every element whose name is registered as editable, edits it in place (text, image upload, video address), offers the AI helper for text, and saves every change in one server call (`DESIGN.md`, Edit Mode).
+- The host form registers its editable elements and the content record they belong to (`pages.components`, `config.home_config`, `landing_pages.config`, `blog_posts.content`).
+
+### SharePanelComponent
+
+- Specified in `sm-syndication-spec.md`; design in `DESIGN.md`, Share Panel.
+- Property: the blog post row; reads and saves `blog_posts.share_captions`; copies with `navigator.clipboard.writeText` and opens platform share links or `navigator.share` through `anvil.js`.
+
+### ReaderShareComponent
+
+- Icon buttons for Facebook, LinkedIn, WhatsApp and Copy link; each shared link carries `?ref=` (`sm-syndication-spec.md`).
 
 ### StarRatingComponent
 

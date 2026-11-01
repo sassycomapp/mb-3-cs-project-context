@@ -10,7 +10,7 @@ This document is the design system of Mybizz CS. It is built on the **Anvil Mate
 - The colour values of the four palettes live in `palette-tokens.md`; this document defines how colour is used.
 - Generic Material 3 rules (accessibility, the `wrap_on` responsive mechanism, state-specification patterns) live in [[[default:specifications-global/spec-m3-design-standards|M3 Design & Component Standards]]](C:/dev/project-library-global/specifications-global/spec-m3-design-standards.md) and are not repeated here. This document states this project's choices and its deviations from the M3 defaults.
 - Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
-- Feature numbers (F-01 to F-34) are those of `mb-3-cs-concept.md`.
+- Feature numbers (F-01 to F-36) are those of `mb-3-cs-concept.md`.
 
 ---
 
@@ -403,15 +403,17 @@ This section defines the primary implementation-facing forms and pages in the My
 **Architecture:** Onboarding is a separate form, not part of Settings. Configuration that belongs to Settings is done by linking to the Settings tab and returning to onboarding.
 **Wireframe:** `wireframe-onboarding-OnboardingForm.html`.
 
-**Flow structure (8 steps):**
+**Flow structure (10 steps), each with its help video:**
 1. Welcome and orientation.
-2. Business Profile — links to Settings → Business Profile.
-3. Brand Palette — links to Settings → Brand Palette.
-4. System Currency — dropdown plus confirm button. Required. Locked once the first booking or invoice exists. See [[[default:adr-global/adr-system-currency-selection-and-immutability|System Currency, Display Currency, and Immutability]]](C:/dev/project-library-global/adr-global/adr-system-currency-selection-and-immutability.md) ADR.
-5. Legal Acknowledgement — two checkboxes plus confirm button. Required. Recorded with a timestamp in the instance and in the Mybizz management app. See [[[default:adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture|Legal Policy Responsibility Acknowledgement and Clause-Builder Architecture]]](C:/dev/project-library-global/adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture.md) ADR.
-6. Payment Gateway — links to Settings → Payment Gateways. See [[[default:adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed|Payment Gateway Configuration Is a Settings Function and Is RBAC-Governed]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed.md) ADR.
-7. Brevo Email — links to Settings → Email Configuration.
-8. Completion — onboarding complete.
+2. App Language — choice of the languages whose translation is complete. Every later step follows it.
+3. Business Profile — links to Settings → Business Profile; the AI helper offers the first website text.
+4. Brand Palette — links to Settings → Brand Palette.
+5. System Currency — dropdown plus confirm button. Required. Locked once the first booking or invoice exists. See [[[default:adr-global/adr-system-currency-selection-and-immutability|System Currency, Display Currency, and Immutability]]](C:/dev/project-library-global/adr-global/adr-system-currency-selection-and-immutability.md) ADR.
+6. Legal Acknowledgement — two checkboxes plus confirm button. Required. Recorded with a timestamp in the instance and in the Mybizz management app. See [[[default:adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture|Legal Policy Responsibility Acknowledgement and Clause-Builder Architecture]]](C:/dev/project-library-global/adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture.md) ADR.
+7. Payment Gateway — links to Settings → Payment Gateways. See [[[default:adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed|Payment Gateway Configuration Is a Settings Function and Is RBAC-Governed]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed.md) ADR.
+8. Connect the Domain — the list of website and email DNS records with a live status per record; App 5 writes them in the client's Cloudflare DNS, or the Owner copies them into another provider. A confirmation dialog appears before the MX record moves the domain's email into the Team Inbox.
+9. Import Contacts — CSV upload, source tool selector (HubSpot, Mailchimp, Acuity, Other), column mapping table, preview of the first rows, Import. Skippable.
+10. Completion — onboarding complete.
 
 **Key design rules:**
 - Progress indicator visible throughout.
@@ -420,7 +422,7 @@ This section defines the primary implementation-facing forms and pages in the My
 - Legal acknowledgement is a required action in onboarding, not a Settings configuration.
 - Onboarding state is tracked in `business_profile.onboarding_status`; an Owner who leaves returns to the next unfinished step. See [[[default:adr-global/adr-onboarding-resumability|Onboarding Resumability]]](C:/dev/project-library-global/adr-global/adr-onboarding-resumability.md) ADR.
 
-**Step 5 — Legal Acknowledgement (two checkboxes):**
+**Step 6 — Legal Acknowledgement (two checkboxes):**
 - `cb_legal_ack` (Checkbox) — "I understand I must configure my own Privacy Policy and Terms & Conditions in Settings → Legal Pages. Mybizz is not responsible for the content of those pages." Sets `business_profile.legal_ack_accepted`.
 - `cb_data_governance_ack` (Checkbox) — "I understand that Mybizz retains certain records for legal and compliance purposes as described above." Sets `business_profile.data_governance_ack_accepted`.
 - "Confirm Acknowledgement" button (`btn_confirm_legal`) is enabled only when both checkboxes are ticked.
@@ -431,13 +433,15 @@ This section defines the primary implementation-facing forms and pages in the My
 | Step | Continue Button | Logic |
 |------|----------------|-------|
 | 1 (Welcome) | Always enabled | Informational only |
-| 2 (Business Profile) | Always enabled | Link step — can be completed later |
-| 3 (Brand Palette) | Always enabled | Link step — Professional Blue applies until a palette is chosen |
-| 4 (System Currency) | Disabled until confirmed | Enabled after `btn_confirm_currency` is clicked and `business_profile.system_currency` is set |
-| 5 (Legal Acknowledgement) | Disabled until confirmed | Enabled after both checkboxes are ticked and `btn_confirm_legal` is clicked |
-| 6 (Payment Gateway) | Always enabled | Link step — bookings that take payment stay unavailable until a gateway is connected |
-| 7 (Brevo Email) | Always enabled | Link step — transactional email stays unavailable until Brevo is connected and verified |
-| 8 (Completion) | "Go to Dashboard" | Sets `onboarding_status = "completed"`, `onboarding_completed = True`, navigates to the Dashboard |
+| 2 (App Language) | Always enabled | English is preselected; saves `business_profile.app_language` |
+| 3 (Business Profile) | Always enabled | Link step — can be completed later |
+| 4 (Brand Palette) | Always enabled | Link step — Professional Blue applies until a palette is chosen |
+| 5 (System Currency) | Disabled until confirmed | Enabled after `btn_confirm_currency` is clicked and `business_profile.system_currency` is set |
+| 6 (Legal Acknowledgement) | Disabled until confirmed | Enabled after both checkboxes are ticked and `btn_confirm_legal` is clicked |
+| 7 (Payment Gateway) | Always enabled | Link step — bookings that take payment stay unavailable until a gateway is connected |
+| 8 (Connect the Domain) | Always enabled | The website and email stay on their temporary addresses until every record is live; the status updates every few minutes |
+| 9 (Import Contacts) | Always enabled | Skippable |
+| 10 (Completion) | "Go to Dashboard" | Sets `onboarding_status = "completed"`, `onboarding_completed = True`, navigates to the Dashboard |
 
 ### SettingsForm
 
@@ -448,20 +452,20 @@ This section defines the primary implementation-facing forms and pages in the My
 
 | Tab | Content | RBAC Visibility |
 |---|---|---|
-| Business Profile | Name, description, email, phone, address, timezone, entity type, logo, social links, accreditations, home and services video addresses | Owner, Manager |
+| Business Profile | Name, description, email, phone, address, timezone, app language, entity type, logo, social links, accreditations, home and services video addresses | Owner, Manager |
 | Brand Palette | Palette selection (PaletteSettingsForm — local component) | Owner, Manager |
 | System Currency | Currency display (read-only, locked after first transaction) | Owner |
 | Display Currency | Optional per-service display currency | Owner, Manager |
 | Legal Acknowledgement | Read-only acknowledgement history | Owner |
 | Payment Gateways | Card gateway (Stripe or Paystack), optional PayPal, test/live mode (secret keys in the Vault) | Owner |
-| Invoicing | Default payment terms, tax rate and tax label, tax registration number, invoice numbering | Owner |
+| Invoicing | Default payment terms, tax rate and tax label, tax registration number, invoice numbering, default quote validity | Owner |
 | Users and Permissions | Link to UserManagementForm | Owner |
-| Email Configuration | Brevo sender settings | Owner |
+| Email | EmailSettingsForm: addresses, desks, members, signatures, auto-replies, default sender | Owner, Manager |
+| Domain | DomainSettingsForm: website and email DNS record status | Owner |
 | Theme | Public website header style | Owner, Manager |
 | Feature Switches | `marketing_enabled`, `blog_enabled`, blog comments | Owner |
-| Integrations | Wave connection | Owner |
 | Legal Pages | PolicyEditorForm (Clause Builder) | Owner |
-| Data | History view from R2, export all data as CSV | Owner |
+| Data | History view from R2, export all data as CSV, Clear sample data | Owner |
 
 **Key design rules:**
 - Tab visibility is RBAC-governed; different roles see different tabs.
@@ -507,19 +511,25 @@ This section defines the primary implementation-facing forms and pages in the My
 - When viewing a secret (masked reveal): the eye icon shows a small spinner while the server decrypts and returns the value.
 - When deleting a secret: the delete icon shows a spinner, the row fades slightly until deletion is confirmed.
 
-### EmailSetupForm
+### EmailSettingsForm
 
-**Purpose:** Configure Brevo SMTP sender settings for outgoing emails.  
-**Architecture:** Standalone form. Per-client configuration stored in `email_config` table. SMTP credentials stored in Vault.
-
-**Schema fields (`email_config`):** `from_email`, `from_name`, `configured`, `configured_at`, `sender_domain_verified`.
+**Purpose:** Settings → Email: the client's email addresses (F-18, flow UF-39). Build detail: `team-inbox-spec.md`.
+**Architecture:** Opened from the Email tab. Addresses in `email_addresses`; the default sender in `email_config.default_from_address_id`. The client enters no email credential: Amazon SES is set up by App 5.
 
 **Key design rules:**
-- From Email and From Name are the only per-client editable fields.
-- SMTP host, port, and encryption are platform constants (smtp-relay.brevo.com:587, TLS) — not user-configurable. See [[[default:adr-global/adr-brevo-email-and-crm|Brevo Replaces All Zoho Products]]](C:/dev/project-library-global/adr-global/adr-brevo-email-and-crm.md) ADR.
-- SMTP credentials (API key) stored in Vault, not in the form or database.
-- Test Connection button verifies SMTP configuration.
-- Success/error result displayed inline after test.
+- Address list: address, kind badge (personal or desk, outlined pill with the word), display name, members, status.
+- Add Address: the part before the `@` with the domain shown after it, kind, display name, members (multi-select of staff), signature (rich text), auto-reply text with start and end dates.
+- Default sender selector for confirmations, reminders, invoices and receipts.
+- RBAC: Owner, Manager.
+
+### DomainSettingsForm
+
+**Purpose:** Settings → Domain: the status of the client's domain for the website and email (F-03, F-18).
+**Architecture:** Reads `email_config` and the live DNS check from App 5.
+
+**Key design rules:**
+- One row per record (website A, MX, three DKIM, MAIL FROM MX, SPF, DMARC): type, name, value with a copy button, status badge with its word (Live, Waiting, Wrong value).
+- Check Now button; the status refreshes every few minutes while the form is open.
 - RBAC: Owner only.
 
 ### PaymentGatewayForm
@@ -732,7 +742,7 @@ ErrorLayout (BlankLayout)
 ### AdminLayout
 
 **Purpose:** Admin panel shell — native M3 `NavigationRailLayout` with sidebar navigation.
-**Architecture:** native M3 `NavigationRailLayout`; each admin page form names AdminLayout as its layout in the Designer. Uses plain Link components with lambda click handlers (not NavigationLink). HTMLTemplate is banned per the [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR.
+**Architecture:** native M3 `NavigationRailLayout`; each admin page form names AdminLayout as its layout in the Designer. Uses the layout's NavigationLink components with lambda click handlers ([[[default:adr-global/adr-navigation-lambda-link-open-form|Navigation Standard: Lambda/Link/open_form]]](C:/dev/project-library-global/adr-global/adr-navigation-lambda-link-open-form.md) ADR). HTMLTemplate is banned per the [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR.
 
 **Structure:**
 ```text
@@ -745,7 +755,8 @@ AdminLayout (NavigationRailLayout)
 **Sidebar navigation:** the groups, items and their visibility are defined once, in `mb-3-cs-architecture-reference.md` section 9. The admin area of the Mybizz management app (App 5) uses the same layout with its own menu.
 
 **Key design rules:**
-- Sidebar uses plain Link components with lambda click handlers. NavigationLink and navigate_to are NOT used.
+- Sidebar uses NavigationLink components with lambda click handlers that capture their loop variables. `navigate_to` is never used.
+- The Inbox item shows the user's unread count.
 - Sidebar width: 260px on desktop (>=998px). Collapses to hamburger drawer overlay on mobile (<998px).
 - Active link highlighting via M3 primary-container background.
 - Sign Out is always visible at sidebar bottom for all roles.
@@ -883,7 +894,7 @@ JavaScript stays minimal and is called through `anvil.js` (never `eval`). Approv
 - Palette application and the device light/dark watch (`palette-tokens.md`).
 - Parallax scroll effects.
 - Microphone capture and browser speech synthesis for WhatsUp voice (F-27).
-- Social sharing.
+- Clipboard copy and the device share menu (`navigator.share`) for social media sharing (F-21, `sm-syndication-spec.md`).
 - Character counters for SEO fields.
 - Back-to-top.
 
@@ -893,6 +904,10 @@ JavaScript stays minimal and is called through `anvil.js` (never `eval`). Approv
 - Optimize image sizes and dimensions.
 - Keep template switching lightweight.
 - Avoid unnecessary runtime complexity in presentation layers.
+
+### Text and Language
+
+Every piece of screen text is set in code from a phrase key in `shared/translations/` (F-25); no visible text is typed into the Designer. Layouts allow for text up to 40% longer than the English, because French, Portuguese, Spanish, German and Italian run longer: buttons and labels wrap or grow, never cut text off.
 
 ### Storage Guidance
 
@@ -906,11 +921,11 @@ These fields support the design. Their home is `authoritative-schema.md`, which 
 
 ### business_profile
 
-`palette`, `palette_updated_at`, `blog_list_view`, `enable_comments`, `homepage_template`, `business_logo`, `accreditations`, `social_facebook`, `social_instagram`, `social_linkedin`, `social_x`, `google_maps_embed_url`, `contact_email`, `phone`, `home_video_url`, `home_video_type`, `services_video_url`, `services_video_type`, `tax_rate`, `tax_label`, `tax_registration_number`, `default_payment_terms_days`.
+`palette`, `palette_updated_at`, `app_language`, `blog_list_view`, `enable_comments`, `homepage_template`, `business_logo`, `accreditations`, `social_facebook`, `social_instagram`, `social_linkedin`, `social_x`, `google_maps_embed_url`, `contact_email`, `phone`, `home_video_url`, `home_video_type`, `services_video_url`, `services_video_type`, `tax_rate`, `tax_label`, `tax_registration_number`, `default_payment_terms_days`.
 
 ### blog_posts
 
-`template`, `meta_title`, `meta_description`, `keywords`, `pullquote`, `video_url`, `video_type`, `scheduled_at`.
+`template`, `meta_title`, `meta_description`, `keywords`, `pullquote`, `video_url`, `video_type`, `scheduled_at`, `share_captions`.
 
 ### blog_comments
 
@@ -1100,6 +1115,46 @@ The booking flow uses 3 server round-trips maximum ([[[default:adr-global/adr-fo
 
 ---
 
+## Edit Mode (F-06, F-08, F-21)
+
+- For an Owner or Manager signed in, every public page, landing page and published blog post shows a floating **Edit** button (filled tonal, bottom right).
+- In edit mode, every editable text, image and video element gets a dashed `outline` border and a small edit icon on hover and focus; a slim top bar shows "Editing — changes are not live until you save" with **Save** (filled) and **Cancel** (outlined).
+- Selecting a text element opens it in place for typing, with the AI helper button beside it; selecting an image opens an upload dialog; selecting a video opens its address field.
+- Save publishes at once and shows a confirmation snackbar; Cancel discards every change.
+
+## Sample Data Banner
+
+- A full-width banner at the top of every admin screen while sample data exists: info icon, "You are viewing sample data.", and a **Clear sample data** button (Owner only; other roles see the message without the button).
+- Colours: `secondary-container` background, `on-secondary-container` text. The banner cannot be dismissed while sample data exists.
+
+## Share Panel (F-21)
+
+- A side sheet opened by **Share** on a published post: the post preview card (featured image, title, excerpt), then one card per platform — Facebook, LinkedIn, WhatsApp, Instagram — each with its editable caption, a **Regenerate** text button and the platform's share button.
+- Tapping a platform shows a snackbar: "Caption copied — paste it into your post."
+- Reader share buttons on the public post: icon buttons for Facebook, LinkedIn, WhatsApp and Copy link, below the post title and at the end of the post.
+
+## Team Inbox Design (F-18)
+
+- **TeamInboxForm** in AdminLayout, three panes on desktop: addresses and folders (left, 240px), message list (middle), message and conversation (right). On a phone, one pane at a time with a back button.
+- Message list rows: sender or recipient, subject, first line, date; unread rows in title weight; star and attachment icons; a checkbox per row for bulk actions, with a bulk action bar that replaces the list header when rows are selected.
+- List header: sort selector, filter chips row built from outlined buttons (Unread, Starred, Attachments, Date, Sender) and a search box.
+- Compose opens as a side sheet on desktop and full screen on a phone: From selector, To, Cc, Bcc, subject, rich text body, attachments, signature, AI draft button, Send (filled) and Discard (text).
+- Every received email is shown as plain text or as sanitised HTML with remote images blocked until the user selects "Show images".
+
+## Sales Design (F-35)
+
+- **DealBoardForm:** one column per stage (Lead, Qualified, Proposal, Negotiation, Won, Lost), each with its count and total value; a deal card shows title, contact or company, value, owner and expected close date; cards move by drag or by a stage menu. A list view with the same filters sits behind a view toggle.
+- **QuoteEditorForm:** as InvoiceEditorForm, with the validity date in place of payment terms; actions Save Draft and Send Quote.
+- **QuoteAcceptPage** (public, `/quote/{token}`): the quote laid out like the invoice PDF, with **Accept quote** (filled) and **Decline** (outlined); after acceptance, a confirmation with the invoice's payment link.
+- Quote status badges: draft On Surface Variant, sent `status-pending`, accepted `status-success`, declined `status-error`, expired On Surface Variant.
+
+## Accounts Design (F-28)
+
+- **ExpenseEditorForm:** date, supplier, category, amount, tax included, payment method, notes, and a receipt area with Take Photo (on a phone) and Upload; the receipt shows as a thumbnail.
+- **AccountsForm:** tabs Profit and Loss, Outstanding, Tax, Statements, Export; figures in tables with the period selector at the top; Export offers the period, the format (Wave, Xero, QuickBooks, CSV) and one Export button.
+
+---
+
 ## Empty States
 
 Every data-driven screen must define an empty state. The empty state pattern has three elements: a warm message, a primary action button, and a brief explanation of what will appear here.
@@ -1130,6 +1185,11 @@ Every data-driven screen must define an empty state. The empty state pattern has
 | Time entries | Timer icon | No time logged yet | Log time worked for a customer, then turn billable hours into an invoice. | "Start Timer" |
 | Reviews | Star icon | No reviews yet | Customers are invited to review after each completed appointment. Approved reviews can appear on your homepage. | (no action — explain how reviews arrive) |
 | Packages | Bundle icon | No packages yet | Packages let customers buy several sessions up front. | "+ Create Package" |
+| Inbox | Mail icon | No emails yet | Emails to your addresses arrive here. | "New Email" |
+| Deals | Pipeline icon | No deals yet | Deals follow each sale from lead to won. | "+ New Deal" |
+| Quotes | Document icon | No quotes yet | Quotes are accepted online and become invoices. | "+ New Quote" |
+| Companies | Building icon | No companies yet | Companies group the contacts of a business customer. | "+ Add Company" |
+| Expenses | Receipt icon | No expenses yet | Record what the business spends, with a photo of each receipt. | "+ New Expense" |
 
 ---
 

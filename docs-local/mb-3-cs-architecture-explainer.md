@@ -7,7 +7,7 @@ updated: "2026-11-01"
 
 This document explains, in plain language, how Mybizz CS is built and why it is built that way. It is written for the developer, not for the build agent. The build agent works from `mb-3-cs-architecture-reference.md`, which holds every technical fact; where the two documents ever differ, the reference is correct.
 
-Every feature carries the same number and name as in `mb-3-cs-concept.md` and in the reference (F-01 to F-34).
+Every feature carries the same number and name as in `mb-3-cs-concept.md` and in the reference (F-01 to F-36).
 
 ---
 
@@ -29,7 +29,7 @@ The difficulty with "one copy per client" is keeping 100 copies up to date. Mybi
 
 **App 4 — the client apps.** One per client, copied from App 3. A client app holds the client's data and nothing else; all code and screens come from App 2. The client uses the app but never sees its code or the Anvil editor.
 
-**App 5 — the management app.** Mybizz's own control room: registering clients, setting up new client apps, watching usage and health, billing, handling support tickets and feedback, and passing AI requests to the AI services. App 5 exists before the first paying client, because Mybizz cannot run the business without it.
+**App 5 — the management app.** Mybizz's own control room: registering clients, setting up new client apps with their storage, email and domain, watching usage and health, billing, handling support tickets and feedback, and passing AI requests to the AI services. App 5 exists before the first paying client, because Mybizz cannot run the business without it.
 
 **Why the client apps must stay empty.** If anyone adds a screen or server code directly to a client app, that client app quietly stops taking updates from App 2 — forever, with no warning. So the rule is absolute: a client app holds data and the startup module only. Any change for one client is built in App 1 and released through App 2 to everyone. Every client app carries a README stating this rule.
 
@@ -39,23 +39,21 @@ The difficulty with "one copy per client" is keeping 100 copies up to date. Mybi
 
 Apps 1, 2, 3 and 5 live on Mybizz's own development account, on Anvil's Business plan.
 
-Client apps live on separate Anvil Business accounts that Mybizz owns, two client apps per account. Anvil's own guidance is that a Business account comfortably carries one or two working apps, so two is the published standard, not a guess. The Hobby plan is never used, because Anvil licenses it for personal projects only.
+Each client app lives on an Anvil Business account of its own, which Mybizz owns: one account per client. A client therefore has the full power and limits of a Business account, and no client's work can slow another's. Mybizz pays for the accounts, so the client is Mybizz's client and never has to deal with Anvil. The Hobby plan is never used, because Anvil licenses it for personal projects only.
 
-Two client apps on one account are still two separate apps with two separate databases, so sharing an account does not weaken data isolation. What the two clients share is the account's server power and its storage limits. That is why each client is held to half the account's limits, why Mybizz watches each client's usage from App 5, and why heavy work (imports, backups, AI) runs in the background where it does not slow the other client's pages.
+Heavy work (imports, backups, AI, sending campaigns) runs in the background, so the client's pages stay fast, and Mybizz watches each client's usage from App 5.
 
-When a client outgrows a shared account, the client presses Upgrade on the dashboard. Mybizz moves the client's app to an account of its own.
-
-Each client app runs on the client's own domain. The client owns the domain, which also lets Brevo send the client's emails reliably.
+Each client app runs on the client's own domain. The client owns the domain, and every email address of the client is on it.
 
 ---
 
 ## 4. How a New Client Is Set Up
 
-1. The client registers. App 5 records the client and issues the client reference number.
-2. App 5 picks a hosting account with a free place.
+1. The client registers and opens a free Cloudflare account, which holds the client's storage and the client's domain settings, and invites Mybizz into it. App 5 records the client and issues the client reference number.
+2. Mybizz opens a new Anvil Business account for the client.
 3. Mybizz copies App 3 into that account, which creates the client's app with the right tables and the link to App 2.
-4. Mybizz sets the client app's secret key, connects the client's domain and storage bucket, and gives the client app a private token for talking to App 5.
-5. The client works through the guided setup inside their own app.
+4. Mybizz sets the client app's secret key and gives the client app a private token for talking to App 5. App 5 creates the client's storage bucket and the client's email identity, and loads the sample data.
+5. The client works through the onboarding wizard inside their own app. The wizard's domain step points the client's domain at the client's app and at the email service, so the website and every email address work at once.
 
 ---
 
@@ -72,9 +70,9 @@ Only a change to the database structure needs each client app updated by hand, w
 
 ## 6. Data, Backups and History (F-29)
 
-The client app's database holds what the business is working with now: current bookings, contacts, invoices and their current status. Everything that is history — backups, the messages payment and email services send back, older audit records — goes to the client's own storage bucket on Cloudflare R2.
+The client app's database holds what the business is working with now: current bookings, contacts, invoices, recent emails and their current status. Everything that is history — backups, the messages payment and email services send back, older audit records, emails older than 90 days, attachments and receipts — goes to the client's own storage bucket on Cloudflare R2, each kind in its own folder.
 
-Keeping history out of the app does three things. It keeps each client well inside the shared account's limits. It means each client's history is held in storage that belongs to that client. And it means a client can leave with all of their data at any time.
+Keeping history out of the app does three things. It keeps each client well inside the account's limits. It means each client's history is held in storage that belongs to that client. And it means a client can leave with all of their data at any time.
 
 The last 30 days of the audit trail stay in the app, so the owner can check recent activity quickly. Anything in the bucket can be brought back into the app, either to restore it or simply to look at it.
 
@@ -84,7 +82,7 @@ The last 30 days of the audit trail stay in the app, so the owner can check rece
 
 **Roles.** Every user has one of five roles: Owner, Manager, Admin, Staff or Customer. The screens hide what a role cannot use, but the real protection is on the server: every server function checks the role before it does anything, so a user cannot get around a screen to reach data.
 
-**The Vault.** Every key the client's app needs — payment, email, storage, Wave — is encrypted and kept in the Vault. Only the Owner can open the Vault, only with a code from an authenticator app every time, and the Owner is emailed every time it is opened. One secret, the encryption key, sits in Anvil's own secret store; everything else is encrypted with it.
+**The Vault.** Every key the client's app needs — payment, email service, storage — is encrypted and kept in the Vault. Only the Owner can open the Vault, only with a code from an authenticator app every time, and the Owner is emailed every time it is opened. One secret, the encryption key, sits in Anvil's own secret store; everything else is encrypted with it.
 
 **Card data.** Card details never pass through the client's app. Stripe, Paystack and PayPal handle them, which keeps the app clear of the heaviest card-security duties.
 
@@ -102,9 +100,9 @@ Every screen follows the same pattern: the screen shows things, client modules h
 
 ## 9. Navigation and Layout
 
-Staff use the admin area, with a side menu grouped the way a business owner thinks: Sales and Operations, Customers and Marketing, Content and Website, Finance and Reports, then Settings, the Vault and Help. Customers use the customer portal, with a short menu of their own bookings, packages, invoices, reviews and account.
+Staff use the admin area, with a side menu grouped the way a business owner thinks: the Inbox, Sales and Operations, Customers and Marketing, Content and Website, Finance and Reports, then Settings, the Vault and Help. Customers use the customer portal, with a short menu of their own bookings, packages, quotes, invoices, reviews and account.
 
-The public website uses proper web addresses for every page, so pages can be found by search engines and shared as links. The admin area does not need public addresses, so it uses simpler screen switching, which is faster.
+The public website uses proper web addresses for every page, so pages can be found by search engines and shared as links, with a proper preview of each page when it is shared. The admin area does not need public addresses, so it uses simpler screen switching, which is faster.
 
 When anyone opens the app, the app checks who they are before showing anything: staff go to the dashboard, customers go to their portal, and everyone else sees the sign-in page.
 
@@ -120,19 +118,19 @@ Step-by-step processes, such as onboarding and booking, show their steps in a si
 
 **F-02 The Vault.** One locked place for every key, so keys are never scattered across settings screens (section 7).
 
-**F-03 Registration, onboarding and setup.** Registration happens through Mybizz, which creates the client's reference number and their app (section 4). Inside the app, a guided setup walks the owner through the essentials in a natural order — who you are, how you look, which currency, the legal acknowledgement, how you get paid, how you send email — with a progress bar. Each step is saved, so the owner can stop and come back. A free 30-minute call with the founder, or a paid done-for-you setup, is available.
+**F-03 Registration, onboarding and setup.** Registration happens through Mybizz, which creates the client's reference number and their app (section 4). Inside the app, an onboarding wizard walks the owner through the essentials in a natural order — which language, who you are, how you look, which currency, the legal acknowledgement, how you get paid, connecting your domain, bringing in your existing contacts — with a progress bar and a short help video on every step. Each step is saved, so the owner can stop and come back. The contact import reads the files that HubSpot, Mailchimp, Acuity and other tools export, and matches their columns for the owner. A paid done-for-you setup is available.
 
-**F-04 Dashboard and analytics.** The dashboard shows revenue, bookings and customers against the previous period. The figures are worked out in the background and stored ready, so the dashboard opens instantly instead of calculating on every visit. Deeper analytics break revenue down by service and provider, show which marketing earns money, export to PDF and CSV, and can be emailed on a schedule. The Upgrade button lives here too.
+**F-04 Dashboard and analytics.** The dashboard shows revenue, bookings and customers against the previous period. The figures are worked out in the background and stored ready, so the dashboard opens instantly instead of calculating on every visit. Deeper analytics break revenue down by service and provider, show which marketing earns money, export to PDF and CSV, and can be emailed on a schedule.
 
 **F-05 Settings Hub.** One place for every setting, in tabs. Each role sees only the tabs it is allowed to change. Feature switches let a business hide what it does not use, such as marketing or the blog, so the menu stays clean.
 
 ### The client's public presence
 
-**F-06 Public website.** Every client gets a complete website — home, about, contact, services, blog and legal pages — managed from the admin area with no code. The contact form feeds the CRM directly. The site runs on the client's own domain and works on every screen size.
+**F-06 Public website.** Every client gets a complete website — home, about, contact, services, blog and legal pages — with no code. An Owner or Manager edits a page on the page itself: Edit makes each text, image and video editable where it sits, the AI helper writes or rewrites any text, and Save publishes at once. The contact form feeds the CRM directly. The site runs on the client's own domain and works on every screen size.
 
 **F-07 Homepage templates.** Several homepage layouts are built from the same set of sections; a layout simply decides which sections appear and in what order. Sections that have nothing to show, such as video when no video is set, hide themselves.
 
-**F-08 Landing pages.** Focused single-purpose pages, with no menu to distract the visitor, for capturing leads, registering for events, or a video sales pitch. Each counts its own visits and conversions.
+**F-08 Landing pages.** Focused single-purpose pages, with no menu to distract the visitor, for capturing leads, registering for events, or a video sales pitch. Each counts its own visits and conversions. A landing page is set up in its editor and its content is edited on the page itself, as on the website.
 
 **F-09 Visual and media presentation.** A gentle parallax effect on the homepage, rotating showcases, and video from the common video sites, all handled by shared components so they behave the same everywhere.
 
@@ -148,37 +146,39 @@ Step-by-step processes, such as onboarding and booking, show their steps in a si
 
 **F-14 Time tracking.** Providers record time worked for a customer — by hand or with a start and stop timer — with the rate and whether it is billable. Billable hours turn into invoice lines, and the same step marks them as invoiced, so time can never be billed twice. Reports show hours and value by provider, customer and service.
 
-**F-15 Invoicing and payments.** Invoices are created automatically when a booking completes, and also from time entries, orders, packages or by hand. Each invoice carries payment terms, such as 30 days, and its due date follows from them; an invoice that passes its due date becomes overdue and the customer is reminded. Each invoice moves through draft, sent, paid, overdue and cancelled. One payment service sits behind Stripe, Paystack and PayPal, so the rest of the app never needs to know which one a client uses, and a client can switch without redoing services or bookings.
+**F-15 Invoicing and payments.** Invoices are created automatically when a booking completes or a quote is accepted, and also from time entries, orders, packages or by hand. Each invoice carries payment terms, such as 30 days, and its due date follows from them; an invoice that passes its due date becomes overdue and the customer is reminded. Each invoice moves through draft, sent, paid, overdue and cancelled. One payment service sits behind Stripe, Paystack and PayPal, so the rest of the app never needs to know which one a client uses, and a client can switch without redoing services or bookings.
 
 **F-16 Dual currency.** The business keeps its books in one currency, fixed once trading starts so the records stay consistent. It can show prices to overseas customers in another currency, while every sum behind the scenes stays in the home currency.
 
+**F-28 Accounts.** The app already holds every invoice, payment and refund, so adding expenses, each with a photo of its receipt, makes it a complete record of the business's money. Reports show profit and loss by month, what is owed, the tax collected and paid, and a statement per customer. One click exports everything in the formats Wave, Xero and QuickBooks import, so the client's accountant can use any system, and the client pays for no accounting subscription.
+
 ### Customers and marketing
 
-**F-17 CRM and contacts.** Every person who deals with the business has one record with their full history, created automatically from bookings and forms. Ready-made groupings and a builder for custom groupings let the business target the right people. The whole list can be imported and exported.
+**F-17 CRM and contacts.** Every person who deals with the business has one record with their full history, including every email, created automatically from bookings, forms and emails. A contact can belong to a company. Ready-made groupings and a builder for custom groupings let the business target the right people. The whole list can be imported and exported.
 
-**F-18 Email.** Three kinds of email, kept apart because they do different jobs: account emails from Anvil itself, business emails (confirmations, reminders, invoices) through the client's own Brevo account, and marketing campaigns through Brevo's campaign tools. Using the client's own Brevo account means emails come from the client's name and domain, not from Mybizz.
+**F-18 Email.** Every email of the business, in and out, travels through one email service, Amazon SES, paid by Mybizz. The client creates as many addresses on the client's domain as the business needs — a personal address for each person, and desk addresses such as help@ or accounts@ shared by a team — and every email to them arrives in the Team Inbox inside the app, where each person sees their own address and their desks, and works it like a full mail program. Emails from known contacts appear on their timelines. The same service sends the business's confirmations, reminders and invoices, and its newsletters and campaigns, all from the client's own domain and signed so that they reach the inbox. Using one service means one set of domain settings, one place for bounces and unsubscribes, and no email account or bill for the client. Detail: `team-inbox-spec.md`.
 
 **F-19 Lead capture and marketing funnel.** A blog post leads to a landing page, which leads to a booking. A form on the landing page creates the lead and the contact together, so nothing needs converting by hand, and every step records where the person came from.
 
 **F-20 Tasks and automation.** Tasks keep follow-ups from being forgotten. Some are created by hand, some automatically by events, and some by voice. Automation rules let a business say "when this happens, and these conditions are met, do this" — create a task, send an email, start a sequence.
 
-**F-21 Blog and content.** A full blog with three post layouts, search-engine settings per post, categories, view counts and moderated comments.
+**F-21 Blog and content.** A full blog with three post layouts, search-engine settings per post, categories, view counts and moderated comments. New posts are written in the blog editor; published posts are fixed on the page itself. A Share button sends each published post to Facebook, LinkedIn, WhatsApp or Instagram through each platform's own share window, with an AI-written caption and a full preview, so Mybizz never holds anyone's social media password. Detail: `sm-syndication-spec.md`.
 
 **F-22 Clause Builder.** Legal pages are built from ready-written clauses that the business edits, arranges and publishes, instead of copying text from the internet.
 
 **F-23 Reviews and testimonials.** After an appointment the customer is invited to leave a rating and comment. Nothing appears publicly until the business approves it, and approved reviews become the testimonials on the homepage. A new client can also type in testimonials it already has, so the homepage is never empty while reviews build up.
 
-**F-24 Customer portal.** Customers sign in to see and manage their own bookings, packages, invoices, reviews and details. Every request is limited on the server to that customer's own records. Customers contact the business through the contact form; there is no separate ticket system for them.
+**F-24 Customer portal.** Customers sign in to see and manage their own bookings, packages, quotes, invoices, reviews and details. Every request is limited on the server to that customer's own records. Customers contact the business through the contact form; there is no separate ticket system for them.
+
+**F-35 Sales pipeline, companies and quotes.** A team that sells needs to see every opportunity. A deal follows a sale from lead to won or lost, with its value and its owner, so each salesperson works the deals assigned to the salesperson. A company groups the contacts of one business customer. A quote is priced like an invoice, sent by email and accepted online by the customer, and the accepted quote becomes the invoice, so nothing is typed twice.
 
 ### Help, AI and voice
 
-**F-25 Ease of use and in-app help.** Screens follow the order in which a business owner thinks. Tooltips explain each feature in plain language and can be switched off. Short videos sit exactly where they help.
+**F-25 Ease of use, in-app help and language.** Screens follow the order in which a business owner thinks. Each feature's tooltip opens a short help video in a pop-up, so a business owner learns by watching, exactly where the question arises; tooltips can be switched off. The client chooses the app's language — English, French, Portuguese, Spanish, German or Italian — and screens, emails and videos follow it. Every piece of screen text is looked up from one translation table per language instead of being typed into the screens, which is what makes a new language possible without rebuilding a screen.
 
-**F-26 AI assistance.** One AI helper is used everywhere instead of separate AI tools on each page. The helper opens in a floating window over the current page and picks the right assist for that page. Because every assist runs through the same helper and the same server path, the first assist is the hard work and each further assist is mostly a new prompt. AI requests pass through App 5, so Mybizz's AI keys never sit in client apps and Mybizz can see each client's AI use. If the AI fails, the page still works and says so. The two assists that need a history of real data are built and tested with sample data and switch on for a client once that client has enough data.
+**F-26 AI assistance.** One AI helper is used everywhere instead of separate AI tools on each page. The helper opens in a floating window over the current page and picks the right assist for that page. Because every assist runs through the same helper and the same server path, the first assist is the hard work and each further assist is mostly a new prompt. AI requests pass through App 5, so Mybizz's AI keys never sit in client apps and Mybizz can see each client's AI use. If the AI fails, the page still works and says so. The assists that need a history of data show their worth from the first day on the sample data (section 11).
 
-**F-27 WhatsUp voice.** The owner speaks into their phone's browser; the speech is turned into text on the server and handled by the same AI path as typed requests; the answer is shown and spoken back. This gives voice input to every assist, voice task creation, spoken answers to everyday questions, a short spoken morning briefing, and follow-up questions in one conversation. WhatsUp is a home screen shortcut, not an app, and uses no WhatsApp, so there is no third party to pay or depend on. Form filling by voice and analysis questions by voice are added later.
-
-**F-28 Wave accounting.** For clients who use Wave, three events — invoice paid, new customer, refund — are sent to Wave as they happen. It is one-way and small on purpose: Mybizz CS runs the business, Wave keeps the books, and the client stops copying figures between them.
+**F-27 WhatsUp voice.** The owner speaks into their phone's browser; the speech is turned into text on the server and handled by the same AI path as typed requests; the answer is shown and spoken back. This gives voice input to every assist, voice task creation, spoken answers to everyday questions, a short spoken morning briefing, follow-up questions in one conversation, filling in a whole form by speaking it, and business questions that need analysis across the data. For those analysis questions the app works out the figures itself and the AI only puts them into words, with people's names replaced by labels, so no customer name reaches the AI. WhatsUp is a home screen shortcut, not an app, and uses no WhatsApp, so there is no third party to pay or depend on.
 
 ### Data, security and design
 
@@ -192,15 +192,17 @@ Step-by-step processes, such as onboarding and booking, show their steps in a si
 
 **F-32 Help, support tickets and feedback.** The Help button in every client app sends a problem or a suggestion straight to App 5, where the founder is notified and replies. A problem that stops a client's business is acknowledged within hours, and the fix reaches every client through App 2. The reply appears back in the client's Help view, so the conversation stays in one place.
 
-**F-33 Hosting, fair use and upgrade.** Section 3.
+**F-33 Hosting.** Section 3.
 
 **F-34 Mybizz management app.** Section 2. App 5 is where Mybizz runs Mybizz CS as a business: clients, setup, usage, health, billing, updates, support, and the AI gateway. Each client app regularly reports simple signs of life — when staff last signed in, when the last booking was made — and App 5 raises an alert when a client goes quiet or a ticket waits too long. That gives the founder the chance to step in before a client leaves.
 
+**F-36 Demo apps.** A prospective client tries Mybizz CS before paying, in two apps on Mybizz's own account: one running a business full of sample data, one empty for trying setup. Both reset every night, so a visitor can change anything. Emails really go out, but only to the visitor's own address, and payments run in the gateways' test modes, so the visitor sees everything a customer would and no real money moves.
+
 ---
 
-## 11. Added Later
+## 11. Sample Data
 
-Two voice capabilities come after Mybizz CS is live and has real data: filling in a whole form by speaking it, and asking voice questions that need analysis across the data. They build on the same voice and AI path as F-26 and F-27.
+A new client's app arrives with three months of sample data for a business in the client's own trade, so every report, assist and voice question shows what it does on the first day, instead of an empty screen. Every sample row is recorded in one list, which is how the app tells sample data from the client's own: a banner says sample data is present, sample records never receive an email or a payment, and one button lets the Owner clear the sample data while everything the client created stays.
 
 ---
 
