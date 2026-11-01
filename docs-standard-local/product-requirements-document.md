@@ -130,8 +130,8 @@ The project has several user types and needs role-based access control (section 
 | FR-23 | F-23 Reviews and testimonials: review request after completion, approval before display, typed-in testimonials, up to 10 shown | US-22 | An unapproved review never appears on the website; no more than 10 testimonials are shown | [CLEAR] |
 | FR-24 | F-24 Customer portal: My Dashboard, My Bookings, My Packages, My Invoices, My Reviews, Account | US-24 | A customer never receives another customer's record from any server function | [CLEAR] |
 | FR-25 | F-25 In-app help: tooltips with a per-user switch; process-flow videos where the user works | US-35 | Switching tooltips off hides them for that user only | [CLEAR] |
-| FR-26 | F-26 AI assistance: one AI helper component, ten assists, context preselection, insert, replace or append, requests through App 5; assists 9 and 10 enabled per client by data threshold | US-25, US-33 | With App 5 unreachable the helper shows a clear message and the form keeps working; assists 9 and 10 stay hidden until the client's data passes its threshold | [CLEAR] |
-| FR-27 | F-27 WhatsUp voice: voice into assists, voice tasks, read-only voice questions with spoken answers, morning briefing, follow-up questions, natural-sounding voice, home screen shortcut | US-26 | "Create a task — call Priya on Thursday" creates the task and confirms it aloud; a question whose data cannot be read is answered with a clear spoken message | [CLEAR] |
+| FR-26 | F-26 AI assistance: one AI helper component, ten assists, context preselection, insert, replace or append, requests through App 5; sample data from the first day, cleared by the Owner with one button | US-25, US-33 | With App 5 unreachable the helper shows a clear message and the form keeps working; assists 9 and 10 give results on the sample data; Clear sample data removes every sample row and leaves every row the client created | [CLEAR] |
+| FR-27 | F-27 WhatsUp voice: voice into assists, voice tasks, read-only voice questions with spoken answers, voice form filling, business intelligence by voice, morning briefing, follow-up questions, natural-sounding voice, home screen shortcut | US-26 | "Create a task — call Priya on Thursday" creates the task and confirms it aloud; "New booking — Sarah Johnson, Swedish massage, Friday 2pm" fills in the booking form and saves nothing until the user confirms; "Who are my top 5 clients by spend?" is answered from the instance's own figures and no name reaches the AI layer; a question whose data cannot be read is answered with a clear spoken message | [CLEAR] |
 | FR-28 | F-28 Wave: one-way push of invoice paid, new customer, refund issued; credentials in the Vault | US-27 | A paid invoice appears in Wave with its customer; nothing is read back from Wave | [CLEAR] |
 | FR-29 | F-29 Data, backups and history: one R2 bucket per client, daily backups, webhook payloads and history in R2, 30 days of audit in the app, history view, restore by Mybizz, CSV export | US-28 | The audit table holds no entry older than 30 days; Settings → Data shows older entries from R2; a full CSV export completes as a background task | [CLEAR] |
 | FR-30 | F-30 Security and compliance: server-side role checks, rate limiting, encrypted credentials, audit trail, data isolation, POPIA, GDPR, PCI DSS | US-4, US-24 | No card number is stored in any table; no credential appears in any log; rate-limited sign-in refuses repeated attempts | [CLEAR] |
@@ -163,12 +163,7 @@ Every user story US-1 to US-36 is satisfied by at least one functional requireme
 
 ## 7. Out of Scope
 
-Deferred to a later release, not excluded from the product:
-
-- **Voice tier 4** — voice-driven form filling. `[CLEAR]`
-- **Voice tier 5** — aggregated voice questions across the client's data. `[CLEAR]`
-
-Both are specified in `releases/v2/mybizz-ai-implementation-spec-v2.md` and added after the platform has real data.
+No feature of Mybizz CS is deferred to a later release. Voice tier 4 (voice form filling) and voice tier 5 (business intelligence by voice) are built in this release, on the sample data, as `mybizz-ai-implementation-spec.md` specifies. `[CLEAR]`
 
 ---
 

@@ -5,7 +5,7 @@ updated: "2026-11-01"
 ---
 # Mybizz AI Implementation Specification
 
-This document specifies the AI and voice layer of Mybizz CS and the Wave accounting integration, all built as part of Mybizz CS. Two voice capabilities, voice tiers 4 and 5, are added later and are specified in `mybizz-ai-implementation-spec-v2.md`, in the same folder. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
+This document specifies the AI and voice layer of Mybizz CS, its sample data and the Wave accounting integration, all built as part of Mybizz CS. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
 
 ---
 
@@ -25,7 +25,7 @@ The AI and voice feature set achieves six outcomes:
 - Reuse one architectural pattern across all AI assists so that the first implementation does the heavy lifting for the rest.
 - Keep users in context by offering AI assistance in a floating window instead of forcing separate navigation flows.
 - Make future AI expansion simple by allowing additional assists to be added through the same shared framework.
-- Build data-dependent AI features and test them with sample data, and enable them for each client once that client's real data supports them.
+- Show every data-dependent AI feature working from a client's first day, through sample data the client clears with one button.
 - Provide a complete voice interaction loop (speak → understand → respond) that works on any browser, any device, with no additional cost to the client.
 
 ---
@@ -103,7 +103,7 @@ Groq Whisper handles transcription server-side, so speech-to-text has no browser
 
 ## Voice Tiers
 
-Mybizz CS is built with voice tiers 1 to 3. Voice tiers 4 and 5 are added later (`mybizz-ai-implementation-spec-v2.md`).
+Mybizz CS is built with voice tiers 1 to 5.
 
 ### Tier 1 — Voice input to existing AI assists
 
@@ -161,6 +161,60 @@ The user asks Mybizz a question and receives a spoken answer. These are read-onl
 - "Show me unpaid invoices"
 - "Take me to my email campaigns"
 - "Open the blog editor"
+
+### Tier 4 — Voice form filling
+
+The user speaks a complete record. Mybizz parses the spoken input into structured data and fills in the relevant form for the user to review and confirm. The user does not type anything: the user speaks, reviews and confirms.
+
+**Examples:**
+- "New booking — Sarah Johnson, Swedish massage, Friday 2pm" → the booking form is filled in; the user confirms
+- "New contact — Thabo Nkosi, thabo at gmail dot com, referred by Naledi" → the contact form is filled in
+- "Create invoice for 3 hours consulting at R800 per hour for Makena Ltd" → the invoice is filled in
+
+Tier 2 (task creation) fills one field for one action. Tier 4 extracts several values from natural speech and maps each to a specific form field, so each supported form has its own extraction prompt.
+
+**Supported forms:** booking, contact, invoice, task, quote and deal.
+
+**Build requirements:**
+- One extraction prompt per supported form, returning the form's fields as structured data
+- Fill-in logic that maps each extracted value to its form field and matches names to existing records (a spoken customer name to the contact, a spoken service name to the service)
+- A confirmation step before saving: the user always reviews before anything is saved
+- A partly filled form, never an error, when the speech does not give every field; the missing fields are highlighted
+
+### Tier 5 — Business intelligence by voice
+
+The user asks questions that need analysis across the client's data: comparisons, trends, rankings and advice. Mybizz answers in text and speech.
+
+**Revenue intelligence:**
+- "What is my best performing service by revenue this month?"
+- "How does this month's revenue compare to last month?"
+- "Which service has the most cancellations?"
+- "What is my average booking value?"
+
+**Client intelligence:**
+- "Who are my top 5 clients by spend?"
+- "Which clients haven't booked in more than 60 days?"
+- "What is my client retention rate?"
+- "Which clients came from my landing page?"
+
+**Marketing intelligence:**
+- "How many leads came in this week?"
+- "Which campaign had the best open rate?"
+- "How many blog posts have I published this month?"
+
+**Predictive and advisory:**
+- "Am I on track to hit last month's revenue?"
+- "Which days of the week are my busiest?"
+- "What time slots are most popular?"
+- "Should I open more availability on Thursdays?"
+
+**How an answer is produced:**
+1. The AI layer maps the question to one of a fixed set of analysis functions (revenue by period, revenue by service, top clients, lapsed clients, retention, lead sources, campaign results, busiest days, popular time slots, month-to-date progress).
+2. The analysis function runs in the client instance's server code against the client's own tables and the pre-computed summary tables, and returns figures.
+3. The figures go to the AI layer with every person's name replaced by a placeholder label; the AI layer writes the answer in plain language; the instance puts the names back before the answer is shown and spoken.
+4. A question that matches no analysis function receives a clear spoken message naming the kinds of questions Mybizz answers.
+
+When the client's real data is too thin for a credible answer, the answer says so and names what is needed ("Mybizz needs at least three months of bookings to compare weekdays").
 
 ## Deeper Voice Features
 
@@ -221,8 +275,8 @@ The ten AI assists and their implementation order:
 | 6 | Email response suggestions | Everyday utility feature that keeps users inside the application |
 | 7 | Invoice message generator | Small but polished feature that improves professionalism |
 | 8 | Terms and conditions plain language explainer | Good strategic fit with clause-builder functionality |
-| 9 | Client sentiment summary | Built and tested with sample data; enabled per client once the client's communication data is sufficient |
-| 10 | Booking and availability insights | Built and tested with sample data; enabled per client once the client's booking history is sufficient |
+| 9 | Client sentiment summary | Works on sample data from the client's first day; on real data once the client clears the sample data |
+| 10 | Booking and availability insights | Works on sample data from the client's first day; on real data once the client clears the sample data |
 
 All ten assists are voice-addressable via Tier 1 from the moment voice is implemented.
 
@@ -256,7 +310,7 @@ Voice Tier 3 (spoken queries with text-to-speech responses) is delivered in this
 
 ### Phase 4 — Data-dependent intelligence and deeper voice
 
-Client sentiment summaries and booking/availability insights are built in this phase and tested with sample data, because real outputs need real data to be credible. Each is enabled for a client once that client's data passes the threshold in the Data-Dependent Assists section.
+The sample data, client sentiment summaries, booking and availability insights, voice tier 4 (voice form filling) and voice tier 5 (business intelligence by voice) are delivered in this phase. The sample data is built first, because every data-dependent feature is built and shown on it.
 
 The deeper voice features — proactive morning briefings, conversational follow-up and the natural-sounding voice — are delivered in this phase, on top of the established voice foundation.
 
@@ -268,19 +322,45 @@ The Wave integration is delivered last, because it serves only the clients who u
 
 ## Data-Dependent Assists
 
-Assists 9 and 10 sit in the same shared AI helper architecture. Both are built and tested with sample data, and enabled for each client separately.
+Assists 9 and 10 and voice tier 5 sit in the same shared AI helper architecture. All three work on the sample data from the client's first day, and on the client's real data once the sample data is cleared. On real data that is too thin for a credible result, each says so and names what is needed.
 
 ### Client sentiment summary (AI assist 9)
 
 Analyses stored communication history and client interaction patterns to produce a sentiment summary for a given client. Helps the business owner understand the health of a client relationship before a meeting or before sending a proposal.
 
-**Enabled for a client when:** the client has at least 3 months of activity in Mybizz CS and stored communication with the customer concerned.
+**Credible on real data when:** the client has at least 3 months of activity in Mybizz CS and stored communication with the customer concerned.
 
 ### Booking and availability insights (AI assist 10)
 
 Analyses booking history and patterns to surface insights about availability, peak demand, underused slots, and service popularity. Helps the business owner make decisions about scheduling and service offerings.
 
-**Enabled for a client when:** the client has at least 3 months of booking history.
+**Credible on real data when:** the client has at least 3 months of booking history.
+
+---
+
+## Sample Data
+
+Every new client instance starts with a full set of sample data, so the dashboard, reports, AI assists and voice questions show real-looking results from the client's first day.
+
+### What the sample data holds
+
+Three months of activity for a business in the client's own trade, in the client's system currency and app language: contacts, companies, services, bookings, packages, orders, time entries, quotes, deals, invoices and payments, email campaigns with results, leads from several sources, tasks, blog posts and reviews. The summary tables are computed from it, so every dashboard figure is filled.
+
+### How the sample data is kept apart
+
+- Every sample row is recorded in one table, `sample_rows` (table name and row id), so the instance always knows which rows are sample data.
+- Sample contacts use addresses at `example.com`, a domain reserved for examples that delivers no email. Mybizz CS sends no email, reminder or campaign to a sample contact, takes no payment for a sample invoice, and sends no sample event to Wave.
+- While sample data exists, every screen shows a banner: "You are viewing sample data. Clear sample data."
+
+### Clearing the sample data
+
+- The Owner clears the sample data with one button: **Clear sample data**, on the dashboard banner and in Settings.
+- A confirmation dialog states that the step cannot be undone.
+- A background task deletes every row recorded in `sample_rows`, then empties `sample_rows` and recomputes the summary tables from the client's real data.
+- Rows the client created stay untouched. A real record that links to a sample record (a real booking for a sample service) keeps its own data, and the link is emptied.
+- The banner disappears when the task completes, and the activity log records who cleared the sample data and when.
+
+---
 
 ---
 
@@ -411,6 +491,8 @@ Generated content does not remain isolated in the helper. It transfers easily in
 | Morning briefings | LLM + Groq | Mybizz | One briefing per user per day |
 | Conversational follow-up | LLM | Mybizz | Minimal — short context window |
 | Assists 9 and 10 | LLM | Mybizz | Higher token use — larger data context |
+| Voice tier 4 (form filling) | LLM | Mybizz | Slightly higher token use than a tier 3 query |
+| Voice tier 5 (business intelligence) | LLM | Mybizz | Low — the instance computes the figures; the LLM only writes the answer |
 | Wave integration | Wave API | No one | Wave's free plan |
 
 No additional cost passes to the client for any AI, voice or Wave feature.
@@ -419,7 +501,7 @@ No additional cost passes to the client for any AI, voice or Wave feature.
 
 ## Delivery Estimate
 
-The reusable helper architecture plus all ten assists is estimated at roughly three to four days including prompt tuning, because the architecture avoids rebuilding the same pattern repeatedly. Adding the voice module (Groq Whisper wiring, text-to-speech and Tier 1–3 capability) adds approximately one more day, given the shared pipeline architecture. The deeper voice features, assists 9 and 10 and the Wave integration are estimated separately when their phases are planned.
+The reusable helper architecture plus all ten assists is estimated at roughly three to four days including prompt tuning, because the architecture avoids rebuilding the same pattern repeatedly. Adding the voice module (Groq Whisper wiring, text-to-speech and Tier 1–3 capability) adds approximately one more day, given the shared pipeline architecture. The deeper voice features, assists 9 and 10, voice tiers 4 and 5, the sample data and the Wave integration are estimated separately when their phases are planned.
 
 The credibility of this estimate depends on keeping the design centralised and resisting the temptation to build bespoke page-specific AI tools. The first assist consumes the most effort, because it establishes the API connection, result-handling logic and UX conventions for the rest. After that, expansion is much more mechanical.
 
@@ -428,7 +510,9 @@ The credibility of this estimate depends on keeping the design centralised and r
 ## Risks and Design Guardrails
 
 - AI and voice remain enhancement layers, never dependencies for core app operation.
-- Data-dependent assists are enabled for a client only when the client's data supports credible output.
+- Data-dependent features run on sample data until the client clears it; on thin real data they say so instead of guessing.
+- Voice tier 4 never saves without the user's confirmation.
+- Voice tier 5 sends the AI layer figures and placeholder labels only, never a person's name.
 - The UI preserves user context rather than redirecting people into separate AI pages.
 - The architecture stays centralised so future additions do not multiply maintenance overhead.
 - Prompt quality and output usability matter more than feature count.
@@ -445,18 +529,12 @@ The credibility of this estimate depends on keeping the design centralised and r
 5. Deliver WhatsUp task creation (Tier 2) and the mobile shortcut.
 6. Expand into proposals, blog drafts, email suggestions, invoice messaging, and terms explanation.
 7. Add Tier 3 voice queries with the spoken response layer.
-8. Add sentiment summary and booking insights, tested with sample data and enabled per client by the thresholds above.
-9. Add the morning briefing, conversational follow-up and the natural-sounding voice.
-10. Add the Wave accounting integration.
-
----
-
-## Added Later
-
-Two voice capabilities are added after Mybizz CS is live and has real data. Both are specified in `mybizz-ai-implementation-spec-v2.md`:
-
-- **Voice tier 4 — voice-driven form pre-fill.**
-- **Voice tier 5 — data queries requiring aggregation and intelligence.**
+8. Build the sample data, the `sample_rows` record and the Clear sample data button.
+9. Add sentiment summary and booking insights, built and shown on the sample data.
+10. Add voice tier 4 (voice form filling) for booking, contact, invoice, task, quote and deal.
+11. Add voice tier 5 (business intelligence by voice) with its analysis functions.
+12. Add the morning briefing, conversational follow-up and the natural-sounding voice.
+13. Add the Wave accounting integration.
 
 ---
 

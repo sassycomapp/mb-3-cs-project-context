@@ -249,7 +249,7 @@ Stripe does not accept South African businesses directly, and Booksy and Vagaro 
 
 ## 7. The Platform — Feature Set
 
-Mybizz CS is built with every feature below. Two voice capabilities are added later and are listed in section 8. Each feature carries the same number in the architecture explainer and the architecture reference.
+Mybizz CS is built with every feature below. Each feature carries the same number in the architecture explainer and the architecture reference.
 
 ### The client's day-to-day business
 
@@ -396,7 +396,7 @@ Mybizz CS is built with every feature below. Two voice capabilities are added la
 - One AI helper on every relevant page: a button opens a floating window, so the user never leaves the page; the helper preselects the assist that fits the page
 - Ten assists: bio/profile writer, service description generator, FAQ generator, proposal generator, blog post drafts, email response suggestions, invoice message generator, terms and conditions plain-language explainer, client sentiment summary, booking and availability insights
 - Every result can be copied, edited and inserted into the form it belongs to
-- Client sentiment summary and booking insights are built and tested with sample data, and become available to a client once that client has enough real data
+- Client sentiment summary and booking insights work from the client's first day on sample data, and on the client's real data once the sample data is cleared
 - The core application never depends on the AI
 
 **F-27 WhatsUp voice**
@@ -406,6 +406,8 @@ Mybizz CS is built with every feature below. Two voice capabilities are added la
 - Ask questions and hear the answers: schedule and bookings, payments and revenue, tasks, customers, and navigation ("Show me unpaid invoices")
 - Spoken morning briefing (20–30 seconds): today's bookings, outstanding invoices, overdue tasks, new leads, flagged items — switchable on or off
 - Follow-up questions in one voice session, each answered in the context of the last
+- Voice form filling: the user speaks a complete record ("New booking — Sarah Johnson, Swedish massage, Friday 2pm") and Mybizz CS fills in the form for the user to confirm
+- Business intelligence by voice: revenue, client and marketing questions and advice ("Which days of the week are my busiest?"), answered from the client's own figures
 - A natural-sounding voice, used where the browser's own voice is not good enough
 - Voice questions fail gracefully: if the data cannot be retrieved, Mybizz CS says so clearly
 
@@ -456,12 +458,9 @@ Mybizz CS is built with every feature below. Two voice capabilities are added la
 
 ---
 
-## 8. Added Later
+## 8. Sample Data
 
-Two voice capabilities are added after Mybizz CS is live and has real data. Both are specified in `releases/v2/mybizz-ai-implementation-spec-v2.md`:
-
-- **Voice tier 4 — voice-driven form filling:** the user speaks a complete record ("New booking — Sarah Johnson, Swedish massage, Friday 2pm") and Mybizz CS fills in the form for the user to confirm.
-- **Voice tier 5 — voice questions that need analysis across the data:** revenue, client and marketing intelligence and predictive advice ("Which days of the week are my busiest?"). Created and tested with sample data.
+Every new client starts with three months of sample data for a business in the client's own trade, so the dashboard, reports, AI assists and voice questions show real-looking results from the first day. A banner on every screen says the client is viewing sample data. The Owner clears all of it with one button, **Clear sample data**, and everything the client created stays. Sample data never sends an email, takes a payment or reaches Wave. Specified in `mybizz-ai-implementation-spec.md` (Sample Data).
 
 ---
 

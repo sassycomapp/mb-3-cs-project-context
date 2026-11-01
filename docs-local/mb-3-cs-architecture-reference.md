@@ -17,8 +17,7 @@ Every feature carries the number and name it has in `mb-3-cs-concept.md` section
 | User flows | `docs-local/user-flows.md` |
 | Design system | `docs-local/DESIGN.md`; palette colour values in `docs-local/palette-tokens.md` |
 | Custom components | `docs-local/custom-component-requirements-matrix.md` |
-| AI and voice (built now) | `docs-local/mybizz-ai-implementation-spec.md` |
-| Voice tiers 4 and 5 (added later) | `docs-local/releases/v2/mybizz-ai-implementation-spec-v2.md` |
+| AI, voice and sample data | `docs-local/mybizz-ai-implementation-spec.md` |
 | Calendar | `docs-local/calendar-feature-spec.md` |
 | The Vault | `docs-local/mb-3-cs-vault-implementation.md`, [[[default:specifications-global/spec-vault-system\|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md) |
 | Testing | `docs-local/mb-3-cs-test-specification.md` |
@@ -414,7 +413,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - One reusable AI helper component, `AIHelperComponent` in `components/` (`custom-component-requirements-matrix.md`), with trigger button, floating window, assist selector, dynamic working area, result area, copy, insert/replace/append into the host form.
 - Context awareness: the host form passes its context; the helper preselects the matching assist.
 - One shared AI request layer (`server_ai/`): prompt composition, model call, result return, error handling. Each assist is defined by identity, input fields, context mapping, prompt template and result handling.
-- All ten assists are built. Assists 9 (client sentiment summary) and 10 (booking and availability insights) are built and tested with sample data and are enabled per client once the client's data passes the threshold set in the AI specification.
+- All ten assists are built. Assists 9 (client sentiment summary) and 10 (booking and availability insights) run on the sample data (section 16) until the client clears it, then on the client's real data; on thin real data each says so and names what is needed.
 - AI requests are routed through App 5, which holds Mybizz's AI provider keys and records usage per client. Client instances hold no Mybizz AI keys.
 - The core application never depends on the AI: every AI failure returns a clear message and leaves the form usable.
 
@@ -425,8 +424,9 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Morning briefing: a brief-generation server function reads bookings, invoices, tasks and leads; a briefing prompt produces a 20–30 second spoken summary; per-user on/off setting.
 - Conversational follow-up: a short session context held in the component state is sent with each request; the session ends on close, timeout or navigation away.
 - Mobile voice view, opened from a home screen shortcut; no app install.
+- Voice tier 4, voice form filling: one extraction prompt per supported form (booking, contact, invoice, task, quote, deal); extracted values mapped to form fields and matched to existing records; confirmation before save; a partly filled form with the missing fields highlighted, never an error.
+- Voice tier 5, business intelligence by voice: the question is mapped to a fixed set of analysis functions that run in the instance's server code against its own tables and summary tables; the figures go to the AI layer with every person's name replaced by a placeholder label, and the instance puts the names back.
 - Every voice query fails gracefully with a spoken message.
-- Voice tiers 4 and 5 are not built now (section 16).
 
 ### F-28 Wave accounting
 - One-way, event-driven push from the instance to the client's Wave account on three events: invoice paid, new customer, refund issued.
@@ -522,9 +522,13 @@ Each feature below states its packages, data, rules and links. Tables and fields
 
 ---
 
-## 16. Added Later
+## 16. Sample Data
 
-Not built now. Specified in `releases/v2/mybizz-ai-implementation-spec-v2.md`:
+Specified in `mybizz-ai-implementation-spec.md` (Sample Data).
 
-- **Voice tier 4 — voice-driven form filling:** per-form entity extraction, pre-fill, confirmation before save, partial-fill fallback.
-- **Voice tier 5 — aggregated voice queries:** cross-referencing, trends and predictive answers across the client's data; built and tested with sample data.
+- Provisioning loads three months of sample data for the client's trade, in the client's system currency and app language, into every business table, and computes the summary tables from it.
+- Every sample row is recorded in `sample_rows` (table name, row id).
+- Sample contacts use `example.com` addresses. The email, reminder, campaign, payment and Wave services skip every sample record.
+- A banner on every screen shows while `sample_rows` holds rows.
+- **Clear sample data** (Owner only, on the banner and in Settings, with a confirmation dialog) runs a background task: delete every recorded row, empty the links from real records to sample records, empty `sample_rows`, recompute the summary tables, record the action in `activity_log`.
+- Packages: `server_settings/` (`sample_data_service`: loading, the clearing task and the banner state).
