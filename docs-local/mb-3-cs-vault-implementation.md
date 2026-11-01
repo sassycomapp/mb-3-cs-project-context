@@ -29,7 +29,7 @@ Publishable keys (e.g. Stripe publishable key) are safe for client-side use and 
 ## 2. VaultForm UI
 
 Standalone form accessed from Settings, visible to Owner only:
-- Second-factor notice, displayed prominently at the top: the Owner signs in again with password and FIDO2 key on every open, as [[[default:specifications-global/spec-security-architecture]]](C:/dev/project-library-global/specifications-global/spec-security-architecture.md) sets out.
+- Second-factor notice, displayed prominently at the top: every open asks for a code from the Owner's authenticator app (TOTP), with no remembered session. A lost authenticator is reset by Mybizz only: `vault-recovery-procedure.md`.
 - Stored Secrets list — name, last updated date, usage context. View (masked reveal) and Delete actions per item.
 - Add New Secret form — name + password input (`hide_text=True`) at the bottom. Value never displayed again after saving.
 
@@ -37,7 +37,7 @@ Visual references: `wireframes/wireframe-settings-VaultForm.html`, `screens/scre
 
 ## 3. Build Sequence
 
-Built in Phase 1, Stage 1.5 of `build-plan.md`, after authentication and settings (Stages 1.0–1.4). Phase 2 (payments, bookings, services) depends on the Vault being functional first.
+Built after authentication and settings, before payments, bookings and services, which depend on it.
 
 ### Deliverables
 - `vault` Data Table with encrypted secrets storage
@@ -49,7 +49,8 @@ Built in Phase 1, Stage 1.5 of `build-plan.md`, after authentication and setting
 
 ### Completion Criteria
 - `encryption_key` set in Anvil Secrets (only item there)
-- VaultForm requires a fresh second factor on every open, no grace period
+- VaultForm requires a fresh authenticator code on every open, no grace period
+- First open enrols the Owner's authenticator (QR code and one confirming code); the App 5 reset endpoint clears `vault_totp_secret` (`vault-recovery-procedure.md`)
 - Email notification sent to Owner on every Vault access
 - Secret keys stored encrypted in `vault` table
 - `get_vault_secret()` retrieves secrets correctly

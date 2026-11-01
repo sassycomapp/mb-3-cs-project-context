@@ -214,7 +214,7 @@ Scheduled tasks belong to the app that runs them. They are set up in App 3 (`bla
 
 ## Offboarding
 
-When a client leaves ([[[default:standard-operating-procedures-global/sop-offboarding|Offboarding SOP]]](C:/dev/project-library-global/standard-operating-procedures-global/sop-offboarding.md)):
+When a client leaves (step by step: `docs-local/offboarding-procedure.md`):
 
 1. A full export of every data table, every email, the instance's `encryption_key`, and the Vault's contents in decrypted form are written into the client's R2 bucket (`exports/`), beside the backups, history, emails and webhook payloads it already holds.
 2. The client confirms the export is in the bucket.

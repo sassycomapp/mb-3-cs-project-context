@@ -264,6 +264,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - One Anvil Secret per instance: `encryption_key`, used only by `vault_service.py`.
 - Every other credential (gateway keys, AWS keys for Amazon SES and S3, the SES SMTP password, R2 keys) is encrypted in the Vault's data table with that key.
 - Owner-only; every view requires a TOTP code with no remembered session; every access emails the owner; after 5 failed codes the Vault locks for 15 minutes and the owner is emailed.
+- A lost authenticator is reset by Mybizz only, after an identity check: `vault-recovery-procedure.md`.
 - Detail: `mb-3-cs-vault-implementation.md`, [[[default:specifications-global/spec-vault-system|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md).
 
 ### F-03 Registration, onboarding and setup
