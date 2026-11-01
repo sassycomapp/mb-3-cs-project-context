@@ -1,276 +1,189 @@
 ---
 title: "deployment-procedures"
 doc-id: "mb-f46b55a9"
-updated: "2026-10-01"
+updated: "2026-11-01"
 ---
 # Mybizz CS — Deployment Procedures
 
-**Authority:** [[[default:adr-global/adr-dependency-update-model|Dependency Update Model]]](C:/dev/project-library-global/adr-global/adr-dependency-update-model.md) ADR (Dependency Update Model), `blank-client-template` ADR (blank_client_template), [[[default:adr-global/adr-anvil-platform-constraints|Anvil Platform Constraints and Design Boundaries]]](C:/dev/project-library-global/adr-global/adr-anvil-platform-constraints.md) ADR (Anvil Platform Constraints)
+How a release moves from App 1 through App 2 to the client instances, and how it is rolled back.
 
----
+**Standard:** [[[default:specifications-global/spec-deployment]]](C:/dev/project-library-global/specifications-global/spec-deployment.md)
 
-## Overview
-
-This document defines the deployment procedures for the Mybizz CS platform. It covers the update deployment model, schema migration strategy, staged rollout, rollback procedures, and post-deploy verification.
-
-**Key architectural decision:** The platform uses a branch-based update model. Merging `develop` → `stable` in GitHub releases an update to all client instances automatically. See [[[default:adr-global/adr-dependency-update-model|Dependency Update Model]]](C:/dev/project-library-global/adr-global/adr-dependency-update-model.md) ADR.
+**Authority:** [[[default:adr-global/adr-dependency-update-model|Dependency Update Model]]](C:/dev/project-library-global/adr-global/adr-dependency-update-model.md) ADR, [[[default:adr-global/adr-anvil-platform-constraints|Anvil Platform Constraints and Design Boundaries]]](C:/dev/project-library-global/adr-global/adr-anvil-platform-constraints.md) ADR. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct. Where the global standard describes client instances on the client's own Anvil account, this project differs: every client instance runs on a Mybizz-owned Anvil Business account (reference section 4).
 
 ---
 
 ## Deployment Model
 
-### The Update Flow
+| App | Role in deployment | Hosted on |
+|---|---|---|
+| App 1 — `mb-3-cs-app1` | Development and testing; each release is tagged here (`vMAJOR.MINOR.PATCH`) | Mybizz development account |
+| App 2 — `mb-3-cs-app2`, `master_template` | The release: holds exactly App 1's latest released tag; every client instance depends on it | Mybizz development account |
+| App 3 — `mb-3-cs-app3`, `blank_client_template` | The released schema, no data, the scheduled tasks; new instances are cloned from it | Mybizz development account |
+| App 4 — `[client-name]-cs` | Each client instance: schema, startup module, dependency on App 2 | Mybizz-owned client hosting accounts (Business plan), two instances per account; one account per client on a dedicated plan |
+| App 5 — `mb-3-cs-app5` | Receives heartbeats and usage reports; records releases; sends release notes | Mybizz development account |
+
+### The update flow
 
 ```
-mb-3-cs (GitHub develop branch)
-    ↓ merge when tested and ready
-master_template (GitHub stable branch)
-    ↓ automatically — no manual action
-All client instances tracking stable branch
+App 1 (tagged release, e.g. v1.4.0)
+    ↓ the developer pushes the tag into App 2's repository (Step 42)
+App 2 — master_template
+    ↓ automatically, through the dependency
+Every client instance
 ```
 
-**There is no manual per-client update action.** Merging to `stable` is a production action. Release discipline — full testing in mb-3-cs before merge — is the quality gate. "A single merge to stable propagates all three categories of change simultaneously: server logic, UI, and forms. The only change that does not propagate automatically is Data Table schema — schema changes are always manual operations per client instance."
+- Server logic, forms and UI reach every client instance through the dependency; there is no per-client update action.
+- The schema does not travel through the dependency. A schema change is applied to App 3 and to each existing instance by hand (Schema Migration).
+- No form or server module is ever added to a client instance; one would silently override `master_template` for that instance (reference section 2).
+- Testing before release happens on the local Anvil App Server and on a private test client instance on its own hosting account. There is no staging environment.
 
-### Release Process
+### Release steps
 
-1. **Develop** — All feature work happens in mb-3-cs on the `develop` branch
-2. **Test** — Feature is fully tested in mb-3-cs
-3. **Prepare release notes** — Document what changed, any action required
-4. **Merge** — `develop` is merged into `stable` in GitHub
-5. **Verify** — Confirm client instances reflect the update
-6. **Notify** — Send release notification email to clients via Anvil built-in email
+1. **Feature complete** in App 1 and signed off (`build-verified`).
+2. **Release ready:** every test passes and no High or Critical finding is open (Step 41).
+3. **Tag** the release in App 1.
+4. **Back up** every client instance to its own R2 bucket.
+5. **Apply** any schema change to App 3 and to every client instance, additive changes first (Schema Migration).
+6. **Push** the tag into App 2's repository (Step 42). This is the production action; only the developer performs it.
+7. **Verify** (Post-Deploy Verification).
+8. **Notify:** App 5 records the release and sends each client the release note by email. The note is informational: the update is already live.
 
-### Staged Rollout (High-Risk Releases)
+### Staged rollout (high-risk releases)
 
-For high-risk releases, version tags (`v1.0.0`, `v1.1.0`) allow staged rollout:
+1. Pin every client instance except the private test instance and a small first group to the previous release tag of App 2.
+2. Push the new release into App 2 (Step 42).
+3. Watch the first group's heartbeats and error logs for 24 hours.
+4. Unpin the remaining instances so that they follow App 2's current release.
 
-1. Tag the release commit in master_template's GitHub repo
-2. Update a subset of client instances to the version tag (instead of tracking `stable`)
-3. Monitor for issues
-4. Once confirmed stable, roll remaining client instances to `stable`
-
-All managed from the single mybizz Anvil IDE.
-
-### Client Notification
-
-Clients receive a release notification via Anvil built-in email. The notification is informational — the update has already been applied at the time of sending.
-
-An internal in-app notification system is planned for the Mybizz_management phase.
+Each instance's dependency setting is changed in the hosting account that holds it. App 5's client registry records which account holds which instance.
 
 ---
 
-## Schema Migration Strategy
+## Schema Migration
 
-### The Challenge
+Anvil has no programmatic API for creating or changing Data Tables. Every schema change is a manual operation in the Anvil editor, in App 1, in App 3 and in every client instance.
 
-Anvil has no programmatic API for creating or modifying Data Tables. Schema changes must be applied via the IDE. With 100 client instances, schema migrations are manual operations.
+### Rules
 
-### Migration Rules
+1. No schema change is released without a migration plan recorded in `schema-migration-log.md`.
+2. Every schema change is made first in App 1 (Step 17), then in App 3, then in every existing client instance.
+3. Code that reads a new column handles rows where it is empty.
+4. Every client instance is backed up to its R2 bucket before its schema is changed.
 
-1. **Schema changes must never be merged to `stable` without a documented migration plan**
-2. **Every schema change must be applied to `blank_client_template`** (for future clients)
-3. **Every schema change must be applied manually to all existing client instances** (for running clients)
+### Migration types
 
-### Migration Process
+| Type | Definition | Order |
+|---|---|---|
+| **Additive** | A new table or column; no existing data changes | 1. Add in App 1 and test. 2. Add to App 3. 3. Add to every client instance. 4. Release the code (Step 42) |
+| **Breaking** | A column or table removed or renamed | 1. Release code that no longer uses the old column. 2. Confirm every instance runs that release. 3. Remove the column from every client instance. 4. Remove it from App 3 and App 1 |
+| **Modified** | A column's type changed | 1. Add a new column of the new type. 2. Release code that reads the new column, falling back to the old. 3. Copy the data in each instance with a background task. 4. Release code that reads the new column only. 5. Remove the old column (as Breaking) |
 
-**For new columns (additive):**
-1. Add the column to `blank_client_template` via IDE
-2. Add the column to each existing client instance via IDE
-3. Deploy code that reads both old and new fields
-4. Merge to `stable` — code propagates automatically
-5. Existing rows will have NULL for the new column — code must handle this
+### Migration checklist
 
-**For removed columns (breaking):**
-1. Deploy code that no longer references the old column
-2. Merge to `stable` — code propagates automatically
-3. Remove the column from each existing client instance via IDE
-4. Remove the column from `blank_client_template` via IDE
-
-**For modified columns:**
-1. Add a new column with the desired schema
-2. Deploy code that reads from the new column (with fallback to old)
-3. Merge to `stable`
-4. Migrate data from old column to new column (manual or script)
-5. Remove the old column
-
-### Migration Checklist
-
-- [ ] Schema change documented in release notes
-- [ ] `blank_client_template` updated
-- [ ] Migration script/procedure documented for existing clients
-- [ ] Code handles both old and new schema (backward compatible)
-- [ ] Rollback procedure documented
-- [ ] Migration tested on at least one existing client instance
+- [ ] Change and type recorded in `schema-migration-log.md`
+- [ ] Release note describes it
+- [ ] App 3 updated
+- [ ] Procedure for existing instances written down
+- [ ] Code handles the old and the new schema
+- [ ] Rollback written down
+- [ ] Tested on the private test instance before any client instance
+- [ ] App 5's client registry records, per instance, that the migration is done; the heartbeat's schema fingerprint confirms it
 
 ---
 
 ## Post-Deploy Verification
 
-### Automated Checks
+After every push into App 2:
 
-After merging to `stable`, verify:
-
-1. **Health endpoint** — Call `/management/health` on a sample of client instances
-2. **Background tasks** — Verify scheduled tasks are running (health heartbeat, campaign enrollment)
-3. **Error rate** — Check `error_log` table for new errors
-
-### Manual Verification
-
-For significant releases:
-
-1. **Login** to a sample client instance
-2. **Verify** key functionality (booking flow, payment processing, email delivery)
-3. **Check** dashboard metrics are displaying correctly
-4. **Confirm** no new errors in Anvil App Logs
+1. App 2 loads without errors.
+2. The private test instance shows the new release and passes its smoke test: sign-in, a booking with payment in test mode, an invoice, a transactional email.
+3. Every instance's next heartbeat reports the new release version and the expected schema fingerprint (`observability-requirements.md`).
+4. `error_log` across instances shows no new error type in the first hour.
+5. Background task status in the heartbeats shows every task running.
+6. App 5's dashboard shows no instance missing a heartbeat.
 
 ---
 
-## Rollback Procedures
+## Rollback
 
-### Code Rollback
+### Code rollback
 
-If a release introduces a critical bug:
+Rollback is re-pointing App 2 to the last good release tag, not a code revert.
 
-1. **Revert** the merge commit in GitHub (`develop` branch)
-2. **Merge** the revert to `stable`
-3. **All client instances update automatically** to the reverted code
-4. **Notify** clients of the rollback
+1. Identify the last good release tag.
+2. Push that tag into App 2's repository again (Step 42 procedure).
+3. Every client instance runs the last good release through the dependency.
+4. Verify on the private test instance and in the heartbeats.
+5. App 5 sends each client a short note.
 
-**Note:** Rollback via merge is the safest approach. It preserves git history and is reversible.
+### Schema rollback
 
-### Schema Rollback
+Anvil cannot roll back a schema change automatically.
 
-If a schema change causes issues:
-
-1. **Revert** the code change that depends on the new schema
-2. **Merge** the revert to `stable`
-3. **Manually remove** the new column from affected client instances (if it was added)
-4. **Update** `blank_client_template` if the schema change was applied there
-
----
-
-## Deployment Checklist
-
-### Pre-Deployment
-
-**Code:**
-- [ ] All tests passing in mb-3-cs
-- [ ] Feature fully tested
-- [ ] Release notes prepared
-- [ ] Schema changes documented (if applicable)
-
-**Database:**
-- [ ] Schema migration plan documented (if applicable)
-- [ ] `blank_client_template` updated (if applicable)
-- [ ] Rollback procedure documented
-
-**Communication:**
-- [ ] Release notes ready to send
-- [ ] Stakeholders notified (if significant release)
-
-### Deployment
-
-1. [ ] Merge `develop` → `stable` in GitHub
-2. [ ] Verify master_template reflects the update
-3. [ ] Verify sample client instances reflect the update
-4. [ ] Monitor error rates for 15 minutes
-5. [ ] Send release notification email to clients
-
-### Post-Deployment
-
-**Monitoring:**
-- [ ] Monitor error rates for 1 hour
-- [ ] Check background task health
-- [ ] Review client support tickets
-
-**Documentation:**
-- [ ] Update deployment log
-- [ ] Document any issues encountered
+1. Roll the code back first, if the code depends on the change.
+2. Remove an added column or table from every affected client instance by hand.
+3. Restore modified data from the R2 backup taken before the migration, if a column was modified.
+4. Bring App 3 back to the released schema.
+5. Record the rollback in `schema-migration-log.md`.
 
 ---
 
 ## Rollback Triggers
 
-**Immediate Rollback Required:**
-- Error rate > 10% across client instances
-- Critical functionality broken (booking flow, payments)
+**Immediate rollback** (do not wait for investigation):
+- Error rate above 10% across instances
+- Critical functionality broken: sign-in, booking, payment, invoicing
 - Data corruption detected
-- Security vulnerability introduced
+- A security vulnerability introduced
 
-**Rollback Considered:**
-- Error rate > 5%
-- Performance degradation > 50%
-- Customer complaints increasing
+**Considered rollback** (investigate, then decide):
+- Error rate above 5% across instances
+- Response times more than 50% slower
+- A rising number of support tickets about the release
 
 ---
 
-## Anvil Account-Level Failure Scenarios
+## Deployment Checklist
 
-**Source:** CEO review 2026-06-15 Section 1
+### Before the release
+- [ ] Every feature of the release has passed `build-verified`
+- [ ] The whole test suite passes ([[[default:security-global/requirements/sec-requirements-pre-merge-master-template|Pre-Merge Requirements for master_template]]](C:/dev/project-library-global/security-global/requirements/sec-requirements-pre-merge-master-template.md))
+- [ ] No High or Critical finding open (Step 41)
+- [ ] Release note written
+- [ ] Schema migration plan recorded, if the schema changes
+- [ ] Vault and integration changes documented, if any
+- [ ] Every client instance backed up to its R2 bucket
 
-All 100 client instances are hosted on a single Anvil Business account. This creates a single-point-of-failure at the account level. The following scenarios and recovery procedures address this operational risk.
+### The release
+1. [ ] Schema changes applied (App 3, every instance), if any
+2. [ ] Tag pushed into App 2 (Step 42)
+3. [ ] Post-deploy verification passed
+4. [ ] Error rates watched for 1 hour
+5. [ ] Release note sent from App 5
 
-### Scenario 1: Anvil Account Suspension
+### After the release
+- [ ] Background task health checked in App 5
+- [ ] Support tickets about the release reviewed after 24 hours
+- [ ] Problems found recorded against the release in App 5
 
-**Cause:** Terms of service violation, billing failure, or Anvil policy enforcement.
+---
 
-**Impact:** All client instances become inaccessible simultaneously. No client can log in, process bookings, or access data.
+## Anvil Account-Level Failures
 
-**Detection:**
-- Health heartbeat background tasks stop writing to `health_log`
-- Mybizz_management monitoring dashboard shows all instances offline
-- Client support tickets spike
+The account structure has two levels of risk:
 
-**Recovery:**
-1. Contact Anvil support immediately to understand the suspension reason
-2. Resolve the underlying issue (billing, policy, etc.)
-3. Request account reinstatement
-4. Once reinstated, verify all client instances are accessible
-5. Run health checks across all instances
-6. Notify affected clients with a status update
+- **The Mybizz development account** holds App 1, App 2, App 3 and App 5. Every client instance depends on App 2, so this account is the single point of failure for every client.
+- **Each client hosting account** holds two client instances (one on a dedicated plan). A failure of one hosting account affects only its own clients.
 
-**Prevention:**
-- Maintain billing payment method with redundancy
-- Stay current with Anvil Terms of Service changes
-- Maintain direct contact relationship with Anvil support team
+| Scenario | Detection | Recovery | Prevention |
+|---|---|---|---|
+| Development account suspended | Email from Anvil; App 2 and App 5 unavailable; heartbeats stop arriving | Contact Anvil support at once; there is no self-service recovery | Billing kept current with a backup payment method; Anvil terms followed; Anvil's answer on Mybizz's account structure kept on file |
+| Hosting account suspended | Heartbeats from its two instances stop; App 5 raises a critical alert | Contact Anvil support; if the account cannot be restored, clone the instances into a new hosting account from App 3 and restore their data from R2, then move the domains | Billing kept current; usage held under the fair-use cap (F-33) |
+| Any account compromised | Unexpected commits in GitHub, unknown collaborators, unknown sessions | Change the account's credentials; contact Anvil support; audit Git history and revert unauthorised commits; audit data tables; rotate every Bearer token and Vault credential that may be exposed; tell affected clients under POPIA and GDPR | Strong unique passwords and two-factor authentication on every Anvil and GitHub account; no collaborators beyond Mybizz |
+| Anvil platform outage | Every app unreachable; Anvil status page | None possible; wait for Anvil; tell clients through the Mybizz website | Recovery expectations stated in the client terms |
 
-### Scenario 2: Anvil Account Compromise
-
-**Cause:** Credential theft, social engineering, or Anvil platform breach.
-
-**Impact:** Attacker may access the Anvil IDE, modify code, access Data Tables, or delete apps.
-
-**Detection:**
-- Unexpected code changes visible in git history
-- Unknown user sessions in Anvil IDE
-- Unusual API activity or data access patterns
-
-**Recovery:**
-1. Immediately change all Anvil account credentials
-2. Enable 2FA on the Anvil account (if not already enabled)
-3. Audit git history for unauthorized commits
-4. Audit Data Table changes for unauthorized modifications
-5. If code was modified: revert to last known-good commit
-6. If data was accessed: notify affected clients per data breach protocol
-7. Review and rotate all Vault encryption keys
-
-### Scenario 3: Anvil Platform Outage
-
-**Cause:** Anvil infrastructure failure, DDoS, or cloud provider outage.
-
-**Impact:** All client instances are temporarily unavailable.
-
-**Detection:**
-- Health heartbeat tasks fail
-- Client reports of inaccessible platform
-
-**Recovery:**
-1. Monitor Anvil status page and support channels
-2. Communicate expected resolution timeline to clients
-3. Once restored: verify all instances are healthy
-4. Review `health_log` for any data gaps during outage
-
-**Note:** This is an accepted risk of the platform decision ([[[default:adr-global/adr-anvil-platform-constraints|Anvil Platform Constraints and Design Boundaries]]](C:/dev/project-library-global/adr-global/adr-anvil-platform-constraints.md) ADR). No self-hosted fallback is planned.
+This is an accepted risk of the platform decision; no self-hosted fallback is planned ([[[default:adr-global/adr-anvil-platform-constraints|Anvil Platform Constraints and Design Boundaries]]](C:/dev/project-library-global/adr-global/adr-anvil-platform-constraints.md) ADR).
 
 ---
 

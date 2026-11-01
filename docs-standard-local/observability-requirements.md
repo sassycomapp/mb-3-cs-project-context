@@ -1,211 +1,138 @@
 ---
 title: "observability-requirements"
 doc-id: "mb-4a65dade"
-updated: "2026-10-01"
+updated: "2026-11-01"
 ---
 # Mybizz CS — Observability Requirements
 
-**Authority:** [[[default:adr-global/adr-observability-architecture|Observability Architecture]]](C:/dev/project-library-global/adr-global/adr-observability-architecture.md) ADR (Observability Architecture), [[[default:adr-global/adr-mybizz-management-visibility|Mybizz_management Visibility and Control]]](C:/dev/project-library-global/adr-global/adr-mybizz-management-visibility.md) ADR (Mybizz_management Visibility and Control)
+What the application logs, measures and alerts on, and how long logs are kept.
+
+**Standard:** [[[default:specifications-global/spec-observability]]](C:/dev/project-library-global/specifications-global/spec-observability.md)
+
+**Authority:** [[[default:adr-global/adr-observability-architecture|Observability Architecture]]](C:/dev/project-library-global/adr-global/adr-observability-architecture.md) ADR, [[[default:adr-global/adr-mybizz-management-visibility|Mybizz_management Visibility and Control]]](C:/dev/project-library-global/adr-global/adr-mybizz-management-visibility.md) ADR. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
+
+**Model:** each client instance records its own health, errors and audit trail in its own data tables and pushes a heartbeat and a usage report to App 5 on a schedule. App 5 never polls instances; its HTTP endpoints on each instance are for control and on-demand checks. No external monitoring tool is used. Anvil's App Logs, CPU and memory views, and profiling remain in use for investigating a single instance.
 
 ---
 
-## Overview
+## Logging
 
-This document defines the observability requirements for the Mybizz CS platform. Observability is delivered through application-level metrics written to each client instance's Data Tables, queried by Mybizz_management via HTTP endpoints.
+### Structured logging
 
-**Key architectural decision:** External monitoring tools (Prometheus, Grafana, Datadog) were evaluated and rejected as unnecessary at this scale and inconsistent with the hosted-only infrastructure model. See [[[default:adr-global/adr-observability-architecture|Observability Architecture]]](C:/dev/project-library-global/adr-global/adr-observability-architecture.md) ADR.
+Every server function logs through `logging.getLogger(__name__)`, configured once in `server_shared/logging_config`, as one JSON object per message with these fields:
 
-Anvil's built-in observability tools (App Logs, CPU/Memory tabs, Profiling and Tracing) remain in use for per-app diagnostic investigation. They are complementary to, not a replacement for, the consolidated Mybizz_management monitoring layer.
+| Field | Content |
+|---|---|
+| `timestamp` | ISO 8601, UTC |
+| `level` | DEBUG, INFO, WARNING, ERROR, CRITICAL |
+| `function` | The calling server function |
+| `error_type` | Exception class name (empty when no error) |
+| `error_message` | Exception message (empty when no error) |
+| `user_id` | The signed-in user's row id, or empty |
+| `request_id` | A UUID generated per request, carried through every log line of that request |
 
-## Logging Requirements
-
-### Structured Logging
-
-All server functions must use structured logging with the following fields:
-
-**Entry/Exit Logging:**
 ```python
-logger = get_logger()
-logger.info("function_entry", function="get_vault_secret", secret_name=name)
-# ... function logic ...
-logger.info("function_exit", function="get_vault_secret", result_type=type(result).__name__)
+logger = logging.getLogger(__name__)
+logger.info("payment_recorded", extra={"function": "record_payment", "invoice_id": invoice.get_id(), "request_id": request_id})
 ```
 
-**Error Logging:**
-```python
-logger.error("function_error", function="get_vault_secret", 
-             error_type=type(e).__name__, error_message=str(e),
-             secret_name=name, user_id=user_id)
-```
+### Rules
 
-### Log Levels
+- Function entry and exit at DEBUG, with argument names and row ids only, never values.
+- Every call to an outside service (gateway, Brevo, R2, Wave, App 5) at INFO, with its duration.
+- Every caught and re-raised exception at ERROR, and written to `error_log`.
+- Never logged: credentials, keys, tokens, card data, passwords, TOTP codes, the content of Vault entries, or customer personal data beyond row ids (POPIA, GDPR, F-30).
 
-- **DEBUG:** Detailed debugging information (development only)
-- **INFO:** General operation events (function entry/exit, successful operations)
-- **WARNING:** Unexpected but handled conditions
-- **ERROR:** Errors that don't prevent operation
-- **CRITICAL:** Errors that prevent operation
+### Log levels
 
-### Log Format
+| Level | Use |
+|---|---|
+| DEBUG | Detail for development; off in client instances |
+| INFO | Normal operation and outside-service calls |
+| WARNING | Unexpected but handled: a retry, a refused duplicate webhook |
+| ERROR | A failed operation the user or Owner must know about |
+| CRITICAL | A failure that stops the instance working: Vault unreadable, database unavailable |
 
-All logs must be structured (JSON format) for easy parsing and aggregation:
-
-```json
-{
-  "timestamp": "2026-05-26T10:30:00Z",
-  "level": "ERROR",
-  "function": "get_vault_secret",
-  "secret_name": "stripe_secret_key",
-  "error_type": "VaultSecretNotFoundError",
-  "error_message": "Vault secret not configured",
-  "user_id": "user_123",
-  "request_id": "req_abc123"
-}
-```
+---
 
 ## Metrics
 
-### Application-Level Metrics ([[[default:adr-global/adr-observability-architecture|Observability Architecture]]](C:/dev/project-library-global/adr-global/adr-observability-architecture.md) ADR)
+### The log tables
 
-Metrics are written to designated Data Tables within each client instance by master_template server modules. Mybizz_management queries these tables via management HTTP endpoints ([[[default:adr-global/adr-mybizz-management-visibility|Mybizz_management Visibility and Control]]](C:/dev/project-library-global/adr-global/adr-mybizz-management-visibility.md) ADR).
+| Table | Written by | Holds |
+|---|---|---|
+| `health_log` | `server_management/heartbeat_tasks`, every 15 minutes | Status, release version, schema fingerprint, background task status (last run, success or failure per task), queued retries |
+| `error_log` | Every server module, through `server_shared/logging_config` | Uncaught and re-raised exceptions: function, type, message, severity, user, resolved flag |
+| `activity_log` | Every server module | The audit trail: who did what, when (sign-in and sign-out, role changes, Vault access, payments and refunds, status changes of bookings, invoices and orders, settings changes, data exports) |
 
-**Health metrics (written to `health_log` table):**
-- Health heartbeat — scheduled background task, every 15 minutes
-- Last active timestamp — updated on user login/logout
-- Background task status — last run, success/failure per task
+All three are written by server functions only; no client code writes to them. `activity_log` is this project's audit table: the standard calls it `audit_log`.
 
-**Audit metrics (written to `audit_log` table):**
-- Background task completion/failure events
-- Payment success/failure events
-- Vault access events (every occurrence)
-- User session events (login/logout)
+### Business metrics (pre-computed)
 
-**Error metrics (written to `error_log` table):**
-- Unhandled exceptions
-- Error threshold exceeded events
-- Webhook processing failures
+Dashboards and reports read summary tables, never compute on page load ([[[default:adr-global/adr-data-access-patterns|Data Access Patterns and Query Limitations]]](C:/dev/project-library-global/adr-global/adr-data-access-patterns.md) ADR). The tasks and their schedules are in `integration-architecture.md` (Background Tasks).
 
-### Business Metrics (Pre-Computed)
+| Table | Holds |
+|---|---|
+| `daily_summary` | Revenue, revenue by service, booking count, new contacts, per day |
+| `service_performance` | Revenue, booking count and completion rate per service, per day |
+| `provider_performance` | Revenue and booking count per provider, per day |
+| `campaign_metrics` | Emails sent, opens, clicks, conversions, unsubscribes, per campaign, per day |
 
-Complex aggregations are computed by background tasks and stored in summary tables ([[[default:adr-global/adr-data-access-patterns|Data Access Patterns and Query Limitations]]](C:/dev/project-library-global/adr-global/adr-data-access-patterns.md) ADR):
-
-**Daily summary (`daily_summary` table):**
-- Total revenue
-- Revenue by service
-- Booking count
-- New contacts
-
-**Service performance (`service_performance` table):**
-- Revenue per service
-- Booking count per service
-- Completion rate per service
-
-**Campaign metrics (`campaign_metrics` table):**
-- Emails sent, delivered, opened, clicked
-- Conversion rates
-- Unsubscribe rates
+---
 
 ## Alerts
 
-### Mybizz_management Dashboard ([[[default:adr-global/adr-mybizz-management-visibility|Mybizz_management Visibility and Control]]](C:/dev/project-library-global/adr-global/adr-mybizz-management-visibility.md) ADR)
+### In the instance (to the Owner)
 
-Mybizz_management presents a consolidated dashboard across all client instances:
-
-- Last active per client
-- Background task health (last run, success/failure)
-- Error count and last error per client
-- Subscription and billing status
-
-### Alert Triggers
-
-**Critical (operator action required):**
-- Client instance fails to respond to health check within threshold
-- Error rate exceeds threshold for a client instance
-- Background task failure rate exceeds threshold
-- Payment processing failure rate exceeds 10%
-
-**Warning (monitor closely):**
-- Client instance response time degraded
-- Background task running longer than expected
-- Error rate elevated but below critical threshold
-
-### Anvil Built-In Tools (Complementary)
-
-Anvil's per-app observability tools remain in use for deep diagnostic investigation:
-
-| Tool | Use case |
+| Condition | Alert |
 |---|---|
-| App Logs | Deep diagnostic investigation of a specific client issue |
-| CPU/Memory tabs | Performance investigation of a specific client instance |
-| Profiling and Tracing | Code-level bottleneck analysis during development |
+| Every Vault access | Email to the Owner (F-02) |
+| 5 failed Vault codes | Vault locked for 15 minutes; email to the Owner |
+| An integration call (Brevo, Wave, R2) still failing after its retries | Email to the Owner and a notice on the Dashboard |
+| A webhook that could not be applied | Notice on the Dashboard; the event stays unprocessed in `webhook_log` |
+
+### In App 5 (to Mybizz)
+
+App 5 shows every client instance on one dashboard: last heartbeat, release version, background task health, error count and last error, usage against the fair-use cap, billing status, open tickets.
+
+**Critical — act now:**
+- No heartbeat from an instance for 45 minutes (three missed heartbeats).
+- An instance's error count in one hour above its threshold.
+- A background task failing on three consecutive runs.
+- Payment failures above 10% of payment attempts in one day.
+- A support ticket of type problem that stops a client's business, unacknowledged after 4 business hours (F-32).
+
+**Warning — watch:**
+- An instance's release version differs from `master_template`'s current release.
+- Usage above 80% of the fair-use cap of 500,000 rows or 50 GB (F-33).
+- A background task running longer than twice its usual time.
+
+**At-risk (F-34):** no staff sign-in for 14 days; no bookings for 30 days; a support ticket unanswered for 3 days.
+
+---
+
+## Heartbeat to App 5
+
+- Sent every 15 minutes by `server_management/heartbeat_tasks`, as an HTTP POST to App 5 with the instance's Bearer token ([[[default:specifications-global/spec-api-specification|API Specification (HTTP Endpoints)]]](C:/dev/project-library-global/specifications-global/spec-api-specification.md)).
+- Contents: instance status, release version, schema fingerprint, background task status, error count since the last heartbeat, last error, queued retries.
+- The daily usage report adds: row count, data table storage, heavy-job activity, last staff sign-in, last booking date.
+- No customer personal data is sent to App 5. Neither the heartbeat nor the usage report contains names, emails, or the content of any record.
+- A heartbeat that cannot be delivered is written to `health_log` and sent with the next one.
+
+---
 
 ## Log Retention
 
-**Production:**
-- Detailed logs: 90 days (via Anvil App Logs)
-- Application metrics: retained in Data Tables (health_log, audit_log, error_log)
-- Audit logs: 2 years (compliance requirement)
+| Record | Kept in the instance | Then |
+|---|---|---|
+| `activity_log` (audit) | 30 days | Moved to the client's R2 bucket nightly; kept there for the life of the client (F-29) |
+| `health_log` | 30 days | Deleted |
+| `error_log` | 90 days | Deleted |
+| `webhook_log` rows | 90 days | Deleted; the payloads stay in R2 |
+| Webhook payloads | — (never in the tables) | R2, for the life of the client |
+| Anvil App Logs | As Anvil keeps them | — |
 
-**Staging:**
-- Detailed logs: 30 days
-
-## Implementation Notes
-
-### Structured Logging
-
-Use Python's built-in `logging` module for server-side structured logging:
-
-```python
-import logging
-
-logger = logging.getLogger(__name__)
-
-def get_vault_secret(secret_name):
-    logger.info("get_vault_secret called", extra={"secret_name": secret_name})
-    # ... function logic ...
-    logger.info("get_vault_secret completed", extra={"secret_name": secret_name, "result_type": type(result).__name__})
-```
-
-### Metrics Collection
-
-Metrics are written directly to Data Tables via server functions:
-
-```python
-def write_health_heartbeat():
-    """Write health heartbeat to health_log table."""
-    app_tables.health_log.add_row(
-        timestamp=datetime.now(TZ.UTC),
-        status='healthy',
-        last_active=datetime.now(TZ.UTC),
-        background_tasks_running=get_running_task_count()
-    )
-
-def log_payment_event(event_type, amount, status):
-    """Write payment event to audit_log table."""
-    app_tables.audit_log.add_row(
-        event_type=f'payment_{event_type}',
-        timestamp=datetime.now(TZ.UTC),
-        details=json.dumps({
-            'amount': amount,
-            'status': status
-        })
-    )
-```
-
-### Error Threshold Monitoring
-
-```python
-def check_error_threshold(client_id):
-    """Check if error count exceeds threshold."""
-    recent_errors = app_tables.error_log.search(
-        timestamp=datetime.now(TZ.UTC) - timedelta(hours=1)
-    )
-    if len(recent_errors) > ERROR_THRESHOLD:
-        push_management_event('error_threshold_exceeded', {
-            'client_id': client_id,
-            'error_count': len(recent_errors)
-        })
-```
+Retention clean-up runs with the nightly audit archive task. A client's R2 records are in the client's own Cloudflare account and stay there when the client leaves (`integration-architecture.md`, Offboarding).
 
 ---
 

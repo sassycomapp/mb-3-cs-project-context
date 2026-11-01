@@ -1,124 +1,79 @@
 ---
 title: "blank-client-template"
 doc-id: "mb-8829bc8a"
-updated: "2026-10-22"
+updated: "2026-11-01"
 ---
-# `blank-client-template` ADR — blank_client_template as Provisioning Clone Source
+# `blank-client-template` ADR — App 3 as the Provisioning Clone Source
 
-**Status:** Confirmed — revised following Test B (2026-06-13)  
-**Date:** 2026-06-13  
-**Last updated:** 2026-06-13  
-**Authority:** Derived from [[[default:adr-global/adr-client-instance-architecture|Client Instance Architecture]]](C:/dev/project-library-global/adr-global/adr-client-instance-architecture.md) ADR, [[[default:adr-global/adr-dependency-update-model|Dependency Update Model]]](C:/dev/project-library-global/adr-global/adr-dependency-update-model.md) ADR, platform-overview.md, Test B result
+**Status:** Accepted
+**Date:** 2026-10-31
+**Authority:** [[[default:adr-global/adr-client-instance-architecture|Client Instance Architecture]]](C:/dev/project-library-global/adr-global/adr-client-instance-architecture.md) ADR, [[[default:adr-global/adr-dependency-update-model|Dependency Update Model]]](C:/dev/project-library-global/adr-global/adr-dependency-update-model.md) ADR, [[[default:specifications-global/spec-five-app-architecture-model|Five-App Architecture Model (Specification)]]](C:/dev/project-library-global/specifications-global/spec-five-app-architecture-model.md). Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
 
 ---
 
 ## Context
 
-Every new client instance requires 44 pre-defined Data Tables with the correct schema before master_template's server modules can function. Anvil provides no programmatic API for creating Data Tables — they must be defined in the IDE. A fresh blank Anvil app has zero tables.
+Every client instance needs the full schema of `authoritative-schema.md` before `master_template`'s server modules can work. Anvil cannot create Data Tables by code, and a new Anvil app has no tables. A client instance must also never hold its own forms or server modules: one would silently override `master_template` for that instance and stop it receiving updates (reference section 2).
 
-Three options were evaluated for how a new client instance acquires its 44 tables:
+Three ways of giving a new instance its tables exist:
 
-1. **Clone master_template** — produces a full code copy; client instance then has its own server modules which take precedence over the dependency, permanently breaking update propagation (see [[[default:adr-global/adr-client-instance-architecture|Client Instance Architecture]]](C:/dev/project-library-global/adr-global/adr-client-instance-architecture.md) ADR)
-2. **Manual table creation per client** — 44 manual steps per new client; not workable at scale
-3. **A dedicated blank provisioning app** — pre-configured with 44 tables, master_template as dependency, and no server modules of its own
-
-Option 3 is the correct solution.
+1. **Clone `master_template`.** The clone gets its own copy of every form and server module, which override the dependency and break updates.
+2. **Create the tables by hand for each client.** Every table and column by hand, for every client; error-prone and not workable at 100 clients.
+3. **Clone a dedicated blank app** that holds the schema, a startup module and the dependency, and nothing else.
 
 ---
 
 ## Decision
 
-A fifth app, `blank_client_template`, is maintained on the mybizz Anvil account. It serves exclusively as the clone source for new client instances.
+**App 3, `mb-3-cs-app3` (`blank_client_template`), is the only clone source for new client instances.** It is held on the Mybizz development account.
 
-### Contents of blank_client_template
+### Contents of App 3
 
 | Component | Present | Notes |
 |---|---|---|
-| All 44 Data Tables | ✅ | Correct schema; no data |
-| Startup module | ✅ | One minimal module; imports and opens first form from master_template |
-| master_template as dependency | ✅ | Set to stable branch; present so it is inherited by every clone |
-| Server modules | ❌ | Must never be added |
-| UI forms | ❌ | Forms live in master_template; not in blank_client_template |
-| Anvil Secrets | ❌ | Set individually per client instance at provisioning |
-| Custom domain | ❌ | Configured per client instance at provisioning |
+| Every table of `authoritative-schema.md` | Yes | The released schema; no data |
+| One startup module | Yes | Opens `master_template`'s startup form |
+| `master_template` (App 2) as a dependency | Yes | Inherited by every clone |
+| Scheduled tasks | Yes | The schedule of `integration-architecture.md` (Background Tasks), calling `master_template`'s background tasks; inherited by every clone |
+| README stating the five-app rule | Yes | [[[default:adr-global/adr-client-instance-readme-five-app-system\|Mandatory README in Every Client Instance Documenting the Five-App System]]](C:/dev/project-library-global/adr-global/adr-client-instance-readme-five-app-system.md) ADR |
+| Server modules | No | Never added |
+| Forms | No | Forms live in `master_template` |
+| Anvil Secrets | No | `encryption_key` is set per instance at provisioning |
+| Custom domain | No | The client's own domain is connected per instance at provisioning |
 
-**Why no forms:** Test B confirmed that a client instance with only a startup module can successfully load and display forms served from master_template via the dependency. Forms therefore live in master_template — not in blank_client_template or in client instances. This means UI and form updates propagate automatically to all client instances when master_template is updated.
+### The startup module
 
-**The startup module in blank_client_template (inherited by every client instance clone):**
+The startup module opens `master_template`'s startup form, `auth.LoginForm`, which routes by role (reference section 10):
+
 ```python
-from master_template.MainForm import MainForm
 from anvil import open_form
-open_form(MainForm())
+from {app2_package}.auth.LoginForm import LoginForm
+
+open_form(LoginForm())
 ```
 
-### Cloning Process
+`{app2_package}` is the `package_name` in App 2's `anvil.yaml`. It is the only place where code imports by package name; every module inside `master_template` uses relative imports (`scaffold-spec.md`).
 
-When a new client is onboarded:
+### Provisioning
 
-1. Clone `blank_client_template` in the Anvil IDE
-2. Rename the clone to the client identifier
-3. The clone immediately has all 44 tables, the startup module, and master_template wired as dependency
-4. Proceed with remaining activation steps (see [[[default:specifications-global/spec-client-activation-runbook|Client Instance Activation Runbook]]](C:/dev/project-library-global/specifications-global/spec-client-activation-runbook.md))
+1. App 5 assigns the client a hosting account with a free place.
+2. App 3 is cloned into that account and named `[client-name]-cs`.
+3. The clone has the schema, the startup module, the scheduled tasks, the README and the dependency on `master_template`.
+4. The remaining steps follow `mb-3-cs-architecture-reference.md` section 5 and the [[[default:specifications-global/spec-client-activation-runbook|Client Instance Activation Runbook]]](C:/dev/project-library-global/specifications-global/spec-client-activation-runbook.md).
 
----
+### Schema responsibility
 
-## Schema Migration Responsibility
-
-`blank_client_template` is a maintained asset. When the Data Table schema changes — new table added, column added or modified, column removed — the change must be applied in two places:
-
-| Target | Purpose |
-|---|---|
-| `blank_client_template` | Ensures future client instances get the correct schema |
-| Every existing client instance | Ensures running clients are not broken by the schema change |
-
-There is no automated migration tool in Anvil. Schema migrations to existing client instances are manual IDE operations. This must be factored into the release process for any schema-affecting change.
-
-A schema change must never be merged to `stable` (master_template) without a documented migration plan for existing client instances.
-
----
-
-## Alternatives Rejected
-
-| Alternative | Reason rejected |
-|---|---|
-| Clone master_template | Copies server module code; breaks dependency update model ([[[default:adr-global/adr-client-instance-architecture\|Client Instance Architecture]]](C:/dev/project-library-global/adr-global/adr-client-instance-architecture.md) ADR) |
-| Manual table creation | 44 steps per client; error-prone; not scalable |
-| Programmatic table creation | Not supported in Anvil — tables cannot be created via code |
-| Clone an existing client instance | Risks copying live client data; requires data wipe; error-prone |
+App 3 changes only when the schema changes. Every schema change is made in App 1, recorded in `schema-migration-log.md`, applied to App 3, and applied by hand to every existing client instance. No release that changes the schema is pushed into App 2 (Step 42) without that migration plan (`deployment-procedures.md`).
 
 ---
 
 ## Consequences
 
-- ✅ New client provisioning produces a correctly structured instance in minutes
-- ✅ No server modules or forms in the clone — full update propagation (server, UI, forms) intact from day one
-- ✅ Consistent table schema across all new client instances
-- ✅ blank_client_template requires only schema maintenance — no form or UI maintenance needed here
-- ⚠️ blank_client_template must be kept in sync with schema changes — it is a maintained asset for Data Tables only
-- ⚠️ Schema migrations to existing client instances are manual — this constrains how freely the schema can change post-launch
-- ⚠️ The five-app structure requires clear documentation to avoid confusion about each app's role
-
----
-
-## The Five-App Structure
-
-| App | Role |
-|---|---|
-| `mb-3-cs` | Development workspace — all code, all forms, all server modules, 44 tables |
-| `master_template` | Published dependency — all server modules + all forms + all UI |
-| `blank_client_template` | Provisioning clone source — 44 tables + startup module only |
-| `[client instances]` | One per client — 44 tables + startup module + master_template dependency (active) |
-| `Mybizz_management` | Platform operator tooling (deferred) |
-
----
-
-## Related Documents
-
-| Document | Relationship |
-|---|---|
-| [[[default:adr-global/adr-client-instance-architecture\|Client Instance Architecture]]](C:/dev/project-library-global/adr-global/adr-client-instance-architecture.md) | Defines why server modules must not exist in client instances |
-| [[[default:adr-global/adr-dependency-update-model\|Dependency Update Model]]](C:/dev/project-library-global/adr-global/adr-dependency-update-model.md) | Update propagation model that blank_client_template preserves |
-| [[[default:specifications-global/spec-client-activation-runbook\|Client Instance Activation Runbook]]](C:/dev/project-library-global/specifications-global/spec-client-activation-runbook.md) | Uses blank_client_template as step 1 of provisioning |
+- A new client instance is correctly structured in minutes.
+- Server logic, forms and UI reach every instance through the dependency from its first day.
+- Every instance starts with the same schema and the same schedule.
+- App 3 needs schema maintenance only.
+- Schema changes to running instances are manual, which limits how freely the schema changes after launch.
 
 ---
 

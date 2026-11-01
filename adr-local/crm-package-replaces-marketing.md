@@ -1,57 +1,35 @@
 ---
 title: "crm-package-replaces-marketing"
 doc-id: "mb-6bc802c4"
-updated: "2026-10-01"
+updated: "2026-11-01"
 ---
-# Package Name: crm/ Replaces marketing/
-Date: 2026-03-18
-Status: Accepted
-Source: cs-architectural-specification-D.md §13
+# Package Name: crm/ for CRM and Marketing Forms
+
+**Status:** Accepted
+**Date:** 2026-10-31
 
 ---
 
 ## Context
 
-During development the client-side package containing CRM and marketing forms was
-named `marketing/`. As the platform evolved, it became clear that CRM and marketing
-are tightly integrated in the C&S vertical — they are not separate concerns. The
-package name `marketing/` no longer accurately described its scope. The live repository
-confirmed the package had already been renamed.
+In Mybizz CS, CRM and marketing are one concern: contacts, segments, tasks, automations, campaigns, broadcasts and lead capture all work on the same contact records (F-17 to F-20). The client-side package that holds these forms needs one name that every document, prompt and agent uses.
 
 ---
 
 ## Decision
 
-**The client-side package for CRM and marketing forms is `client_code/crm/`.**
+**The client-side package for the CRM and marketing forms is `client_code/crm/`.** No client package is named `marketing/`.
 
-`marketing/` is a stale name. Any documentation, prompt, or rules file that references
-a `marketing/` client package is incorrect and must be updated to `crm/`.
-
-The name reflects the integrated nature of CRM and marketing in the C&S vertical.
-
-### Affected navigation items
-
-The admin navigation group is **"Customers & Marketing"** (display label) but the
-underlying package is `crm/`. The display label and the package name are intentionally
-different — the label is user-facing, the package name is code-facing.
-
-### server_marketing/ is unaffected
-
-The server-side `server_marketing/` package name is unchanged. Only the client-side
-package was renamed. Do not conflate the two.
+- The admin menu group is labelled **Customers & Marketing**. The label is what users see; the package name is what code uses. They differ by design.
+- The server-side package is `server_marketing/`. The two names are not interchangeable: `crm/` is client code, `server_marketing/` is server code.
+- The forms in `crm/` are listed in `scaffold-spec.md` (Package Structure).
 
 ---
 
 ## Consequences
 
-### Rules files affected
-
-| File | Required content |
-|---|---|
-| `spec_architecture.md` | Package structure — `client_code/crm/` confirmed name |
-| `spec_crm.md` | Package reference — `client_code/crm/` |
-| `platform_overview.md` | Any package structure references |
-| Any file referencing `client_code/marketing/` | Correct to `client_code/crm/` |
+- Every document, prompt and rules file names the client package `crm/` and the server package `server_marketing/`.
+- A reference to a client package `marketing/` is an error and is corrected to `crm/`.
 
 ---
 

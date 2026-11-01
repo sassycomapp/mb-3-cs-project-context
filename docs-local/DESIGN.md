@@ -1,52 +1,16 @@
 ---
 title: "DESIGN"
 doc-id: "mb-190df6bf"
-updated: "2026-10-29"
+updated: "2026-11-01"
 ---
 # Mybizz CS — DESIGN
 
-**Status:** Reconciled canonical design system  
-**Date:** 2026-06-02  
-**Project:** Mybizz CS  
-**Platform:** Anvil.works with Material Design 3 (M3)  
-**Purpose:** Authoritative design system input for GStack workflows, especially `/design-shotgun` and `/design-html`.
+This document is the design system of Mybizz CS. It is built on the **Anvil Material 3 theme** (dependency ID `4UK6WHQ6UX7AKELK`) and applies to every Mybizz CS screen: the public website, the admin area, the customer portal, and the Mybizz management app (App 5).
 
----
-
-## Authority and Source Documents
-
-This file is the canonical design system document for the Mybizz CS project.
-It exists to provide the single design reference that GStack expects as `DESIGN.md` in the workflow sequence.
-
-This document is consolidated from the following approved design consultation outputs:
-
-- [[[mb-3-cs-project-context:docs-local/design-direction|Design Direction (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/design-direction.md) — primary source for visual direction, tokens, typography, spacing, elevation, Anvil role map, and component styling rules.
-- `design-consultation-plan-workflows.md` — source for workflow-specific component definitions, template inventory, implementation notes, schema additions, and design documentation expectations.
-- `design-consultation-plan-descriprive.md` — source for workstream framing, palette strategy, blog template strategy, layout architecture, and client-facing customization model.
-
-Where these source documents overlap, this file takes precedence as the authoritative consolidated reference.
-If deeper implementation detail is needed, the source documents remain supporting references, but this file is the first design authority to consult.
-
-### Reconciliation Notes (2026-06-02)
-
-This file has been reconciled against:
-- `sanity-audit-final-report.md` (2026-06-01)
-- `plan-tune-verification-report.md` (2026-06-01)
-- `wireframe-reconciliation-audit.md` (2026-06-01)
-- [[[mb-3-cs-project-context:docs-local/platform-architecture|Platform Architecture]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/platform-architecture.md) (current)
-- `nomenclature.md` (current)
-
-Key corrections applied:
-- OnboardingPaletteForm removed from active inventory (obsolete).
-- ClauseBuilder added as shared custom component.
-- PaletteSettingsForm downgraded to local/form-specific.
-- OnboardingForm, SettingsForm, PolicyEditorForm, PrivacyPolicyPage, TermsConditionsPage now explicitly covered.
-- SettingsForm updated to 11-tab structure with RBAC governance.
-- Onboarding/Settings architectural boundary reflected.
-- Legal acknowledgement placed in onboarding scope.
-- Payment gateway configuration placed in Settings scope.
-- Mybizzmanagement treated as out-of-scope context only.
-- privacy_policy and t_and_c tables added to schema expectations.
+- The colour values of the four palettes live in `palette-tokens.md`; this document defines how colour is used.
+- Generic Material 3 rules (accessibility, the `wrap_on` responsive mechanism, state-specification patterns) live in [[[default:specifications-global/spec-m3-design-standards|M3 Design & Component Standards]]](C:/dev/project-library-global/specifications-global/spec-m3-design-standards.md) and are not repeated here. This document states this project's choices and its deviations from the M3 defaults.
+- Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct.
+- Feature numbers (F-01 to F-34) are those of `mb-3-cs-concept.md`.
 
 ---
 
@@ -89,9 +53,9 @@ The intended character is:
 
 - Bright gradients, flashy hero treatments, or decorative visual noise.
 - Childish or overly playful interface language.
-- Dark mode as the primary design target. (Dark mode is included in V1 per [[[default:adr-global/adr-dark-mode|Dark Mode — V1 Inclusion]]](C:/dev/project-library-global/adr-global/adr-dark-mode.md) ADR.)
+- Designing in dark mode first. Light mode is the design baseline; dark mode follows the device setting on every screen ([[[default:adr-global/adr-dark-mode|Dark Mode]]](C:/dev/project-library-global/adr-global/adr-dark-mode.md) ADR).
 - Heavy animation, glassmorphism, or neumorphism.
-- Complex charts or visual systems in V1 beyond what is operationally useful.
+- Complex charts or visual systems beyond what is operationally useful.
 - Template-specific CSS divergence that breaks the shared design system.
 
 ---
@@ -144,49 +108,38 @@ These two contexts must use the same underlying design system:
 
 ### Color System
 
-The project follows a Material 3 token model.
-All colors should resolve through Anvil theme tokens or documented CSS custom properties.
-Hardcoded colors should be avoided unless explicitly approved.
+All colour comes from the Anvil M3 theme's Colour Scheme. **No hardcoded colour values, anywhere, without exception.**
 
-#### Primary Palette
+- In the Designer and in CSS, colours are referenced by Colour Scheme name: `%color:Primary%`.
+- At runtime, the Anvil M3 theme exposes every Colour Scheme colour as a CSS custom property on `:root`: `--anvil-m3-` followed by the colour name in lower case with hyphens (`--anvil-m3-primary-container`). The project's own roles in `theme.css` use `var(--anvil-m3-…)`, so that palette switching and dark mode reach every component, native or custom.
+- A translucent colour is made from a token with `color-mix()`, for example `color-mix(in srgb, var(--anvil-m3-on-surface) 7%, transparent)`, never with a typed colour value.
 
-- Primary: `%color:Primary%`
-- On Primary: `%color:On Primary%`
-- Primary Container: `%color:Primary Container%`
-- On Primary Container: `%color:On Primary Container%`
+The Colour Scheme holds the 46 colours of the Anvil M3 theme:
 
-#### Secondary Palette
-
-- Secondary: `%color:Secondary%`
-- On Secondary: `%color:On Secondary%`
-- Secondary Container: `%color:Secondary Container%`
-- On Secondary Container: `%color:On Secondary Container%`
-
-#### Neutral Palette
-
-- Surface: `%color:Surface%`
-- On Surface: `%color:On Surface%`
-- Surface Variant: `%color:Surface Variant%`
-- On Surface Variant: `%color:On Surface Variant%`
-- Outline: `%color:Outline%`
-- Background: `%color:Background%`
-- On Background: `%color:On Background%`
+| Group | Colours |
+|---|---|
+| Primary | Primary, On Primary, Primary Container, On Primary Container |
+| Secondary | Secondary, On Secondary, Secondary Container, On Secondary Container |
+| Tertiary | Tertiary, On Tertiary, Tertiary Container, On Tertiary Container |
+| Error | Error, On Error, On Error Container |
+| Surface and neutral | Background, On Background, Surface, On Surface, Surface Variant, On Surface Variant, Surface Container Low, Surface Container, Surface Container High, Surface Container Highest, Outline, Outline Variant, Inverse Surface, Inverse On Surface |
+| Overlays and disabled | Primary Overlay 1–3, Light Overlay 1–2, Dark Overlay 1–3, Error Overlay 1–2, On Surface Variant Overlay 1–2, Inverse On Surface Overlay 1–2, On Disabled, Disabled Container, Disabled Container 2 |
 
 #### Status Colors
 
-- Error: `%color:Error%`
-- On Error: `%color:On Error%`
-- Disabled Container: `%color:Disabled Container%`
-- On Disabled: `%color:On Disabled%`
-- Light Overlay 1%: `%color:Light Overlay 1%`
-- Light Overlay 2%: `%color:Light Overlay 2%`
-- Dark Overlay 1%: `%color:Dark Overlay 1%`
-- Dark Overlay 2%: `%color:Dark Overlay 2%`
+Material 3 provides no success or pending colour. The platform fixes three status colours once for every Mybizz app ([[[default:specifications-global/spec-m3-design-standards|M3 Design & Component Standards]]](C:/dev/project-library-global/specifications-global/spec-m3-design-standards.md) section 10), added as custom colours in the Colour Scheme and identical in every palette:
+
+| Role | Meaning |
+|---|---|
+| `status-success` | Success, confirmed, paid |
+| `status-pending` | Pending, awaiting action |
+| `status-error` | Failure, overdue, no-show |
+
+Status is never shown by colour alone: every status badge also carries its status word (section "Status Badges").
 
 #### Hardcoded Exception Policy
 
-No hardcoded exception is currently approved as part of the baseline system.
-If a hardcoded value becomes necessary, it must be documented explicitly in this file or in a supporting design decision note.
+No hardcoded colour exception is approved. A colour need that the Colour Scheme cannot meet is resolved by deriving the colour from a token with `color-mix()`.
 
 ---
 
@@ -194,73 +147,39 @@ If a hardcoded value becomes necessary, it must be documented explicitly in this
 
 ### Palette Strategy
 
-The platform supports a unified palette system for client customization.
-All palettes derive from the same M3 token structure.
-Only the palette changes; the layout, typography, spacing, and interaction system remain fixed.
-
-The palette system applies to:
-
-- Primary button colors.
-- Navigation active states.
-- Accent surfaces and highlights.
-- Link colors.
-- Card emphasis and selected states where appropriate.
+The platform supports four preset palettes for client customisation. Every palette is a complete Anvil M3 Colour Scheme, generated from a locked source colour with the Material 3 algorithm, in light and dark. Only the palette changes; layout, typography, spacing and the interaction system remain fixed.
 
 ### Preset Palettes
 
-#### Professional Blue
+| Palette | Best for | Intended effect |
+|---|---|---|
+| Professional Blue (default) | Consultants, clinics, therapists | Trust, professionalism, stability |
+| Warm Coral | Salons, spas, lifestyle, beauty | Warmth, creativity, approachability |
+| Calm Teal | Fitness, wellness, physiotherapy, health services | Health, balance, growth |
+| Sophisticated Purple | Executive coaching, premium consulting, high-end services | Premium, refined, exclusive |
 
-- Best for consultants, clinics, therapists.
-- Intended effect: trust, professionalism, stability.
-
-#### Warm Coral
-
-- Best for salons, spas, lifestyle, beauty.
-- Intended effect: warmth, creativity, approachability.
-
-#### Calm Teal
-
-- Best for fitness, wellness, physiotherapy, health services.
-- Intended effect: health, balance, growth.
-
-#### Sophisticated Purple
-
-- Best for executive coaching, premium consulting, high-end services.
-- Intended effect: premium, refined, exclusive.
+Source colours, the generation method and every colour value: `palette-tokens.md`.
 
 ### Palette Selector Requirements
 
-The palette selector component should show:
+The palette selector (Settings → Brand Palette, and onboarding) shows for each palette:
 
-- Primary color swatch.
+- Primary colour swatch.
 - Sample filled button.
 - Sample outlined button.
 - Sample card treatment.
 - Sample heading and link treatment.
-- A clear label indicating target business fit.
+- A clear label stating the target business fit.
+
+Choosing a palette previews it live across the screen before it is saved.
 
 ### Palette Governance
 
-Palette switching is a product customization concern and should remain token-driven.
-Switching a palette must not require page-specific redesign or branching CSS logic.
-
-### Source reference 
-Palette System Reference Documents
-The following documents are authoritative supporting references for the Palette System section of this file.
-They were generated from source colors using the M3 HCT tonal palette algorithm and are treated as design constants.
-Do not modify these files without regenerating tokens from source colors.
-
-Document	Purpose	Status
-Document	Purpose	Status
-DESIGN_palette_section.md	Full M3 CSS token sets for all 4 palettes. Replaces the Palette System section in this file. Contains 32 tokens per palette in CSS custom property format.	Authoritative
-palette_selector_tokens.md	Python dict blocks for the palette selector component. Contains the same 32 tokens per palette in Python dict format plus the apply_palette usage pattern.	Authoritative
-Source Colors (Locked)
-Palette	Source Hex	Algorithm
-Professional Blue	#2563EB	M3 HCT TonalSpot
-Warm Coral	#FF6F61	M3 HCT TonalSpot
-Calm Teal	#008080	M3 HCT TonalSpot
-Sophisticated Purple	#6B46C1	M3 HCT TonalSpot
-If a source color changes, both reference documents must be regenerated together and this table updated.
+- Palette switching is token-driven: it sets the `--anvil-m3-*` properties and nothing else.
+- Switching a palette never requires page-specific redesign or branching CSS.
+- Every palette swap sets the full Colour Scheme — accent, surface, neutral, overlay and disabled colours.
+- The chosen palette applies to every screen of the client's instance: public website, admin area and customer portal.
+- Dark mode is applied by the same mechanism, from the palette's dark block, whenever the device prefers dark.
 
 ---
 
@@ -273,13 +192,15 @@ Fallbacks: Noto Sans, Arial, sans-serif
 
 ### Type Scale
 
+The M3 type scale ([[[default:specifications-global/spec-m3-design-standards|M3 Design & Component Standards]]](C:/dev/project-library-global/specifications-global/spec-m3-design-standards.md) section 11) with this project's heading weight:
+
 | Scale | Size | Line Height | Weight | Use Case |
 |---|---:|---:|---:|---|
-| Display | 57px | 64px | 400 | Rare hero headlines |
-| Headline Large | 32px | 40px | 400 | Page titles |
-| Headline Small | 22px | 28px | 500 | Section headers |
+| Display | 57px | 64px | 400 | Rare hero headlines, error codes |
+| Headline Large | 32px | 40px | 600 | Page titles |
+| Headline Small | 22px | 28px | 600 | Section headers |
 | Title | 18px | 24px | 500 | Card titles |
-| Body Large | 14px | 20px | 400 | Larger body copy |
+| Body Large | 16px | 24px | 400 | Larger body copy, public pages |
 | Body | 14px | 20px | 400 | Standard body text |
 | Button | 14px | 14px | 500 | Button labels |
 | Label | 12px | 16px | 500 | Form labels |
@@ -321,7 +242,7 @@ Rules:
 | Element | Radius | Notes |
 |---|---:|---|
 | Buttons | 100px | Pill shape |
-| Cards | 12px | Standard card shape |
+| Cards | 8px | Standard card shape (project deviation from the M3 default of 12px) |
 | Dialogs | 28px | Modal/dialog treatment |
 | Inputs (Outlined) | 4px | Text boxes and dropdowns |
 | Inputs (Filled) | 0px | Bottom-border-only pattern |
@@ -334,7 +255,7 @@ Rules:
 | Element | Elevation | Notes |
 |---|---:|---|
 | Surface | 0dp | Flat base |
-| Card (Elevated) | 2dp | Emphasized content |
+| Card (Elevated) | soft dual-layer shadow | Emphasized content (see "Project Deviations from M3 Defaults") |
 | Card (Tonal) | 0dp | Tonal separation only |
 | Dialog | 24dp | Modal emphasis |
 | Navigation Rail | 0dp | Border-only structure |
@@ -433,10 +354,42 @@ Rules:
 | `input-disabled` | All inputs | Disabled state |
 | `input-readonly` | All inputs | Read-only state |
 
+### Status Badges
+
+A status badge is an outlined pill: a small dot in the status colour, followed by the status word in On Surface. The word carries the meaning; the colour supports it. This keeps every badge readable in every palette and in dark mode.
+
+| Status | Dot colour |
+|---|---|
+| Confirmed, paid, delivered, approved | `status-success` |
+| Pending, awaiting approval, in progress, sent | `status-pending` |
+| Overdue, failed, no-show | `status-error` |
+| Completed | Primary |
+| Draft, cancelled, inactive | On Surface Variant (cancelled items are also shown at reduced opacity in lists and the calendar) |
+
 ### Component Consistency Rule
 
 All templates must reuse the same underlying components and role rules.
 Template variation is allowed through arrangement, visibility, and composition, but not through design-system divergence.
+
+---
+
+## Project Deviations from M3 Defaults
+
+Where this project's values differ from the Anvil M3 theme defaults, the deviation is stated here so it is never silently inherited. These deviations give Mybizz CS its refined "MUI-inspired" look, taken from the MUI dashboard reference.
+
+| Element | M3 default | Mybizz CS value |
+|---|---|---|
+| Card corner radius | 12px | 8px |
+| Headline weight (Headline Large, Headline Small) | 400 | 600 |
+| Card shadow (elevated) | M3 elevation level 1 | Soft dual layer: `0 4px 16px 0 color-mix(in srgb, var(--anvil-m3-on-surface) 7%, transparent), 0 8px 16px -5px color-mix(in srgb, var(--anvil-m3-on-surface) 7%, transparent)` |
+| Dividers | Outline Variant | Outline Variant at 40% opacity (hairline) |
+| Surface distinction | Single surface | Two levels: Background for the page, Surface Container Low for panels and navigation |
+| App bar | Surface Container | Surface, hairline bottom border, no gradient |
+| Navigation rail / drawer | Surface Container | Surface Container Low, hairline right border |
+| State layer — hover | 8% | 8% (unchanged) |
+| State layer — pressed / focused | 10–12% | 12% |
+
+Unchanged from M3: button radius 100px (pill), dialog radius 28px, outlined input radius 4px, navigation item radius 100px, Roboto, the 4px spacing grid, and the M3 colour role structure. All deviations are implemented in `theme.css` through `--anvil-m3-*` properties and Anvil roles.
 
 ---
 
@@ -446,74 +399,79 @@ This section defines the primary implementation-facing forms and pages in the My
 
 ### OnboardingForm
 
-**Purpose:** Guided first-run experience for new Owners.  
-**Architecture:** Onboarding is a separate form, not part of Settings.  
-**Wireframe:** `wireframe-onboarding-OnboardingForm.html` (created).
+**Purpose:** Guided first-run experience for new Owners (F-03, flow UF-02).
+**Architecture:** Onboarding is a separate form, not part of Settings. Configuration that belongs to Settings is done by linking to the Settings tab and returning to onboarding.
+**Wireframe:** `wireframe-onboarding-OnboardingForm.html`.
 
-**Flow structure (6 steps):**
+**Flow structure (8 steps):**
 1. Welcome and orientation.
-2. Business Profile — links to Settings Business Profile tab for detail editing.
-3. Palette Selection — links to Settings Palette tab for detail editing.
-4. System Currency — dropdown plus confirm button. Required. Immutable after first transaction. See [[[default:adr-global/adr-system-currency-selection-and-immutability|System Currency, Display Currency, and Immutability]]](C:/dev/project-library-global/adr-global/adr-system-currency-selection-and-immutability.md) ADR.
-5. Legal Acknowledgement — two checkboxes plus confirm button. Required. Logged in Mybizz_management. See [[[default:adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture|Legal Policy Responsibility Acknowledgement and Clause-Builder Architecture]]](C:/dev/project-library-global/adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture.md) ADR.
-6. Completion — onboarding complete.
+2. Business Profile — links to Settings → Business Profile.
+3. Brand Palette — links to Settings → Brand Palette.
+4. System Currency — dropdown plus confirm button. Required. Locked once the first booking or invoice exists. See [[[default:adr-global/adr-system-currency-selection-and-immutability|System Currency, Display Currency, and Immutability]]](C:/dev/project-library-global/adr-global/adr-system-currency-selection-and-immutability.md) ADR.
+5. Legal Acknowledgement — two checkboxes plus confirm button. Required. Recorded with a timestamp in the instance and in the Mybizz management app. See [[[default:adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture|Legal Policy Responsibility Acknowledgement and Clause-Builder Architecture]]](C:/dev/project-library-global/adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture.md) ADR.
+6. Payment Gateway — links to Settings → Payment Gateways. See [[[default:adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed|Payment Gateway Configuration Is a Settings Function and Is RBAC-Governed]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed.md) ADR.
+7. Brevo Email — links to Settings → Email Configuration.
+8. Completion — onboarding complete.
 
 **Key design rules:**
-- Progress indicator must be visible throughout.
-- Bidirectional navigation (back and forward) between steps.
-- "Go to Settings" links open the corresponding Settings tab and return to onboarding when done.
-- Legal acknowledgement is a required action in onboarding, not a mutable Settings configuration.
-- Payment gateway configuration is not part of onboarding. Onboarding links to Settings for gateway setup. See [[[default:adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed|Payment Gateway Configuration Is a Settings Function and Is RBAC-Governed]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed.md) ADR.
-- Onboarding state is tracked in `business_profile.onboarding_status`. See [[[default:adr-global/adr-onboarding-resumability|Onboarding Resumability]]](C:/dev/project-library-global/adr-global/adr-onboarding-resumability.md) ADR, [[[default:adr-global/adr-onboarding-finality|Onboarding Finality]]](C:/dev/project-library-global/adr-global/adr-onboarding-finality.md) ADR (deleted).
+- Progress indicator visible throughout.
+- Back and forward navigation between steps.
+- "Go to Settings" links open the Settings tab and return to onboarding when done.
+- Legal acknowledgement is a required action in onboarding, not a Settings configuration.
+- Onboarding state is tracked in `business_profile.onboarding_status`; an Owner who leaves returns to the next unfinished step. See [[[default:adr-global/adr-onboarding-resumability|Onboarding Resumability]]](C:/dev/project-library-global/adr-global/adr-onboarding-resumability.md) ADR.
 
 **Step 5 — Legal Acknowledgement (two checkboxes):**
-- `cb_legal_ack` (CheckBox) — "I understand I must configure my own Privacy Policy and Terms & Conditions in Settings → Policy Editor. Mybizz is not responsible for the content of those pages." Sets `business_profile.legal_ack_accepted`.
-- `cb_data_governance_ack` (CheckBox) — "I understand that Mybizz retains certain records for legal and compliance purposes as described above." Sets `business_profile.data_governance_ack_accepted`.
+- `cb_legal_ack` (Checkbox) — "I understand I must configure my own Privacy Policy and Terms & Conditions in Settings → Legal Pages. Mybizz is not responsible for the content of those pages." Sets `business_profile.legal_ack_accepted`.
+- `cb_data_governance_ack` (Checkbox) — "I understand that Mybizz retains certain records for legal and compliance purposes as described above." Sets `business_profile.data_governance_ack_accepted`.
 - "Confirm Acknowledgement" button (`btn_confirm_legal`) is enabled only when both checkboxes are ticked.
-- This acknowledgement is recorded once and cannot be reversed.
+- The acknowledgement is recorded once and cannot be reversed.
 
-**Per-step Continue button enable/disable logic:**
+**Per-step Continue button logic:**
 
 | Step | Continue Button | Logic |
 |------|----------------|-------|
 | 1 (Welcome) | Always enabled | Informational only |
-| 2 (Business Profile) | Always enabled | Optional link step — can be skipped |
-| 3 (Palette Selection) | Always enabled | Optional link step — can be skipped |
-| 4 (System Currency) | Disabled until confirmed | Enabled only after `btn_confirm_currency` is clicked and `business_profile.system_currency` is set |
-| 5 (Legal Acknowledgement) | Disabled until confirmed | Enabled only after both `cb_legal_ack` and `cb_data_governance_ack` are ticked and `btn_confirm_legal` is clicked |
-| 6 (Completion) | "Go to Dashboard" | Sets `onboarding_status = "completed"`, `onboarding_completed = True`, navigates to Dashboard |
+| 2 (Business Profile) | Always enabled | Link step — can be completed later |
+| 3 (Brand Palette) | Always enabled | Link step — Professional Blue applies until a palette is chosen |
+| 4 (System Currency) | Disabled until confirmed | Enabled after `btn_confirm_currency` is clicked and `business_profile.system_currency` is set |
+| 5 (Legal Acknowledgement) | Disabled until confirmed | Enabled after both checkboxes are ticked and `btn_confirm_legal` is clicked |
+| 6 (Payment Gateway) | Always enabled | Link step — bookings that take payment stay unavailable until a gateway is connected |
+| 7 (Brevo Email) | Always enabled | Link step — transactional email stays unavailable until Brevo is connected and verified |
+| 8 (Completion) | "Go to Dashboard" | Sets `onboarding_status = "completed"`, `onboarding_completed = True`, navigates to the Dashboard |
 
 ### SettingsForm
 
-**Purpose:** Single tabbed form for all post-onboarding configuration.  
-**Architecture:** Settings is a single form with tab-based navigation using M3 buttons.  
-**Wireframe:** `wireframe-settings-SettingsForm.html` (recreated with 11 tabs).
+**Purpose:** Single tabbed form for all configuration after onboarding (F-05).
+**Architecture:** One form with tab-based navigation using M3 buttons. The tab list is the one in `mb-3-cs-architecture-reference.md` F-05.
 
-**Tab structure (11 tabs):**
+**Tab structure:**
 
 | Tab | Content | RBAC Visibility |
 |---|---|---|
-| Business Profile | Name, email, phone, address, timezone, entity type | Owner, Manager |
-| Palette | Brand colour selection (PaletteSettingsForm — local component) | Owner, Manager |
-| System Currency | Currency display (locked after first transaction) | Owner only |
-| Legal Acknowledgement | Read-only view of legal acknowledgements | Owner only |
-| Display Currency | Optional per-service currency override | Owner, Manager |
-| Payment Gateway | Stripe/Paystack configuration (API keys in Vault) | Owner only |
-| Services | Service catalogue management | Owner, Manager, Admin |
-| Users & Permissions | User management and RBAC | Owner only |
-| Email Configuration | Brevo SMTP and API settings | Owner only |
-| Theme | M3 theme customisation | Owner, Manager |
-| Feature Flags | Feature activation toggles | Owner only |
+| Business Profile | Name, description, email, phone, address, timezone, entity type, logo, social links, accreditations, home and services video addresses | Owner, Manager |
+| Brand Palette | Palette selection (PaletteSettingsForm — local component) | Owner, Manager |
+| System Currency | Currency display (read-only, locked after first transaction) | Owner |
+| Display Currency | Optional per-service display currency | Owner, Manager |
+| Legal Acknowledgement | Read-only acknowledgement history | Owner |
+| Payment Gateways | Card gateway (Stripe or Paystack), optional PayPal, test/live mode (secret keys in the Vault) | Owner |
+| Invoicing | Default payment terms, tax rate and tax label, tax registration number, invoice numbering | Owner |
+| Users and Permissions | Link to UserManagementForm | Owner |
+| Email Configuration | Brevo sender settings | Owner |
+| Theme | Public website header style | Owner, Manager |
+| Feature Switches | `marketing_enabled`, `blog_enabled`, blog comments | Owner |
+| Integrations | Wave connection | Owner |
+| Legal Pages | PolicyEditorForm (Clause Builder) | Owner |
+| Data | History view from R2, export all data as CSV | Owner |
 
 **Key design rules:**
-- Tab visibility is RBAC-governed. Different roles see different tabs.
-- "Return to Onboarding" button in header — visible only when onboarding is in progress.
-- Vault access (within Payment Gateway tab) requires TOTP step-up per [[[default:adr-global/adr-payment-security-boundary-vault|Payment Security Boundary: Secret Keys Deferred to the Vault]]](C:/dev/project-library-global/adr-global/adr-payment-security-boundary-vault.md) ADR.
-- Legal Acknowledgement tab is read-only. It displays acknowledgement history. The acknowledgement action itself belongs to onboarding.
-- Payment gateway configuration is a Settings concern, not an onboarding concern. See [[[default:adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed|Payment Gateway Configuration Is a Settings Function and Is RBAC-Governed]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-configuration-is-a-settings-function-and-is-rbac-governed.md) ADR.
-- PaletteSettingsForm is a local/form-specific component used only within the Palette tab.
-- Business Profile is a tab within SettingsForm, not a standalone form.
-- Services and Users & Permissions tabs are link-only tabs that navigate to their respective forms.
+- Tab visibility is RBAC-governed; different roles see different tabs.
+- "Return to Onboarding" button in the header, visible only while onboarding is in progress.
+- Secret keys are entered only in the Vault, which requires TOTP every time ([[[default:adr-global/adr-payment-security-boundary-vault|Payment Security Boundary: Secret Keys Deferred to the Vault]]](C:/dev/project-library-global/adr-global/adr-payment-security-boundary-vault.md) ADR).
+- Legal Acknowledgement is read-only; the acknowledgement action belongs to onboarding.
+- Payment gateway configuration is a Settings function, not an onboarding function.
+- PaletteSettingsForm is a local component used only in the Brand Palette tab.
+- Users and Permissions is a link tab that opens UserManagementForm.
+- Dark mode has no tab: it follows the device setting.
 
 ### VaultForm
 
@@ -533,7 +491,7 @@ This section defines the primary implementation-facing forms and pages in the My
 - Displayed before the vault content is visible. Full-screen overlay or prominent card at top of form.
 - Shows: "TOTP Verification Required" heading, instruction text ("Enter the code from your authenticator app"), 6-digit input field, "Verify" button.
 - On success: TOTP overlay dismissed, vault content (secrets list + add form) becomes visible.
-- On failure: Error message "Invalid code. Please try again." with input field cleared. No lockout — unlimited retries.
+- On failure: Error message "Invalid code. Please try again." with the input field cleared. After 5 failed codes the Vault locks for 15 minutes and the Owner is emailed, because a six-digit code must not be open to unlimited guessing.
 - No grace period: TOTP is required on every VaultForm open, even if the user just verified 30 seconds ago.
 
 **Vault empty state (no secrets stored):**
@@ -566,33 +524,31 @@ This section defines the primary implementation-facing forms and pages in the My
 
 ### PaymentGatewayForm
 
-**Purpose:** Configure active payment gateway (Stripe or Paystack).  
-**Architecture:** Standalone form. One active gateway per client instance ([[[default:adr-global/adr-payment-gateway-mutability|Payment Gateway Mutability]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-mutability.md) ADR). Publishable key stored in `payment_config` table. Secret key stored in Vault ([[[default:adr-global/adr-payment-security-boundary-vault|Payment Security Boundary: Secret Keys Deferred to the Vault]]](C:/dev/project-library-global/adr-global/adr-payment-security-boundary-vault.md) ADR).
+**Purpose:** Configure the card gateway (Stripe or Paystack) and the optional PayPal gateway (F-15).
+**Architecture:** Standalone form opened from Settings → Payment Gateways. One active card gateway per client instance ([[[default:adr-global/adr-payment-gateway-mutability|Payment Gateway Mutability]]](C:/dev/project-library-global/adr-global/adr-payment-gateway-mutability.md) ADR); PayPal can be enabled alongside it. Publishable keys are stored in `payment_config`; secret keys only in the Vault.
 
-**Schema fields (`payment_config`):** `active_gateway`, `stripe_publishable_key`, `stripe_connected`, `stripe_connected_at`, `paystack_connected`, `paystack_connected_at`, `test_mode`, `configured_at`.
+**Schema fields (`payment_config`):** `active_gateway`, `stripe_publishable_key`, `stripe_connected`, `stripe_connected_at`, `paystack_connected`, `paystack_connected_at`, `paypal_enabled`, `paypal_connected_at`, `test_mode`, `configured_at`.
 
 **Key design rules:**
-- Gateway selector with Stripe and Paystack options (radio buttons or cards).
-- Test Mode toggle for sandbox/live key switching.
-- Publishable Key input — safe to expose in client-side code.
-- Secret Key input must NOT be present in the form. Secret keys are stored exclusively in The Vault per [[[default:adr-global/adr-payment-security-boundary-vault|Payment Security Boundary: Secret Keys Deferred to the Vault]]](C:/dev/project-library-global/adr-global/adr-payment-security-boundary-vault.md) ADR.
-- Vault notice displayed explaining secret key storage.
+- Card gateway selector with Stripe and Paystack options (radio buttons or cards).
+- PayPal switch with its own connection status.
+- Test Mode switch for sandbox and live keys.
+- Publishable key input — safe to expose in client-side code.
+- No secret key input on this form. Secret keys are stored exclusively in the Vault ([[[default:adr-global/adr-payment-security-boundary-vault|Payment Security Boundary: Secret Keys Deferred to the Vault]]](C:/dev/project-library-global/adr-global/adr-payment-security-boundary-vault.md) ADR).
+- A Vault notice explains where secret keys are stored.
 - RBAC: Owner only.
 
 ### ThemeConfigForm
 
-**Purpose:** Customize M3 theme for client-facing public pages.  
-**Architecture:** Standalone form. Configuration stored in `theme_config` table.
+**Purpose:** Settings → Theme: the public website's header style.
+**Architecture:** Configuration stored in `theme_config`.
 
-**Schema fields (`theme_config`):** `primary_color`, `accent_color`, `font_family`, `header_style`, `updated_at`.
+**Schema fields (`theme_config`):** `header_style`, `updated_at`.
 
 **Key design rules:**
-- Primary Color and Accent Color with color picker + hex text input.
-- Font Family dropdown (Google Fonts selection).
-- Header Style dropdown (Standard, Centered, Minimal).
-- Live Preview section showing theme applied to sample content.
-- Reset to Default button.
-- Token-driven theming — palette system integration per DESIGN.md Palette System section.
+- Header Style dropdown: Standard, Centered, Minimal.
+- Live preview of the public website header.
+- Colours come only from the four palettes (Brand Palette tab); typography is Roboto only. Free colour pickers and font choices are not offered, because they would break the palette system, contrast and the single type family.
 - RBAC: Owner, Manager.
 
 ### UserManagementForm
@@ -604,15 +560,15 @@ This section defines the primary implementation-facing forms and pages in the My
 - Role filter dropdown (All, Owner, Manager, Admin, Staff, Customer).
 - Invite User button (primary action).
 - User table with Name, Email, Role, Status, Actions columns.
-- Role badges with semantic color coding per role.
+- Role badges as outlined pills with the role word; no colour coding by role.
 - Status indicators (Active, Inactive, Pending).
 - Row actions: Edit (all), Deactivate (active users), Reactivate (inactive users).
 - RBAC: Owner only.
 
 ### PolicyEditorForm
 
-**Purpose:** Settings-hosted screen for editing Privacy Policy and Terms & Conditions using the ClauseBuilder component.  
-**Architecture:** Accessed from Settings. Uses ClauseBuilder as a shared custom component.  
+**Purpose:** Settings → Legal Pages: editing the Privacy Policy and Terms & Conditions with the ClauseBuilder component (F-22).  
+**Architecture:** Hosted in the Legal Pages tab of Settings. Uses ClauseBuilder as a shared custom component.  
 **Wireframe:** `wireframe-settings-PolicyEditorForm.html` (created).
 
 **Key design rules:**
@@ -749,18 +705,18 @@ Hides: carousel, full services grid, full testimonials, video. Uses fewer text b
 **Structure:**
 ```text
 ErrorLayout (BlankLayout)
-└── error_container (ColumnPanel) — max-width: 480px, centred
-    ├── txt_error_code (Label) — Display typography (57px), color: primary
+└── col_error (ColumnPanel) — max-width: 480px, centred
+    ├── hdg_error_code (Heading) — Display scale (57px), colour Primary
     ├── hdg_error_title (Heading) — Headline Large (32px)
-    ├── txt_error_message (Text) — Body Large (16px), color: on-surface-variant
+    ├── text_error_message (Text) — Body Large (16px), colour On Surface Variant
     └── btn_go_home (Button) — filled, "Go Home"
 ```
 
 **Key design rules:**
 - All four elements (error code, heading, message, button text) are set programmatically based on error type.
-- Error code uses Display typography (`57px/64px 400`), color: `var(--primary)`.
-- Heading uses Headline Large (`32px/40px 400`), color: `var(--on-surface)`.
-- Message uses Body Large (`16px/24px 400`), color: `var(--on-surface-variant)`, max-width: 480px.
+- Error code uses the Display scale (`57px/64px 400`), colour `var(--anvil-m3-primary)`.
+- Heading uses Headline Large (`32px/40px 600`), colour `var(--anvil-m3-on-surface)`.
+- Message uses Body Large (`16px/24px 400`), colour `var(--anvil-m3-on-surface-variant)`, max-width: 480px.
 - "Go Home" button: filled primary, pill radius. Navigates to homepage (unauthenticated) or Dashboard (authenticated).
 - Container is centred vertically and horizontally. No sidebar, no app bar.
 - Responsive: 480px max-width container works at all breakpoints. No sidebar to collapse.
@@ -776,28 +732,17 @@ ErrorLayout (BlankLayout)
 ### AdminLayout
 
 **Purpose:** Admin panel shell — native M3 `NavigationRailLayout` with sidebar navigation.
-**Architecture:** NavigationRailLayout with sidebar + content panel pattern. Uses plain Link components with lambda click handlers (not NavigationLink). HTMLTemplate is banned per the [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR.
+**Architecture:** native M3 `NavigationRailLayout`; each admin page form names AdminLayout as its layout in the Designer. Uses plain Link components with lambda click handlers (not NavigationLink). HTMLTemplate is banned per the [[[default:adr-global/adr-htmltemplate-use|HTMLTemplate Use]]](C:/dev/project-library-global/adr-global/adr-htmltemplate-use.md) ADR.
 
 **Structure:**
 ```text
 AdminLayout (NavigationRailLayout)
 ├── app_bar (Container) — "Mybizz CS" title, notifications icon, user menu icon
 ├── sidebar (ColumnPanel) — 260px fixed width, navigation groups below
-└── content_area (ColumnPanel) — forms load here via content panel pattern
+└── content slot — the page form opened with open_form() fills it; the layout stays
 ```
 
-**Sidebar navigation groups and items:**
-
-| Group | Items | Conditional Visibility |
-|-------|-------|----------------------|
-| (ungrouped) | Dashboard | Always |
-| Sales & Operations | Bookings, Services | Always |
-| Customers & Marketing | Contacts, Campaigns, Broadcasts, Segments, Tasks | Contacts: always. Campaigns, Broadcasts, Segments, Tasks: `marketing_enabled` feature flag |
-| Content & Website | Blog, Pages | Blog: `blog_enabled` feature flag. Pages: always |
-| Finance & Reports | Invoices, Payments, Reports, Analytics, Time Entries | Always |
-| (bottom) | Settings | Owner, Manager |
-| (bottom) | Vault | Owner only |
-| (bottom) | Sign Out | Always — all roles |
+**Sidebar navigation:** the groups, items and their visibility are defined once, in `mb-3-cs-architecture-reference.md` section 9. The admin area of the Mybizz management app (App 5) uses the same layout with its own menu.
 
 **Key design rules:**
 - Sidebar uses plain Link components with lambda click handlers. NavigationLink and navigate_to are NOT used.
@@ -805,12 +750,31 @@ AdminLayout (NavigationRailLayout)
 - Active link highlighting via M3 primary-container background.
 - Sign Out is always visible at sidebar bottom for all roles.
 - Vault link is Owner-only. Settings link is Owner/Manager only.
-- Content area uses the content panel pattern — forms are swapped in, not navigated to via open_form().
+- Navigation is `open_form('package.FormName')`: the page form opens in AdminLayout's content slot and the layout stays (`scaffold-spec.md`, Navigation Architecture).
 - App bar shows notifications icon and user menu icon (both icon-only buttons).
 
 **Responsive behavior:**
 - Desktop (>=998px): Fixed sidebar (260px) + content fills remainder.
 - Mobile (<998px): Sidebar collapses to hamburger drawer overlay. Content is full-width.
+
+### Page Templates (12)
+
+Page layouts are forms built from shared sections and components; they are not custom components.
+
+| Template | Purpose |
+|---|---|
+| BlogListTiledTemplate | Tiled grid blog listing |
+| BlogListListTemplate | List-with-thumbnail blog listing |
+| BlogPostClassicTemplate | Classic centred blog post |
+| BlogPostTwoColumnTemplate | Two-column blog post with sidebar |
+| BlogPostFullWidthTemplate | Full-width immersive blog post |
+| HomePageClassicTemplate | Classic homepage |
+| HomePageServicesTemplate | Services-first homepage |
+| HomePageBookingTemplate | Booking-focused homepage |
+| HomePageMinimalistTemplate | Minimalist homepage |
+| LeadCaptureTemplate | Lead capture landing page |
+| EventRegistrationTemplate | Event registration landing page |
+| VslTemplate | Video sales letter landing page |
 
 ---
 
@@ -866,81 +830,15 @@ Blog settings should support:
 
 ---
 
-## Custom Components Inventory
+## Custom Components
 
-### Shared Custom Components (6)
-
-| Component | Where Used | Justification |
-|---|---|---|
-| VideoDisplayComponent | ServicesForm, HomePage, BlogPostForm, ServiceViewerForm | Display-only video embed. Not in native M3. Supports YouTube (V1). Programmatic visibility — hidden when no valid video URL exists. |
-| FooterComponent | All public pages (6+) | Custom footer with logo, credentials, social links, policies, map, contact. Not in native M3. |
-| TimeLapseCarouselComponent | HomePage, ServicesForm | Auto-rotating carousel not in native M3. |
-| ParallaxComponent | Multiple public pages | Parallax scroll effect not in native M3. |
-| ClauseBuilder | PrivacyPolicyEditor, TermsConditionsEditor | Reusable clause editor parameterized by document type. Used in 2+ places. Not in native M3. |
-| BlogListTiledTemplate | Public blog listing | Tiled grid blog list view. Not in native M3. |
-| BlogListListTemplate | Public blog listing | List-with-thumbnail blog list view. Not in native M3. |
-| BlogPostClassicTemplate | Public blog post | Classic centered blog post layout. |
-| BlogPostTwoColumnTemplate | Public blog post | Two-column blog post layout with sidebar. |
-| BlogPostFullWidthTemplate | Public blog post | Full-width immersive blog post layout. |
-| HomePageClassicTemplate | Public homepage | Classic homepage variant. |
-| HomePageServicesTemplate | Public homepage | Services-focused homepage variant. |
-| HomePageBookingTemplate | Public homepage | Booking-focused homepage variant. |
-| HomePageMinimalistTemplate | Public homepage | Minimalist homepage variant. |
-| LeadCaptureTemplate | Landing pages | Lead capture landing page. |
-| EventRegistrationTemplate | Landing pages | Event registration landing page. |
-| VslTemplate | Landing pages | Video sales letter landing page. |
-
-### Local/Form-Specific Components (1)
-
-| Component | Where Used | Reason |
-|---|---|---|
-| PaletteSettingsForm | SettingsForm Palette tab only | Only used in one form. Does not meet shared criteria. |
-
-### Removed from V1 Scope
-
-| Component | Reason |
-|---|---|
-| OnboardingPaletteForm | Obsolete. Onboarding palette selection is now part of OnboardingForm. |
-| AnimatedButtonComponent | Standard M3 components provide sufficient hover/focus animations via role-based styling. |
-| AnimatedCardComponent | Standard M3 components provide sufficient hover/focus animations via role-based styling. |
-| AnimatedLinkComponent | Standard M3 components provide sufficient hover/focus animations via role-based styling. |
-| AnimatedImageComponent | Standard M3 components provide sufficient hover/focus animations via role-based styling. |
-
-All custom components must remain governed by the same token, typography, spacing, and role system defined in this document.
-
-### VideoDisplayComponent — Architectural Definition
-
-**Purpose:** Display-only video embed component. Renders an iframe/video for a valid video URL. When no valid URL exists, the component is programmatically hidden.
-
-**Design intent:**
-- The component is display-only. It does not contain input controls (no source selector, no URL input field).
-- Input controls for video source and URL belong in the host forms (BlogEditorForm, ServiceEditorForm, SettingsForm).
-- The component receives `video_url` and `video_type` as properties set programmatically by the host form.
-- Visibility is programmatic: if `video_url` is empty or invalid, the component's `visible` property is set to `False` in code.
-- No user-facing include/exclude switch is required.
-
-**Host contexts and video URL governance:**
-
-| Host Context | Video URL Source | Governed By |
-|---|---|---|
-| ServicesForm (list page) | `business_profile.services_video_url` | SettingsForm → Business Profile tab |
-| HomePage | `business_profile.home_video_url` | SettingsForm → Business Profile tab |
-| BlogPostForm (public view) | `blog_posts.video_url` | BlogEditorForm sidebar → Video Embed card |
-| ServiceViewerForm (detail view) | `services.video_url` | ServiceEditorForm → video URL field |
-
-**V1 scope:** YouTube only. Multi-source support (Vimeo, Dailymotion, custom URLs) is deferred to V2. The `video_type` field is included in the schema for future extensibility but defaults to `"youtube"` in V1.
-
-**Programmatic visibility rule:**
-- The component's `visible` property is controlled in code, not in the Anvil Designer.
-- If `video_url` is `None`, empty, or fails URL validation, the component is hidden.
-- If a valid URL exists, the component is shown and renders the embed.
-- This applies uniformly across all host contexts.
+Every custom component, where it is used and why it is needed is listed in `custom-component-requirements-matrix.md`, the single home of the component list. Every custom component uses the tokens, typography, spacing and roles defined in this document.
 
 ---
 
 ## Motion and Interaction Guidance
 
-Motion in V1 should remain subtle and functional.
+Motion remains subtle and functional.
 It should support clarity and polish, not spectacle.
 
 Rules:
@@ -980,14 +878,14 @@ All styling should use:
 
 ### JavaScript Usage
 
-JavaScript should remain minimal and purposeful.
-Approved uses include:
+JavaScript stays minimal and is called through `anvil.js` (never `eval`). Approved uses:
 
-- Palette application.
+- Palette application and the device light/dark watch (`palette-tokens.md`).
 - Parallax scroll effects.
-- Social sharing interactions.
+- Microphone capture and browser speech synthesis for WhatsUp voice (F-27).
+- Social sharing.
 - Character counters for SEO fields.
-- Back-to-top interactions.
+- Back-to-top.
 
 ### Performance Guidance
 
@@ -998,119 +896,70 @@ Approved uses include:
 
 ### Storage Guidance
 
-Client-side palette caching may be used where appropriate, but implementation should remain predictable and easy to reason about.
+The palette key is read from `business_profile.palette` at startup. It may be cached in the browser's session storage to avoid a flash of the default palette; the stored value is always replaced by the server value once loaded.
 
 ---
 
 ## Design-Related Schema Expectations
 
-The design consultation established schema expectations tied to presentation and customization.
-These should be treated as approved design-support requirements, subject to alignment with the authoritative schema and implementation plan.
+These fields support the design. Their home is `authoritative-schema.md`, which must hold every one of them.
 
-### business_profile additions
+### business_profile
 
-Expected fields include:
+`palette`, `palette_updated_at`, `blog_list_view`, `enable_comments`, `homepage_template`, `business_logo`, `accreditations`, `social_facebook`, `social_instagram`, `social_linkedin`, `social_x`, `google_maps_embed_url`, `contact_email`, `phone`, `home_video_url`, `home_video_type`, `services_video_url`, `services_video_type`, `tax_rate`, `tax_label`, `tax_registration_number`, `default_payment_terms_days`.
 
-- `palette`
-- `palette_updated_at`
-- `blog_list_view`
-- `enable_comments`
-- `homepage_template`
-- `business_logo`
-- `accreditations`
-- `social_facebook`
-- `social_instagram`
-- `social_linkedin`
-- `social_twitter`
-- `google_maps_embed_url`
-- `contact_email`
-- `contact_phone`
-- `home_video_url` — YouTube URL for homepage video display (governed via SettingsForm)
-- `home_video_type` — Video source type for homepage (V1: "youtube")
-- `services_video_url` — YouTube URL for services page video display (governed via SettingsForm)
-- `services_video_type` — Video source type for services page (V1: "youtube")
+### blog_posts
 
-### blog_posts additions
+`template`, `meta_title`, `meta_description`, `keywords`, `pullquote`, `video_url`, `video_type`, `scheduled_at`.
 
-Expected fields include:
+### blog_comments
 
-- `template`
-- `meta_title`
-- `meta_description`
-- `keywords`
-- `pullquote`
-- `video_url` — YouTube URL for embedded video display (V1: YouTube only)
-- `video_type` — Video source type (V1: "youtube"; V2: "vimeo", "dailymotion", "custom")
+`post_id`, `commenter_name`, `commenter_email`, `comment_text`, `status`, `created_at`, `updated_at`.
 
-### blog_comments table
+### privacy_policy and t_and_c
 
-Expected fields include:
+`category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`, `created_at`, `updated_at`.
 
-- `post_id`
-- `commenter_name`
-- `commenter_email`
-- `comment_text`
-- `status`
-- `created_at`
-- `updated_at`
+### theme_config
 
-### privacy_policy table
-
-Expected fields include:
-
-- `category`
-- `title`
-- `clause`
-- `sort_order`
-- `is_seeded`
-- `is_active`
-- `created_at`
-- `updated_at`
-
-### t_and_c table
-
-Expected fields include:
-
-- `category`
-- `title`
-- `clause`
-- `sort_order`
-- `is_seeded`
-- `is_active`
-- `created_at`
-- `updated_at`
+`header_style`, `updated_at`.
 
 ---
 
-## Mybizz_management Context
+## Mybizz Management App
 
-Mybizz_management is **out of scope** for this project. The following is recorded as architectural context only. Mybizz_management is a separate Anvil application for platform operator tooling — client provisioning, health monitoring, billing automation, and update distribution. It is not part of master_template and is built only after the master template reaches launch.
-
-Relevant architectural context is documented in [[[mb-3-cs-project-context:docs-local/platform-architecture|Platform Architecture]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/platform-architecture.md).
+The Mybizz management app (App 5, F-34) is built before launch and uses this design system unchanged: the same theme, tokens, roles, typography and AdminLayout pattern, in the Professional Blue palette.
 
 ---
 
 ## Invoice Design
 
-### Tax Handling (V1)
+### Tax Handling
 
-The `invoice` and `invoice_items` schema tables do not contain dedicated tax fields. Tax is handled as a display-time calculation:
+Tax is set per client in Settings → Invoicing:
 
+- `business_profile.tax_rate` — a percentage, default **0** (no tax).
+- `business_profile.tax_label` — the name shown on invoices, for example VAT, GST or Sales Tax.
+- `business_profile.tax_registration_number` — shown on invoices when set.
+
+Calculation:
 - `invoice_items.amount` = `quantity` × `unit_price` (per line item)
-- Subtotal = sum of all `invoice_items.amount` values
-- Tax = subtotal × tax rate (display calculation)
-- `invoice.total_amount` = subtotal + tax (the final stored amount)
+- Subtotal = sum of all `invoice_items.amount`
+- Tax = subtotal × the tax rate at the moment the invoice is issued, stored on the invoice as `tax_rate` and `tax_amount`
+- `invoice.total_amount` = subtotal + tax
 
-For V1, the tax rate is fixed at **15%** (South African VAT). This rate is used for display calculation only and is not stored per invoice. If a configurable tax rate is needed in future, it should be added to the `business_profile` or `config` table.
+When the tax rate is 0, the invoice shows no tax line. A client registered for VAT in South Africa sets 15% and label VAT.
 
 ### Invoice Status Lifecycle
 
 The `invoice.status` field supports five values: `draft`, `sent`, `paid`, `overdue`, `cancelled`.
 
+Every invoice carries payment terms (`payment_terms_days`, from the Settings default unless changed on the invoice) and a `due_date` = issue date + payment terms.
+
 **Status transitions:**
 - `draft` → `sent` (when invoice is emailed to customer)
 - `sent` → `paid` (when payment is recorded)
-- `sent` → `overdue` (when due date passes without payment)
+- `sent` → `overdue` (when the due date passes without payment; set by a nightly task, which also emails the customer a reminder)
 - `overdue` → `paid` (when payment is recorded)
 - `draft` / `sent` / `overdue` → `cancelled` (when invoice is voided)
 - `cancelled` and `paid` are terminal states
@@ -1121,7 +970,7 @@ The `invoice.status` field supports five values: `draft`, `sent`, `paid`, `overd
 |--------|------|------|----------------|--------|--------------|
 | Draft | Yes | Yes | No | Yes | Yes |
 | Sent | No | No | Yes | Yes | Yes |
-| Paid | No | No | No | No | Yes |
+| Paid | No | No | No | No | Yes (plus Refund) |
 | Overdue | No | No | Yes | Yes | Yes |
 | Cancelled | No | No | No | No | Yes |
 
@@ -1140,16 +989,16 @@ The `invoice.status` field supports five values: `draft`, `sent`, `paid`, `overd
 The viewer must display all architecturally defined invoice fields:
 - Invoice number and status badge
 - Bill To: contact name, email, phone, address (from linked `contacts` record)
-- Invoice Date, Due Date, Currency
+- Invoice Date, Due Date, Payment Terms, Currency
 - Line Items table (description, quantity, unit price, amount)
-- Totals: Subtotal, Tax, Total
+- Totals: Subtotal, Tax (shown only when the tax rate is above 0, with the client's tax label and registration number), Total
 - Notes (if present on the invoice record)
 - Status-appropriate action buttons (per table above)
 
 ### InvoiceEditorForm Scope
 
 The editor supports both create and edit workflows:
-- **Create:** New invoice with customer selection, dates, currency, line items, and notes
+- **Create:** New invoice with customer selection, dates, payment terms, currency, line items (typed, or pulled from time entries, an order or a package), and notes
 - **Edit:** Modify existing draft invoices only (status must be `draft`)
 - Action buttons: "Save Draft" (sets status to `draft`) and "Send Invoice" (sets status to `sent` and triggers email delivery)
 - A "Cancel" button returns to the list without saving
@@ -1168,69 +1017,33 @@ The list form provides invoice discovery and status awareness:
 
 ### Booking Status Lifecycle
 
-The `bookings.status` field supports three values: `pending`, `confirmed`, `cancelled`.
+The `bookings.status` field supports five values: `pending`, `confirmed`, `completed`, `no_show`, `cancelled`.
 
 **Status transitions:**
-- `pending` → `confirmed` (when payment succeeds or manual confirmation)
-- `pending` → `cancelled` (when payment fails or customer cancels)
-- `confirmed` → `cancelled` (when booking is cancelled after confirmation)
-- `cancelled` and `confirmed` are terminal states for the booking lifecycle
+- `pending` → `confirmed` (online payment succeeds, or manual confirmation)
+- `pending` → `cancelled` (payment hold expires, or the booking is cancelled)
+- `confirmed` → `completed` (the appointment took place; triggers the invoice or balance invoice, and the review request)
+- `confirmed` → `no_show` (the customer did not attend)
+- `confirmed` → `cancelled` (cancelled after confirmation)
+- `completed`, `no_show` and `cancelled` are terminal
 
-**Status badge colors:**
+Bookings booked on pay on the day or invoice terms are `confirmed` at once. Bookings are never deleted; they are cancelled, so their history is kept.
 
-| Status | Background | Text |
-|--------|-----------|------|
-| Confirmed | `#e6f7ee` | `#00b958` |
-| Pending | `#fff0eb` | `#ff9469` |
-| Cancelled | `#ffe6e6` | `#ff000c` |
+**Status badges:** per "Status Badges" — confirmed `status-success`, pending `status-pending`, completed Primary, no-show `status-error`, cancelled On Surface Variant.
 
 **Status-based permitted actions in BookingViewerForm:**
 
-| Status | Edit | Cancel | View Invoice | Reschedule |
-|--------|------|--------|-------------|------------|
-| Pending | Yes | Yes | No | Yes |
-| Confirmed | No | Yes | Yes | Yes |
-| Cancelled | No | No | No | No |
+| Status | Edit | Reschedule | Mark Completed | Mark No-Show | Cancel | View Invoice |
+|--------|------|------------|----------------|--------------|--------|-------------|
+| Pending | Yes | Yes | No | No | Yes | No |
+| Confirmed | No | Yes | Yes | Yes | Yes | Yes |
+| Completed | No | No | No | No | No | Yes |
+| No-show | No | No | No | No | No | Yes |
+| Cancelled | No | No | No | No | No | No |
 
-### Booking Calendar Architecture
+### Booking Calendar
 
-The booking calendar uses 4 template subforms for rendering events across three views (Month, Week, Day). View toggle uses a SegmentedButton.
-
-**Template subforms:**
-
-| Subform | Purpose | Used In |
-|---------|---------|---------|
-| `tmpl_day_event` | Event card in day view | Day view RepeatingPanel |
-| `tmpl_month_day_cell` | Day cell in month grid | Month view grid |
-| `tmpl_week_event` | Event block in week view | Week view RepeatingPanel |
-| `tmpl_week_timeslot` | Time row in week view | Week view time grid |
-
-**Event color coding (left border):**
-
-| Status | Border Color | Opacity |
-|--------|-------------|---------|
-| Confirmed | `#388e3c` (green) | 1.0 |
-| Pending | `#f9a825` (yellow) | 1.0 |
-| Cancelled | `#c62828` (red) | 0.6 |
-
-**Day view (`tmpl_day_event`):**
-- Event card with 4px left border (color-coded by status), 8px border-radius, subtle shadow.
-- Shows: event title (12px, weight 500), time range (11px), description with customer name and meeting type (11px), status badge.
-- Clickable — opens BookingViewerForm.
-
-**Month view (`tmpl_month_day_cell`):**
-- Day cell in month grid. Today cell has `primary-container` background.
-- Other-month cells have `opacity: 0.4`.
-- Event chips are 9px font with status color coding.
-
-**Week view (`tmpl_week_event`):**
-- Event block with left border color coding (same palette as day view).
-- Cancelled events have `opacity: 0.5`.
-
-**Week timeslot (`tmpl_week_timeslot`):**
-- Time row: 60px time label column + 1fr content.
-- Empty timeslots show a thin spacer line (`height: 1px`, `background: #E7E0EC`, `opacity: 0.5`).
-- Events have hover state (`background: #EADDFF`).
+The booking calendar is specified in full in `calendar-feature-spec.md`.
 
 ### 7-Step Booking Flow Per-Step UI Layout
 
@@ -1253,14 +1066,14 @@ The booking flow uses 3 server round-trips maximum ([[[default:adr-global/adr-fo
 
 | Step | UI Elements | Server Call |
 |------|-------------|-------------|
-| 4. Meeting Type | Radio buttons or cards: In-Person, Video Call, Phone Call. Selected option highlights. | None — from RT1 cache |
+| 4. Meeting Type | Cards: at the business, at my location (with address entry), video call, phone call — only the types the service offers. Selected option highlights. | None — from RT1 cache |
 | 5. Intake Form | Dynamic form fields from `booking_metadata_schemas`. Text inputs, dropdowns, textareas as defined by schema. | None — from RT1 cache |
 
 **Round-trip 3: `confirm_booking(booking_data)`**
 
 | Step | UI Elements | Server Call |
 |------|-------------|-------------|
-| 6. Payment | Order summary card (service, provider, date, time, meeting type, amount). "Confirm & Pay" button. Processing spinner during RT3. | RT3 |
+| 6. Payment | Order summary card (service, provider, date, time, meeting type, address, amount). The service's payment option: pay in full, pay a deposit, pay on the day, invoice with payment terms, or use a package session. Button text follows the option ("Confirm & Pay", "Confirm Booking"). Processing spinner during RT3. | RT3 |
 | 7. Confirmation | Success card with check icon, booking ID, details summary. "View Booking" and "Book Another" buttons. | None — client-side |
 
 **Global booking flow rules:**
@@ -1280,9 +1093,9 @@ The booking flow uses 3 server round-trips maximum ([[[default:adr-global/adr-fo
 | Date | Booking date | Formatted per client timezone |
 | Time | Start time | Formatted per client timezone |
 | Status | Status badge | Color-coded per status lifecycle |
-| Actions | View, Edit, Delete | Icon buttons; Edit only for Pending |
+| Actions | View, Edit, Cancel | Icon buttons; Edit only for Pending; bookings are cancelled, never deleted |
 
-**Primary actions:** "+ Add Booking" (filled), "Calendar View" (outlined — toggles to BookingCalendarForm).
+**Primary actions:** "+ Add Booking" (filled), "Calendar View" (outlined — opens BookingCalendarForm).
 **Search/Filter:** Search TextBox + Status DropdownMenu + Date Range DropdownMenu.
 
 ---
@@ -1313,142 +1126,10 @@ Every data-driven screen must define an empty state. The empty state pattern has
 | Activity feed | Activity icon | No recent activity | Activity from bookings, emails, and contacts will appear here as your business operates. | (no action — explain that activity appears automatically) |
 | Vault | Lock icon | No secrets stored yet | Add your API keys and credentials below. They will be encrypted at rest and never displayed after saving. | "Add Your First Secret" |
 | Analytics dashboard | Chart icon | No data yet | Analytics will appear here once you have bookings, payments, and contacts in the system. | (no action — explain that data appears as the business operates) |
-
----
-
-## GStack Workflow Usage
-
-This file exists specifically to satisfy the workflow requirement that `/design-consultation` produces `DESIGN.md`.
-For GStack purposes, this file should be treated as the design-system checkpoint output.
-
-### Upstream Position
-
-This file depends on:
-
-- completed `/office-hours`
-- completed `/plan-ceo-review`
-- completed `/design-consultation`
-
-### Downstream Use
-
-This file is the design authority for:
-
-- wireframe updates where styling implications matter
-- `/design-shotgun`
-- `/design-html`
-- downstream design review and UI implementation decisions
-
-### Operational Rule
-
-Do not rerun `/design-consultation` merely because the original run did not create a file literally named `DESIGN.md`.
-If the consultation outputs exist and are approved, consolidate them here and continue.
-Only rerun `/design-consultation` if scope, direction, or design requirements materially changed.
-
----
-
-## Maintenance Rule
-
-This document should be updated when any of the following change:
-
-- visual direction
-- design tokens
-- palette system
-- typography scale
-- spacing or radius rules
-- template architecture
-- component roles
-- approved custom components
-- design-related schema requirements
-- form or page boundaries
-- onboarding or settings architecture
-
-When updated, this file remains the canonical design reference and supporting documents remain secondary references.
-
----
-
-## Source Reference Mapping
-
-This section records how the source files map into this consolidated design authority.
-
-| Source file | Primary contribution to this document |
-|---|---|
-| [[[mb-3-cs-project-context:docs-local/design-direction\|Design Direction (Canonical)]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/design-direction.md) | Core visual direction, tokens, spacing, typography, elevations, role map |
-| `design-consultation-plan-workflows.md` | Workflow details, custom components, schema additions, implementation notes |
-| `design-consultation-plan-descriprive.md` | Workstreams, palette model, blog template strategy, layout architecture |
-
----
-
-## Final Instruction for GStack and OpenCode
-
-Treat `DESIGN.md` as the authoritative design system document for Mybizz CS.
-If a downstream command requires the design consultation output, use this file first.
-Use the supporting design consultation documents only for deeper detail where needed.
-
----
-
-## MUI Aesthetic Implementation
-
-This section records the MUI aesthetic decisions applied to the Mybizz CS design system.
-These decisions are authoritative. The four supporting artifact files listed below are the
-implementation deliverables. OpenCode and GStack `/design-consultation` must apply them
-exactly as specified — no deviation, no regeneration unless source inputs change.
-
-### Decision Summary
-
-The MUI dashboard (https://mui.com/material-ui/getting-started/templates/dashboard/)
-was selected as the aesthetic reference for Mybizz CS.
-
-The following MUI aesthetic variables have been adopted and applied:
-
-| Variable | MUI Value Adopted |
-|---|---|
-| Surface distinction | Two-level: background vs surface-container-low for panels/nav |
-| Card shadow | Soft dual-layer: `hsla(220,30%,5%,0.07) 0px 4px 16px 0px, hsla(220,25%,10%,0.07) 0px 8px 16px -5px` |
-| Card border radius | 8px (tightened from M3 default 12px) |
-| Typography heading weight | 600 (updated from 400 on headline role) |
-| Dividers | outline-variant at 40% opacity — translucent hairlines |
-| State hover opacity | 0.08 |
-| State pressed/focused opacity | 0.12 |
-| App bar | surface token, hairline bottom border, no gradient at rest |
-| Left nav | surface-container-low background, hairline right border |
-
-All MUI values are applied through CSS custom properties and Anvil role selectors.
-No hardcoded hex values were introduced.
-All color values resolve through the palette selector token system.
-
-### Constraints Preserved
-
-The following DESIGN.md rules were not altered by the MUI aesthetic patch:
-
-- Button radius: 100px (pill) — unchanged
-- Dialog radius: 28px — unchanged
-- Input radius (outlined): 4px — unchanged
-- Navigation item radius: 100px (pill) — unchanged
-- Data grid radius: 24px — unchanged
-- Font family: Roboto — unchanged
-- Spacing rhythm: 4px base grid — unchanged
-- M3 color role structure — unchanged
-
-### MUI Aesthetic Artifact Files
-
-These four files are located in `docs/` and are the authoritative
-implementation artifacts for the MUI aesthetic and palette system.
-
-| File | Location | Purpose | Status |
-|---|---|---|---|
-| [[[mb-3-cs-project-context:docs-local/design_palette_section\|DESIGN Palette Section]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/DESIGN_palette_section.md) | `docs/` | Full M3 CSS token sets for all 4 palettes | Authoritative |
-| [[[mb-3-cs-project-context:docs-local/palette_selector_tokens\|Token Swap Blocks]]](C:/dev/dev-mb-3-cs/mb-3-cs-project-context/docs-local/palette_selector_tokens.md) | `docs/` | Python dict blocks for palette selector | Authoritative |
-| `theme_mui_patch.css` | `docs/` | MUI aesthetic patch (reference only) | Reference |
-| `theme_patched.css` | `docs/` | Deployment-ready theme.css with MUI patch | Deploy |
-
-### Source Colors (Locked)
-
-| Palette | Source Hex | Algorithm |
-|---|---|---|
-| Professional Blue | `#2563EB` | M3 HCT TonalSpot |
-| Warm Coral | `#FF6F61` | M3 HCT TonalSpot |
-| Calm Teal | `#008080` | M3 HCT TonalSpot |
-| Sophisticated Purple | `#6B46C1` | M3 HCT TonalSpot |
+| Order list | Package icon | No orders yet | Orders for delivered work appear here when customers order a fixed-price service. | (no action — explain how orders arrive) |
+| Time entries | Timer icon | No time logged yet | Log time worked for a customer, then turn billable hours into an invoice. | "Start Timer" |
+| Reviews | Star icon | No reviews yet | Customers are invited to review after each completed appointment. Approved reviews can appear on your homepage. | (no action — explain how reviews arrive) |
+| Packages | Bundle icon | No packages yet | Packages let customers buy several sessions up front. | "+ Create Package" |
 
 ---
 
