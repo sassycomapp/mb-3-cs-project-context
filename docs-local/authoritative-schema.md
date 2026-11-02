@@ -9,7 +9,7 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 
 **Authority:** this document is the single home of the schema. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct. Feature numbers (F-01 to F-36) are those of `mb-3-cs-concept.md`. The changes that bring App 1's tables to this schema are in `schema-migration-log.md`.
 
-**Total tables:** 65
+**Total tables:** 68
 **Platform:** Anvil Data Tables. Every table has `client: none` and `server: full`: the browser never reads a table directly; server functions return rows and results.
 
 ---
@@ -19,6 +19,7 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 - **One instance, one client.** No table carries a client or instance column; isolation comes from the instance (reference section 3).
 - **UTC.** Every `datetime` is stored in UTC and shown in `business_profile.timezone` (an IANA time zone).
 - **One currency.** Every amount is in `business_profile.system_currency` (F-16).
+- **Money in cents.** Every amount is stored as a whole number of cents of the system currency, as [[[default:specifications-global/spec-anvil-platform-standards|Anvil Platform Standards]]](C:/dev/project-library-global/specifications-global/spec-anvil-platform-standards.md) requires: Anvil's `number` column is floating-point, so decimal amounts would round wrongly. Amounts are converted to the currency's units only for display.
 - **Never deleted.** Rows of `bookings`, `orders`, `invoice`, `payments`, `quotes` and `expenses` are never deleted; their status changes.
 - **History outside the tables.** Backups, history, webhook payloads, audit entries older than 30 days, email bodies older than 90 days, email attachments and expense receipts are kept in the client's R2 bucket (F-29).
 - **Credentials only in the Vault**, encrypted.
@@ -55,7 +56,8 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 | Content and policy | `blog_categories`, `blog_posts`, `blog_comments`, `landing_pages`, `pages`, `privacy_policy`, `t_and_c` | 7 |
 | Reviews | `reviews`, `testimonials` | 2 |
 | Summary and health | `daily_summary`, `service_performance`, `provider_performance`, `campaign_metrics`, `health_log`, `error_log` | 6 |
-| **Total** | | **65** |
+| Notifications | `notifications`, `user_preferences`, `delivery_logs` | 3 |
+| **Total** | | **68** |
 
 ---
 
@@ -1179,4 +1181,51 @@ Kept 90 days.
 
 ---
 
-*End of file — authoritative-schema.md (65 tables)*
+## 11. Notifications
+
+The notification engine (`spec-mastertemplate-notification-system`): in-app notifications, each user's notification preferences, and the delivery record of every send.
+
+### 11.1 `notifications`
+
+| Column | Type | Notes |
+|---|---|---|
+| `user_id` | link → users | The recipient |
+| `source` | string | `client` / `platform` |
+| `type` | string | e.g. `booking.confirmed`, `account.alert`, `platform.announcement` |
+| `priority` | string | `transactional` / `social` / `marketing` |
+| `title` | string | |
+| `body` | string | |
+| `data` | simpleObject | Structured payload, e.g. a row id and a url |
+| `is_read` | bool | Default False |
+| `created_at` | datetime | |
+| `expires_at` | datetime | Empty when it never expires |
+| `idempotency_key` | string | Checked before every insert, so the same event is never notified twice |
+
+### 11.2 `user_preferences`
+
+One row per user, channel and type; the server keeps the combination unique.
+
+| Column | Type | Notes |
+|---|---|---|
+| `user_id` | link → users | |
+| `channel` | string | `inapp` / `email` |
+| `type` | string | `transactional` / `social` / `marketing` |
+| `enabled` | bool | Default True |
+| `quiet_from` | string | `HH:MM`; empty for no quiet hours |
+| `quiet_to` | string | `HH:MM`; empty for no quiet hours |
+| `freq_cap` | number | Most sends a day for this channel and type; empty for no limit |
+
+### 11.3 `delivery_logs`
+
+| Column | Type | Notes |
+|---|---|---|
+| `notification_id` | link → notifications | |
+| `channel` | string | `inapp` / `email` |
+| `status` | string | `pending` / `sent` / `delivered` / `failed` |
+| `attempts` | number | Default 0 |
+| `error` | string | |
+| `created_at` | datetime | |
+
+---
+
+*End of file — authoritative-schema.md (68 tables)*

@@ -19,8 +19,9 @@ Every schema change, recorded at Step 17 and read at Steps 41 and 42. The schema
 | pre-release | 2026-10-31 | `business_profile`, `payment_config`, `users`, `files`, `contacts`, `tasks`, `email_campaigns`, `email_log`, `campaign_metrics`, `service_performance`, `blog_posts`, `webhook_log` | Additive: columns added | App 1 only, prompt P7 |
 | pre-release | 2026-11-01 | 10 new tables: `companies`, `quotes`, `quote_items`, `deals`, `expense_categories`, `expenses`, `sample_rows`, `email_addresses`, `email_messages`, `email_suppressions` | Additive: tables created | App 1 only, prompts P8–P10 |
 | pre-release | 2026-11-01 | `business_profile`, `users`, `contacts`, `email_config`, `email_templates`, `email_campaigns`, `blog_posts`, `pages`, `payments` | Additive: columns added | App 1 only, prompt P11 |
-| pre-release | 2026-10-31 | 19 tables with `instance_id` or `client_id`; `theme_config`; `webhook_log`; `bookings`; `invoice`; `services` | Breaking: columns removed (listed in P12) | App 1 only, prompt P12, last. App 1 holds development data only; the data in the removed columns is not needed |
-| pre-release | 2026-11-01 | `email_config` | Breaking: the Brevo columns `from_email`, `from_name`, `configured`, `configured_at`, `sender_domain_verified` removed | App 1 only, prompt P12, last |
+| pre-release | 2026-11-02 | 3 new tables: `notifications`, `user_preferences`, `delivery_logs` | Additive: tables created | App 1 only, prompt P12 |
+| pre-release | 2026-10-31 | 19 tables with `instance_id` or `client_id`; `theme_config`; `webhook_log`; `bookings`; `invoice`; `services` | Breaking: columns removed (listed in P12) | App 1 only, prompt P13, last. App 1 holds development data only; the data in the removed columns is not needed |
+| pre-release | 2026-11-01 | `email_config` | Breaking: the Brevo columns `from_email`, `from_name`, `configured`, `configured_at`, `sender_domain_verified` removed | App 1 only, prompt P13, last |
 
 ---
 
@@ -41,7 +42,7 @@ Renaming a column in the Data Tables view keeps its data. Rename:
 
 ### Part B — one prompt per conversation (Anvil editor → Agent chat)
 
-For each prompt, in order P1 to P12:
+For each prompt, in order P1 to P13:
 
 1. Start a new conversation in the Agent chat.
 2. Paste the prompt.
@@ -196,7 +197,19 @@ Add these columns to these existing Data Tables, with exactly these names and ty
 Change only the Data Tables schema. Do not change any form, module, server module, theme, CSS, dependency or service. Do not change or delete any data. For every table you create, set access to "No access" for forms and "Full access" for server code. Before making any change, list exactly what you will create or change and wait for my confirmation.
 ```
 
-**P12 — removals (last)**
+**P12 — notification tables**
+
+```text
+Create these new Data Tables in this app, in this order, with exactly these columns and types:
+
+- Table `notifications`: `user_id` (link to one row of `users`), `source` (string), `type` (string), `priority` (string), `title` (string), `body` (string), `data` (simpleObject), `is_read` (bool), `created_at` (datetime), `expires_at` (datetime), `idempotency_key` (string)
+- Table `user_preferences`: `user_id` (link to one row of `users`), `channel` (string), `type` (string), `enabled` (bool), `quiet_from` (string), `quiet_to` (string), `freq_cap` (number)
+- Table `delivery_logs`: `notification_id` (link to one row of `notifications`), `channel` (string), `status` (string), `attempts` (number), `error` (string), `created_at` (datetime)
+
+Change only the Data Tables schema. Do not change any form, module, server module, theme, CSS, dependency or service. Do not change or delete any data. For every table you create, set access to "No access" for forms and "Full access" for server code. Before making any change, list exactly what you will create or change and wait for my confirmation.
+```
+
+**P13 — removals (last)**
 
 ```text
 Remove these columns from these existing Data Tables. Remove nothing else:

@@ -300,7 +300,7 @@ A custom component is a reusable element that the Anvil Material 3 theme does no
 
 ## Database Schema
 
-The tables, their columns, types and allowed values are in `authoritative-schema.md`: 65 tables. The changes that bring App 1's tables to that schema, and the prompts that apply them, are in `schema-migration-log.md`. Every schema change is made in App 1, recorded in `schema-migration-log.md`, and applied to App 3.
+The tables, their columns, types and allowed values are in `authoritative-schema.md`: 68 tables. The changes that bring App 1's tables to that schema, and the prompts that apply them, are in `schema-migration-log.md`. Every schema change is made in App 1, recorded in `schema-migration-log.md`, and applied to App 3.
 
 ### Rules
 

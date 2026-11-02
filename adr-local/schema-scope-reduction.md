@@ -1,7 +1,7 @@
 ---
 title: "schema-scope-reduction"
 doc-id: "mb-d146fc2b"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Schema Scope — Tables In and Out of a Mybizz CS Client Instance
 
@@ -50,7 +50,7 @@ A table is added to a client instance only when a feature in `mb-3-cs-concept.md
 
 ## Consequences
 
-- The schema holds 65 tables, each traceable to a feature.
+- The schema holds 68 tables, each traceable to a feature.
 - Support data never enters a client's database, and a client's customer data never enters App 5 (reference section 3).
 - Adding a table is a deliberate schema change with a migration plan, applied by hand to App 1, App 3 and every client instance.
 
