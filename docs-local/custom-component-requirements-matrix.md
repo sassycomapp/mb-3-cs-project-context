@@ -1,7 +1,7 @@
 ---
 title: "custom-component-requirements-matrix"
 doc-id: "mb-680c4ac6"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Custom Component Requirements Matrix
 
@@ -30,7 +30,7 @@ All custom components:
 
 ## Custom Component Matrix
 
-### Shared custom components (11)
+### Shared custom components (12)
 
 | Component | Feature | Used in | Uses | Why no native component serves |
 |---|---|---|---|---|
@@ -45,6 +45,7 @@ All custom components:
 | EditModeComponent | F-06, F-08, F-21 | Every public page, every landing page template, every blog post template | 15 | No in-place editing of a published page |
 | SharePanelComponent | F-21 | BlogEditorForm, BlogListForm | 2 | No share panel with captions and platform share links |
 | ReaderShareComponent | F-21 | BlogPostClassicTemplate, BlogPostTwoColumnTemplate, BlogPostFullWidthTemplate | 3 | No social share buttons |
+| PayPalButtonComponent | F-15 | BookingFlowForm, OrderFlowForm, the pay page | 3 | No native component loads PayPal's JavaScript SDK and its buttons |
 
 ### Local components (1)
 

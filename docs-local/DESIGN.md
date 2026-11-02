@@ -1,7 +1,7 @@
 ---
 title: "DESIGN"
 doc-id: "mb-190df6bf"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — DESIGN
 
@@ -907,7 +907,7 @@ JavaScript stays minimal and is called through `anvil.js` (never `eval`). Approv
 
 ### Text and Language
 
-Every piece of screen text is set in code from a phrase key in `shared/translations/` (F-25); no visible text is typed into the Designer. Layouts allow for text up to 40% longer than the English, because French, Portuguese, Spanish, German and Italian run longer: buttons and labels wrap or grow, never cut text off.
+Every piece of screen text comes from a phrase key in `shared/translations/` (F-25, [[[default:specifications-global/spec-translation|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md)); the Designer holds the key, never the words. Layouts allow for text up to 40% longer than the English, because French, Portuguese, Spanish, German and Italian run longer: buttons and labels wrap or grow, never cut text off.
 
 ### Storage Guidance
 

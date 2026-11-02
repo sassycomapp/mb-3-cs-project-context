@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-test-specification"
 doc-id: "mb-d8dcf41a"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Test Specification (Canonical)
 
@@ -300,6 +300,11 @@ Each test runs against App 1 with the test suite's mail catcher in place of Amaz
 | 4.14 | F-28 export | Export one month for Xero | One UTF-8 CSV per record type, dates `YYYY-MM-DD`, plain decimal amounts, no void expense |
 | 4.15 | F-36 demo mode | With `demo_mode` on, send a booking confirmation to a customer address | The email reaches the signed-in visitor's own address only |
 | 4.16 | F-25 language | Switch `app_language` to `fr` | Every screen of the admin menu shows no English phrase key or English text; emails use the French templates |
+| 4.17 | F-25 language | Run `ts_scan` (ST-14) | Every Designer text is a phrase key; every key exists in every offered language with the same placeholders |
+| 4.18 | F-01 two-factor | Sign in as each role without a second factor | Sign-in is refused; with the second factor it succeeds; the Owner with only an authenticator app enrolled is refused the Vault and refunds |
+| 4.19 | F-02 Vault reset | As Owner, Reset Vault code and follow the emailed link | The next Vault open asks for enrolment; no stored secret changed; the reset is in `activity_log` |
+| 4.20 | F-15 PayPal | In PayPal's sandbox: pay a booking; alter the amount in the browser; capture twice; close the browser after approval | The server's amount is charged; one payment row with `gateway_fee`; the closed-browser order is captured by the webhook |
+| 4.21 | F-15 PayPal | Set the system currency to ZAR | PayPal shows as unavailable in Settings and at checkout |
 
 ---
 

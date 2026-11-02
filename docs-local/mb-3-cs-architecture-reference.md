@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-architecture-reference"
 doc-id: "mb-7d6be180"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Architecture Reference
 
@@ -148,7 +148,7 @@ server_code/
 - `server_shared/email_service` sends every outgoing email through Amazon SES (F-18).
 - `server_sales/` holds deals, companies and quotes (F-35).
 - `server_accounts/` holds expenses, the accounts reports and the accounting export (F-28).
-- `shared/translations/` holds one translation module per app language; every screen text is read from it (F-25).
+- `shared/translations/` holds the translation module, one phrase file per app language and the date, number and money formats; every screen text, email and document text is read from it (F-25).
 - `server_management/` holds the management HTTP endpoints called by App 5.
 - `server_support/` sends Help messages to App 5 (F-32).
 - `components/` holds every shared custom component listed in `custom-component-requirements-matrix.md`.
@@ -252,6 +252,8 @@ Each feature below states its packages, data, rules and links. Tables and fields
 
 ### F-01 Accounts, roles and access
 - Anvil Users service, email and password; email confirmation required; password reset by email.
+- Every account holder signs in with a second factor (authenticator app or security key), customers with a portal account included; the Owner uses FIDO2 (a security key or the device's passkey). Guests book and pay without an account. A lost second factor is reset by the user through Anvil's reset by email ([[[default:specifications-global/spec-security|Security Specification]]](C:/dev/project-library-global/specifications-global/spec-security.md)).
+- Sign-in, sign-up and two-factor screens are the app's own (`auth/`), so they show the app language; Anvil's built-in forms are not used.
 - New users (Owner, staff, customers) set their own password from an emailed link; no password is ever sent by email.
 - Sessions end after 30 minutes without activity; the user signs in again and returns to the same place.
 - Five roles: Owner, Manager, Admin, Staff, Customer, held in the user's `role` field.
@@ -263,8 +265,8 @@ Each feature below states its packages, data, rules and links. Tables and fields
 ### F-02 The Vault
 - One Anvil Secret per instance: `encryption_key`, used only by `vault_service.py`.
 - Every other credential (gateway keys, AWS keys for Amazon SES and S3, the SES SMTP password, R2 keys) is encrypted in the Vault's data table with that key.
-- Owner-only; every view requires a TOTP code with no remembered session; every access emails the owner; after 5 failed codes the Vault locks for 15 minutes and the owner is emailed.
-- A lost authenticator is reset by Mybizz only, after an identity check: `vault-recovery-procedure.md`.
+- Owner-only; every view requires a sign-in with the Owner's second factor in the last five minutes and a code from the Owner's authenticator app (TOTP), with no remembered session; every access emails the owner; after 5 failed codes the Vault locks for 15 minutes and the owner is emailed.
+- A lost Vault authenticator is reset by the Owner alone, after a fresh sign-in, through an emailed link: `vault-recovery-procedure.md`.
 - Detail: `mb-3-cs-vault-implementation.md`, [[[default:specifications-global/spec-vault-system|The Vault System]]](C:/dev/project-library-global/specifications-global/spec-vault-system.md).
 
 ### F-03 Registration, onboarding and setup
@@ -359,6 +361,8 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Payments received outside the gateways (cash, bank transfer) are recorded manually; refunds are full or partial, through the original gateway or recorded manually.
 - PDF generation, email delivery, payment recording, refunds.
 - Gateways: one card gateway per instance (Stripe or Paystack), plus PayPal as an option. One gateway-agnostic payment service (`server_payments/`) sits behind all three; switching gateways does not change services or bookings.
+- PayPal: offered only when the system currency is one PayPal supports (not ZAR). PayPal's buttons (`PayPalButtonComponent`) take the buyer's approval; the server creates and captures the order through PayPal's Orders API with amounts from the database. Detail: `integration-architecture.md` (PayPal).
+- Every payment and refund, by any gateway or by hand, is a `payments` row; the gateway's fee is recorded on it (`gateway_fee`) and shown in the accounts as an expense (F-28).
 - Gateway webhooks are received by HTTP endpoints, verified, applied, and their payloads written to R2 (F-29).
 - Test and live modes per gateway. Money logic runs in server modules only.
 - Packages: `invoices/`, `server_payments/`. Integration patterns: [[[default:specifications-global/spec-integration|Integration Specification]]](C:/dev/project-library-global/specifications-global/spec-integration.md).
@@ -429,7 +433,14 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Every feature carries a tooltip; the tooltip opens the feature's short help video in a pop-up, using the video component (F-09); per-user on/off setting.
 - Help videos are held per language; the pop-up plays the video in the app language.
 - App language: `business_profile.app_language` (`en` / `fr` / `pt` / `es` / `de` / `it`). English is complete at launch; a language is offered once its translation is complete and checked.
-- Translation: every piece of screen text is read from `shared/translations/` — one module per language, one entry per phrase key — and is never typed into the Designer; component text is set in code from the phrase key. Email templates are stored per language (`email_templates.language`). AI (Groq) produces each translation; a native speaker checks each language once. No right-to-left language is offered.
+- Translation follows [[[default:specifications-global/spec-translation|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md):
+  - Every fixed text has a phrase key. The Designer holds the key; each form calls `translate_form(self)` after `init_components`, and code uses `t(key, **values)`. Server functions return phrase keys with values, never finished text.
+  - One phrase file per language (`en.py`, `fr.py`, `pt.py`, `es.py`, `de.py`, `it.py`); Portuguese is Portugal's, Spanish is Spain's. Plural forms by each language's rule; dates, numbers and money through `formats.py`, on browser and server alike.
+  - System emails, invoice, quote and statement PDFs, sample data and the public website's fixed text are in the app language. Client-edited email templates are stored per language (`email_templates.language`).
+  - Anvil's Users emails (password reset, email confirmation, two-factor reset) carry all six languages, English first, set once in App 3.
+  - Stripe Elements and PayPal's buttons are given the app language as `locale`.
+  - AI translates every key from English, applying the glossary of product terms; a language is offered when every key exists in it (test ST-14). A wrong translation reported through Help is corrected in the phrase file and released to every client.
+  - No right-to-left language is offered.
 - Packages: `components/`, `shared/`.
 
 ### F-26 AI assistance
@@ -455,7 +466,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 
 ### F-28 Accounts
 - Expenses (`expenses`, `expense_categories`): date, supplier, category, amount, tax, payment method, notes and a receipt image stored in R2 (`expenses/receipts/`).
-- Reports, computed in server code: profit and loss by month (payments less refunds, against expenses), outstanding invoices, tax collected (invoices) and tax paid (expenses), customer statements (PDF).
+- Reports, computed in server code: profit and loss by month (payments less refunds, against expenses and gateway fees), outstanding invoices, tax collected (invoices) and tax paid (expenses), customer statements (PDF).
 - Export: one click produces one CSV file per record type — customers, invoices, invoice lines, payments, refunds, expenses — for a chosen period, in the import columns of Wave, Xero or QuickBooks; dates `YYYY-MM-DD`, plain decimal amounts, no currency symbols, UTF-8; the files are written to R2 (`exports/`) and downloaded.
 - Sample data is never exported.
 - Packages: `accounts/`, `server_accounts/`.
@@ -530,7 +541,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 | Email | Amazon SES (sending, receiving, tracking) | Mybizz's AWS account, one tenant per client; Anvil's Email service set to the SES SMTP endpoint |
 | AI text | Groq (provider configurable in App 5) | Called through App 5 |
 | Speech | Groq Whisper (speech-to-text); browser SpeechSynthesis and Groq TTS (text-to-speech) | Groq called through App 5 |
-| Translation | `shared/translations/` | One module per app language |
+| Translation | `shared/translations/` | Phrase files per language, `formats.py`, `glossary.py` ([[[default:specifications-global/spec-translation\|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md)) |
 | Video | YouTube, Vimeo, Dailymotion, direct video addresses | Embedded |
 | Maps | Google Maps embed | Optional |
 

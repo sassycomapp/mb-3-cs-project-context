@@ -1,7 +1,7 @@
 ---
 title: "anvil-ui-build-standard"
 doc-id: "mb-6e69563b"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Anvil UI Build Standard
 
@@ -21,7 +21,7 @@ Check these first; they are the most common failures.
 - **No component outside [[[default:specifications-global/spec-m3_component_mapping|M3 Component Mapping]]](C:/dev/project-library-global/specifications-global/spec-m3_component_mapping.md)** (Approved Components and Writeback).
 - **No legacy `Label`.** Use `Text`.
 - **No `HTMLTemplate`**, no `navigate_to`. Menu items in the layouts are the layouts' `NavigationLink` components with lambda click handlers that capture their loop variables (`scaffold-spec.md`, Navigation Architecture).
-- **No visible text typed into the Designer.** Every visible text (headings, labels, button text, placeholders, tooltips, empty states) is set in code from a phrase key with `t(key)` from `shared/translations/` (F-25). The Designer holds component names and Designer-only properties, never visible words.
+- **No visible words typed into the Designer.** Every visible text property (headings, labels, button text, placeholders, tooltips, empty states) holds a phrase key; the form calls `translate_form(self)` after `init_components`, and text set later in code uses `t(key)` (F-25, [[[default:specifications-global/spec-translation|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md)).
 - **No MUI component, `sx` property, MUI import or MUI script.** The MUI influence is the set of project deviations in `DESIGN.md`, applied through `theme.css`; nothing else.
 - **No data rule, credential or secret in a form.** Forms show data and call server functions; every rule lives on the server.
 - **No schema change.** A schema change Anvil's AI proposes is not applied; it goes back to Step 17.
@@ -202,7 +202,7 @@ Anvil's own form: `{component_name}_{event}` — `btn_save_click`, `txt_email_ch
 
 ## Custom HTML Components
 
-- Only the eleven shared custom components in `custom-component-requirements-matrix.md` exist: `VideoDisplayComponent`, `FooterComponent`, `TimeLapseCarouselComponent`, `ParallaxComponent`, `ClauseBuilder`, `AIHelperComponent`, `StarRatingComponent`, `HelpTooltipComponent`, `EditModeComponent`, `SharePanelComponent`, `ReaderShareComponent`. They live in `client_code/components/`.
+- Only the twelve shared custom components in `custom-component-requirements-matrix.md` exist: `VideoDisplayComponent`, `FooterComponent`, `TimeLapseCarouselComponent`, `ParallaxComponent`, `ClauseBuilder`, `AIHelperComponent`, `StarRatingComponent`, `HelpTooltipComponent`, `EditModeComponent`, `SharePanelComponent`, `ReaderShareComponent`, `PayPalButtonComponent`. They live in `client_code/components/`.
 - Every public page form, landing page template and blog post template carries `EditModeComponent` and registers its editable elements (`DESIGN.md`, Edit Mode).
 - Every feature heading and field that has help carries `HelpTooltipComponent` with its `help_key`.
 - One local component exists: `PaletteSettingsForm`, in SettingsForm's folder.

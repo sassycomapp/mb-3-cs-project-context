@@ -1,7 +1,7 @@
 ---
 title: "schema-migration-log"
 doc-id: "mb-dde289cd"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Schema Migration Log
 
@@ -18,7 +18,7 @@ Every schema change, recorded at Step 17 and read at Steps 41 and 42. The schema
 | pre-release | 2026-10-31 | `services`, `bookings`, `invoice`, `invoice_items`, `time_entries` | Additive: columns added | App 1 only, prompt P6 |
 | pre-release | 2026-10-31 | `business_profile`, `payment_config`, `users`, `files`, `contacts`, `tasks`, `email_campaigns`, `email_log`, `campaign_metrics`, `service_performance`, `blog_posts`, `webhook_log` | Additive: columns added | App 1 only, prompt P7 |
 | pre-release | 2026-11-01 | 10 new tables: `companies`, `quotes`, `quote_items`, `deals`, `expense_categories`, `expenses`, `sample_rows`, `email_addresses`, `email_messages`, `email_suppressions` | Additive: tables created | App 1 only, prompts P8–P10 |
-| pre-release | 2026-11-01 | `business_profile`, `users`, `contacts`, `email_config`, `email_templates`, `email_campaigns`, `blog_posts`, `pages` | Additive: columns added | App 1 only, prompt P11 |
+| pre-release | 2026-11-01 | `business_profile`, `users`, `contacts`, `email_config`, `email_templates`, `email_campaigns`, `blog_posts`, `pages`, `payments` | Additive: columns added | App 1 only, prompt P11 |
 | pre-release | 2026-10-31 | 19 tables with `instance_id` or `client_id`; `theme_config`; `webhook_log`; `bookings`; `invoice`; `services` | Breaking: columns removed (listed in P12) | App 1 only, prompt P12, last. App 1 holds development data only; the data in the removed columns is not needed |
 | pre-release | 2026-11-01 | `email_config` | Breaking: the Brevo columns `from_email`, `from_name`, `configured`, `configured_at`, `sender_domain_verified` removed | App 1 only, prompt P12, last |
 
@@ -191,6 +191,7 @@ Add these columns to these existing Data Tables, with exactly these names and ty
 - Table `email_campaigns`: add `from_address_id` (link to one row of `email_addresses`)
 - Table `blog_posts`: add `share_captions` (simpleObject)
 - Table `pages`: add `updated_by` (link to one row of `users`)
+- Table `payments`: add `gateway_fee` (number)
 
 Change only the Data Tables schema. Do not change any form, module, server module, theme, CSS, dependency or service. Do not change or delete any data. For every table you create, set access to "No access" for forms and "Full access" for server code. Before making any change, list exactly what you will create or change and wait for my confirmation.
 ```

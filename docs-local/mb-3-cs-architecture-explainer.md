@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-architecture-explainer"
 doc-id: "mb-dc62ff9a"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Architecture Explainer
 
@@ -146,7 +146,7 @@ Step-by-step processes, such as onboarding and booking, show their steps in a si
 
 **F-14 Time tracking.** Providers record time worked for a customer — by hand or with a start and stop timer — with the rate and whether it is billable. Billable hours turn into invoice lines, and the same step marks them as invoiced, so time can never be billed twice. Reports show hours and value by provider, customer and service.
 
-**F-15 Invoicing and payments.** Invoices are created automatically when a booking completes or a quote is accepted, and also from time entries, orders, packages or by hand. Each invoice carries payment terms, such as 30 days, and its due date follows from them; an invoice that passes its due date becomes overdue and the customer is reminded. Each invoice moves through draft, sent, paid, overdue and cancelled. One payment service sits behind Stripe, Paystack and PayPal, so the rest of the app never needs to know which one a client uses, and a client can switch without redoing services or bookings.
+**F-15 Invoicing and payments.** Invoices are created automatically when a booking completes or a quote is accepted, and also from time entries, orders, packages or by hand. Each invoice carries payment terms, such as 30 days, and its due date follows from them; an invoice that passes its due date becomes overdue and the customer is reminded. Each invoice moves through draft, sent, paid, overdue and cancelled. One payment service sits behind Stripe, Paystack and PayPal, so the rest of the app never needs to know which one a client uses, and a client can switch without redoing services or bookings. PayPal's own buttons take the customer's approval, while the server creates and captures the payment, so the amount can never be changed in the browser. Each payment's gateway fee is recorded, so the accounts show what the business really received.
 
 **F-16 Dual currency.** The business keeps its books in one currency, fixed once trading starts so the records stay consistent. It can show prices to overseas customers in another currency, while every sum behind the scenes stays in the home currency.
 
@@ -174,7 +174,7 @@ Step-by-step processes, such as onboarding and booking, show their steps in a si
 
 ### Help, AI and voice
 
-**F-25 Ease of use, in-app help and language.** Screens follow the order in which a business owner thinks. Each feature's tooltip opens a short help video in a pop-up, so a business owner learns by watching, exactly where the question arises; tooltips can be switched off. The client chooses the app's language — English, French, Portuguese, Spanish, German or Italian — and screens, emails and videos follow it. Every piece of screen text is looked up from one translation table per language instead of being typed into the screens, which is what makes a new language possible without rebuilding a screen.
+**F-25 Ease of use, in-app help and language.** Screens follow the order in which a business owner thinks. Each feature's tooltip opens a short help video in a pop-up, so a business owner learns by watching, exactly where the question arises; tooltips can be switched off. The client chooses the app's language — English, French, Portuguese, Spanish, German or Italian — and screens, emails and videos follow it. Every piece of screen text, every email and every document is looked up by a short key from one phrase file per language instead of being typed into the screens, which is what makes a new language possible without rebuilding a screen. AI translates each key from English with a fixed glossary of product terms, and a language is offered only when every key is translated.
 
 **F-26 AI assistance.** One AI helper is used everywhere instead of separate AI tools on each page. The helper opens in a floating window over the current page and picks the right assist for that page. Because every assist runs through the same helper and the same server path, the first assist is the hard work and each further assist is mostly a new prompt. AI requests pass through App 5, so Mybizz's AI keys never sit in client apps and Mybizz can see each client's AI use. If the AI fails, the page still works and says so. The assists that need a history of data show their worth from the first day on the sample data (section 11).
 

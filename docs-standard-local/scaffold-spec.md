@@ -1,7 +1,7 @@
 ---
 title: "scaffold-spec"
 doc-id: "mb-be462593"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Scaffold Specification
 
@@ -35,7 +35,7 @@ The structure of App 1: its packages, forms, modules, navigation and startup.
 - Imports between modules are relative (`from ...shared import formatting_utils`), never by the app's package name: in a client instance the code runs from `master_template`'s package, so an import by App 1's package name fails there.
 - All money, date and time logic is in server modules (Skulpt, reference section 14).
 - Forms marked **(local)** are used inside one parent form only and live in that parent's folder.
-- No visible text is typed into the Designer: every screen text is set in code from a phrase key in `shared/translations/` (F-25).
+- No visible words are typed into the Designer: the Designer holds phrase keys, and each form calls `translate_form(self)` after `init_components` (F-25, [[[default:specifications-global/spec-translation|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md)).
 
 ### Client code
 
@@ -44,6 +44,7 @@ client_code/
 ├── auth/                          F-01
 │   ├── LoginForm/                 startup form; routes by role (section Startup Configuration)
 │   ├── PasswordResetForm/         request a reset link
+│   ├── TwoFactorForm/             enrol a second factor; enter the code or use the security key at sign-in
 │   └── SetPasswordForm/           set a password from an emailed link (new Owner, staff, customer, reset)
 │
 ├── onboarding/                    F-03
@@ -220,7 +221,8 @@ client_code/
 │   ├── HelpTooltipComponent/
 │   ├── EditModeComponent/
 │   ├── SharePanelComponent/
-│   └── ReaderShareComponent/
+│   ├── ReaderShareComponent/
+│   └── PayPalButtonComponent/
 │
 └── shared/
     ├── globals.py                 shared client state: globals-contract.md
@@ -228,7 +230,7 @@ client_code/
     ├── validation_utils.py
     ├── formatting_utils.py
     ├── palette_utils.py           palette and dark mode: palette-tokens.md
-    └── translations/              one module per app language (en, fr, pt, es, de, it); `t(key)` returns the phrase in the app language
+    └── translations/              t(), t_plural(), translate_form(); en, fr, pt, es, de, it phrase files; formats.py; glossary.py (spec-translation)
 ```
 
 The four homepage templates, two blog list templates, three blog post templates and three landing page templates are the 12 page templates of `DESIGN.md` (Template and Layout Architecture). Each is a form in its parent's folder, loaded into the parent's content panel by the parent's template field (`business_profile.homepage_template`, `business_profile.blog_list_view`, `blog_posts.template`, `landing_pages.template_type`).
@@ -289,7 +291,7 @@ server_code/
 
 A custom component is a reusable element that the Anvil Material 3 theme does not provide and that is used in more than one place. An element used in one place only is a local form in its parent's folder.
 
-- The eleven shared custom components, where each is used and its implementation notes: `custom-component-requirements-matrix.md`.
+- The twelve shared custom components, where each is used and its implementation notes: `custom-component-requirements-matrix.md`.
 - Every shared custom component lives in `client_code/components/`, takes its settings as properties set by the host form, and uses only the tokens, typography, spacing and roles in `DESIGN.md`.
 - Components inside a custom component are only those in [[[default:specifications-global/spec-m3_component_mapping|M3 Component Mapping]]](C:/dev/project-library-global/specifications-global/spec-m3_component_mapping.md); browser features are reached through `anvil.js`, never `eval`.
 - Not built: animated button, card, link and image components; an onboarding palette form; chip components (matrix, Not built).
@@ -431,7 +433,7 @@ At startup the palette module applies `business_profile.palette` and starts the 
 | Sign-up | Off | Owners are created at provisioning, staff by invitation, customers by their first booking |
 | Confirm email | On | F-01 |
 | Remember me | 30 minutes | Matches the 30-minute session rule (F-01, UF-38) |
-| Anvil two-factor authentication | Off, and `require_mfa` off | Sign-in has no second factor; the Vault's TOTP is the project's own (F-02). `anvil.yaml` today has `require_mfa: true` with `use_mfa: false`: `require_mfa` is switched off |
+| Require 2-factor authentication | On (`require_mfa: true`); authenticator apps and security keys (FIDO2) allowed; "Allow 2-factor reset by email" on | Every account holder signs in with a second factor, the Owner with FIDO2 (F-01); the Vault's own TOTP is in addition (F-02) |
 | Secure passwords | Required | F-01 |
 | User table | `users` | |
 
@@ -453,7 +455,7 @@ At startup the palette module applies `business_profile.palette` and starts the 
 - App 3 and every client instance depend on `master_template` (App 2), as `mb-3-cs-architecture-reference.md` section 1 sets out.
 - **Anvil Secret:** `encryption_key` only, used only by `vault_service`. Set once per instance at provisioning and never changed.
 - **Native libraries:** `anvil.yaml` loads `@floating-ui/dom@1` from `cdn.jsdelivr.net` in `head_html`. Its purpose is not recorded. It is checked against the M3 theme's own requirements, then kept with its reason recorded here, or removed. No other external script is loaded.
-- **Runtime:** server `python3-full`, client version 3.
+- **Runtime:** server Python 3.14 (`python314`) in every app; packages in each app's `requirements.txt` (`boto3`); client version 3.
 
 ---
 

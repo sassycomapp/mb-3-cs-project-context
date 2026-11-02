@@ -1,7 +1,7 @@
 ---
 title: "user-flows"
 doc-id: "mb-b1292280"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — User Flows
 
@@ -113,7 +113,7 @@ updated: "2026-11-01"
 
 Onboarding is a resumable wizard, separate from Settings, with a progress indicator and a short help video on every step. Each step saves when completed. See [[[default:specifications-global/spec-onboarding-implementation-plan|Mybizz CS Onboarding System - Engineering Plan]]](C:/dev/project-library-global/specifications-global/spec-onboarding-implementation-plan.md).
 
-1. **Owner sets a password** from the welcome link and signs in → the onboarding wizard opens with a welcome and the progress indicator.
+1. **Owner sets a password** from the welcome link, enrols a FIDO2 second factor (a security key or the device's passkey) and signs in → the onboarding wizard opens with a welcome and the progress indicator.
 2. **App language** — choose English, French, Portuguese, Spanish, German or Italian (the languages whose translation is complete); every later step and video follows the choice.
 3. **Business profile** — link to Settings → Business Profile tab; the AI helper offers the first website text from the profile.
 4. **Brand palette** — link to Settings → Brand Palette tab, with live preview.
@@ -136,15 +136,15 @@ Onboarding is a resumable wizard, separate from Settings, with a progress indica
 1. Owner or Manager opens Settings → Users and Permissions → Invite.
 2. Enters name, email and role (Manager, Admin or Staff); for Staff, assigns the services the provider delivers and sets the provider's schedule; chooses the invitee's personal email address on the client's domain and the desks the invitee belongs to (UF-39).
 3. The invitee receives an email with a link to set a password.
-4. The invitee signs in and lands on the Dashboard, seeing only what the role allows.
+4. The invitee enrols a second factor (authenticator app or security key), signs in and lands on the Dashboard, seeing only what the role allows.
 5. Owner or Manager can change a role, deactivate or reactivate a user at any time; deactivated users cannot sign in.
 
 ---
 
 ## UF-04 Opening the Vault (F-02)
 
-1. Owner opens Vault.
-2. Enters the current code from an authenticator app (required every time; no remembered session).
+1. Owner opens Vault; if the last sign-in is older than five minutes, the Owner signs in again with password and second factor.
+2. Enters the current code from the Vault's authenticator app (required every time; no remembered session). On the first open, the Owner enrols the authenticator from a QR code. A lost authenticator is reset by the Owner: Reset Vault code, then the emailed link, then a new enrolment (`vault-recovery-procedure.md`).
 3. Views, adds or replaces a credential (gateway keys, AWS keys, R2 keys).
 4. Closes the Vault. The Owner receives an email recording the access.
 
@@ -494,7 +494,7 @@ The client is responsible for the final wording being right for the client's bus
 
 **Entry:** customer sign-in on the client's website
 
-1. Customer signs in (or sets a password from the link in the first booking confirmation).
+1. Customer signs in with password and second factor (or sets a password from the link in the first booking confirmation and enrols a second factor).
 2. My Dashboard — upcoming bookings, package balances, open quotes, invoices due.
 3. My Bookings — view, reschedule or cancel within the allowed window; book again.
 4. My Packages — balance and expiry.

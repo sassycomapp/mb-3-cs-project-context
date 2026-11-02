@@ -1,7 +1,7 @@
 ---
 title: "authoritative-schema"
 doc-id: "mb-8b83e940"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Authoritative Database Schema
 
@@ -241,7 +241,7 @@ Every person who signs in: Owner, staff and customers. Extends the Anvil Users s
 | `signed_up` | datetime | Anvil-managed |
 | `last_login` | datetime | Anvil-managed |
 | `remembered_logins` | simpleObject | Anvil-managed |
-| `mfa` | simpleObject | Anvil-managed; unused (Anvil two-factor sign-in is off) |
+| `mfa` | simpleObject | Anvil-managed; the user's two-factor sign-in methods |
 | `full_name` | string | |
 | `phone` | string | |
 | `role` | string | `owner` / `manager` / `admin` / `staff` / `customer` |
@@ -536,6 +536,7 @@ Every payment and refund (F-15).
 | `currency` | string | The system currency |
 | `status` | string | `pending` / `succeeded` / `failed` |
 | `gateway_reference` | string | The gateway's transaction id; empty for manual |
+| `gateway_fee` | number | The gateway's fee for this payment, from the gateway's response; empty for manual (F-28) |
 | `refund_of` | link → payments | For a refund: the payment refunded |
 | `recorded_by` | link → users | For a manual payment or refund |
 | `received_at` | datetime | |

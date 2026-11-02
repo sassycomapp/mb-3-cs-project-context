@@ -34,7 +34,7 @@ Every credential a client instance uses is encrypted in the client's Vault (F-02
 ### Gateways
 
 - One card gateway per instance: **Stripe** (global) or **Paystack** (South Africa and Africa; Stripe does not accept South African businesses directly).
-- **PayPal** is an optional second method beside the card gateway.
+- **PayPal** is an optional second method beside the card gateway, offered only when the system currency is one of PayPal's supported currencies (not ZAR); Settings shows PayPal as unavailable otherwise.
 - Configured in Settings → Payment Gateways (Owner only); secret keys are entered in the Vault; each gateway has test and live modes (`payment_config.test_mode`).
 
 ### One payment service
@@ -56,9 +56,23 @@ Every credential a client instance uses is encrypted in the client's Vault (F-02
 
 A booking whose online payment has not yet succeeded is held as `pending` for 15 minutes with an emailed payment link, then released with its slot and resource (UF-38).
 
+### PayPal
+
+PayPal's standard checkout, as the [[[default:specifications-global/spec-integration|Integration Specification]]](C:/dev/project-library-global/specifications-global/spec-integration.md) sets out in section 5:
+
+1. **Setup:** the Owner enters the PayPal client ID in Settings and the secret in the Vault. The instance registers its webhook with PayPal (`/_/api/webhooks/paypal`) and stores the webhook ID in the Vault.
+2. **Buttons:** `PayPalButtonComponent` (in `components/`) loads PayPal's JavaScript SDK with the client ID, the system currency and the app language, on the booking flow, order flow and pay page.
+3. **Create:** the button calls `server_payments/paypal_gateway`, which reads the amount of the booking, order, invoice or package from the database and creates the order (`POST /v2/checkout/orders`, `invoice_id` = the record's identity).
+4. **Capture:** after the buyer approves, the server captures the order with a `PayPal-Request-Id` header, and the payment service records the payment and PayPal's fee.
+5. **Cancel or error:** the record stays unpaid; a pending booking keeps its 15-minute hold.
+6. **Webhooks:** `CHECKOUT.ORDER.APPROVED` (captures an order whose browser closed), `PAYMENT.CAPTURE.COMPLETED`, `PENDING`, `DENIED`, `REFUNDED`, `CUSTOMER.DISPUTE.CREATED`.
+7. **Refunds:** full or partial, from the app through the payment service.
+8. **Invoices:** the app's own invoices and PDFs; pay links open the instance's pay page, with PayPal beside the card option. PayPal's invoicing is not used.
+
 ### Recording payments and refunds
 
 - Every payment and refund is a row in `payments`: by gateway, or recorded manually (cash, bank transfer).
+- The gateway's fee for each payment is recorded on its row (`gateway_fee`), from the gateway's own response: Stripe's balance transaction, Paystack's `fees`, PayPal's `paypal_fee`. The accounts show the gross payment as income and the fee as an expense, and the accounting export carries both (F-28).
 - Refunds are full or partial, through the original gateway or recorded manually; payments and refunds feed the accounts reports and export (F-28).
 
 ### Currency
@@ -107,7 +121,7 @@ Every email of a client instance, received and sent, goes through **Amazon SES**
 - **Cost:** Cloudflare's free allowance is 10 GB of storage, 1 million write operations and 10 million read operations a month; downloads are free. Usage above the allowance is billed by Cloudflare to the client's payment method; storage above 10 GB costs $0.015 per GB per month (concept section 9.5).
 - The bucket's access keys are in the client's Vault; they never appear in code, in Anvil Secrets or in any document.
 - `server_storage/r2_service` is the only module that reads or writes the bucket.
-- R2 and Amazon SES are reached with `boto3`, installed from PyPI in the Python environment of App 1, App 2 and App 3 (Settings → Python versions, `requirements.txt`), so every client instance cloned from App 3 carries it. The private test instance proves both before the first release.
+- Every app runs on Python 3.14. R2 and Amazon SES are reached with `boto3`, installed from PyPI in the Python environment of App 1, App 2 and App 3 (Settings → Python versions, `requirements.txt`), so every client instance cloned from App 3 carries it. The private test instance proves both before the first release.
 
 | Object | Folder | Written | Kept in the tables |
 |---|---|---|---|
