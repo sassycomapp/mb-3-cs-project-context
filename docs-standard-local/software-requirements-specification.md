@@ -1,7 +1,7 @@
 ---
 title: "software-requirements-specification"
 doc-id: "mb-f157e3fc"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Software Requirements Specification (SRS)
 
@@ -153,6 +153,7 @@ Anvil's platform constraints apply by default: no programmatic Data Table schema
 | SR-51 | A Help message is sent to App 5 with the Bearer token and returns a reference number; App 5's replies appear in the Help view | FR-32 | Test against App 5 | [CLEAR] |
 | SR-52 | Usage (rows, storage, email volume) is reported to App 5 daily; App 5 warns Mybizz at 80% of the account's 1,000,000 rows | FR-33 | Test against App 5 | [CLEAR] |
 | SR-53 | The heartbeat reaches App 5 every 15 minutes with release version and schema fingerprint and no customer personal data | FR-34 | Test against App 5; payload inspection | [CLEAR] |
+| SR-53a | AI and speech requests pass through App 5 without their content being stored or logged; App 5 records only each client's usage counts; Mybizz's Groq organisation has Zero Data Retention on | FR-26, FR-34 | Test against App 5: after an AI and a speech request, no App 5 table or log holds their content; Groq's Data Controls show Zero Data Retention on | [CLEAR] |
 | SR-54 | The usage report carries the last staff sign-in and last booking date, from which App 5 raises the at-risk alerts | FR-34 | Test against App 5 | [CLEAR] |
 | SR-55 | A service with pricing model `duration` offers time slots sized by its duration; a service with `unit` offers Order and no slot; only active services appear publicly | FR-10 | Test both pricing models and an inactive service | [CLEAR] |
 | SR-56 | Quote numbers are `QT-{year}-{sequence}` with no gap or repeat; accepting a quote at `/quote/{token}` creates its invoice, links it and moves a linked deal to `won` in one transaction; a second acceptance changes nothing; a quote past `valid_until` is `expired` the next morning | FR-35 | Concurrency and state tests | [CLEAR] |

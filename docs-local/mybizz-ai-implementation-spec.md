@@ -1,7 +1,7 @@
 ---
 title: "mybizz-ai-implementation-spec"
 doc-id: "mb-c145dbbc"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz AI Implementation Specification
 
@@ -421,7 +421,7 @@ Each host form uses the same helper button and the same floating component, with
 
 ### Shared service layer
 
-One shared AI request layer (`server_ai/`) handles prompt submission, model invocation, result return, and error handling consistently across the app. Every AI and Groq request is routed through the Mybizz management app (App 5), which holds Mybizz's AI provider keys and records each client's AI usage; client instances hold no Mybizz AI keys. The Groq Whisper transcription call is handled server-side within this same layer: audio bytes are sent to the Anvil server module, passed through App 5 to Groq, and the resulting text is returned to the client before being passed into the AI helper prompt pipeline.
+One shared AI request layer (`server_ai/`) handles prompt submission, model invocation, result return, and error handling consistently across the app. Every AI and Groq request is routed through the Mybizz management app (App 5), which holds Mybizz's AI provider keys and records each client's AI usage; client instances hold no Mybizz AI keys. App 5 passes each AI and speech request to Groq and returns the result without storing or logging its content; it records only each client's usage counts. Mybizz's Groq organisation has Zero Data Retention switched on, so Groq keeps no copy either. The Groq Whisper transcription call is handled server-side within this same layer: audio bytes are sent to the Anvil server module, passed through App 5 to Groq, and the resulting text is returned to the client before being passed into the AI helper prompt pipeline.
 
 This keeps model choice and request logic centralised, making it easy to improve prompts, swap providers, or add common safeguards without touching every host form.
 

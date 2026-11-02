@@ -1,7 +1,7 @@
 ---
 title: "product-requirements-document"
 doc-id: "mb-ad69f2ae"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Product Requirements Document (PRD)
 
@@ -164,7 +164,7 @@ Every user story US-1 to US-41 is satisfied by at least one functional requireme
 | Timezone handling | UTC storage, display-time conversion, one IANA time zone per instance | [CLEAR] |
 | Currency handling | One system currency, locked after the first booking or invoice; optional display currency per service, display only | [CLEAR] |
 | Color/theming compliance | Anvil M3 theme with the project deviations of `DESIGN.md`; no hardcoded colour anywhere; four palettes and dark mode through the `--anvil-m3-*` properties | [CLEAR] |
-| Data protection | POPIA, GDPR and PCI DSS per [[[default:specifications-global/spec-regulatory-compliance-baseline\|Regulatory Compliance Baseline]]](C:/dev/project-library-global/specifications-global/spec-regulatory-compliance-baseline.md); no customer personal data sent to App 5 | [CLEAR] |
+| Data protection | POPIA, GDPR and PCI DSS per [[[default:specifications-global/spec-regulatory-compliance-baseline\|Regulatory Compliance Baseline]]](C:/dev/project-library-global/specifications-global/spec-regulatory-compliance-baseline.md); no customer personal data stored in App 5: the heartbeat and usage report carry none, and AI and speech requests pass through App 5 to Groq unstored, with Groq's Zero Data Retention switched on | [CLEAR] |
 | Capacity | 1,000,000 rows per client on the client's own Business account; 100 clients in total | [CLEAR] |
 | Email delivery | Every email from a client's domain signed with DKIM and aligned for DMARC; bounces and complaints suppressed automatically; one SES tenant per client | [CLEAR] |
 | Language | Six app languages; no screen text typed into the Designer | [CLEAR] |

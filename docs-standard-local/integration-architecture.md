@@ -1,7 +1,7 @@
 ---
 title: "integration-architecture"
 doc-id: "mb-af335781"
-updated: "2026-11-01"
+updated: "2026-11-02"
 ---
 # Mybizz CS — Integration Architecture
 
@@ -107,6 +107,7 @@ Every email of a client instance, received and sent, goes through **Amazon SES**
 - **Cost:** Cloudflare's free allowance is 10 GB of storage, 1 million write operations and 10 million read operations a month; downloads are free. Usage above the allowance is billed by Cloudflare to the client's payment method; storage above 10 GB costs $0.015 per GB per month (concept section 9.5).
 - The bucket's access keys are in the client's Vault; they never appear in code, in Anvil Secrets or in any document.
 - `server_storage/r2_service` is the only module that reads or writes the bucket.
+- R2 and Amazon SES are reached with `boto3`, installed from PyPI in the Python environment of App 1, App 2 and App 3 (Settings → Python versions, `requirements.txt`), so every client instance cloned from App 3 carries it. The private test instance proves both before the first release.
 
 | Object | Folder | Written | Kept in the tables |
 |---|---|---|---|
@@ -127,6 +128,7 @@ Every email of a client instance, received and sent, goes through **Amazon SES**
 ## AI and Speech
 
 - Every AI text, speech-to-text and natural-sounding speech request goes from `server_ai/ai_request_layer` to App 5, with the instance's Bearer token. App 5 holds Mybizz's Groq keys, calls Groq and records each client's usage (F-26, F-27).
+- App 5 passes each AI and speech request to Groq and returns the result without storing or logging its content; it records only each client's usage counts. Mybizz's Groq organisation has Zero Data Retention switched on, so Groq keeps no copy either.
 - Browser speech synthesis is the default spoken voice; Groq TTS is used for the natural-sounding voice.
 - An AI failure returns a clear message and leaves the form working.
 - Detail: `mybizz-ai-implementation-spec.md`.
