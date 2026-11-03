@@ -1,7 +1,7 @@
 ---
 title: "palette-tokens"
 doc-id: "mb-8f719d7c"
-updated: "2026-11-01"
+updated: "2026-11-03"
 ---
 # Mybizz CS — Palette Tokens
 
@@ -11,9 +11,11 @@ This document is the single home of the colour values of the four Mybizz CS pale
 
 ## 1. How the Palettes Are Made
 
-- Each palette is generated from its locked source colour with the Material 3 HCT algorithm, scheme **Tonal Spot**, Material colour specification 2021, contrast level standard — the same colour system the Anvil Material 3 theme is built on.
+- Each palette is the Material 3 **Tonal Spot** scheme of its locked source colour (Material colour specification 2021, contrast level standard), the same colour system the Anvil Material 3 theme is built on. The source colour is the HCT colour of the palette's hue at chroma 48 and tone 50.
+- **Light** values match that scheme within 2 tone steps. Where a darker on-container colour (tone 10) gives higher contrast, the darker colour is used. The surface container levels (Low, Container, High, Highest) step evenly from Surface.
+- **Dark** values are the scheme's dark colours, generated from the same source colour.
 - Each palette is a complete Anvil Material 3 colour scheme: the 46 colours of the Anvil M3 theme's Colour Scheme, with the same names, in light and in dark.
-- Overlay and disabled colours follow the Anvil M3 rules: Primary Overlay 1/2/3 are Primary at 5/8/12%; On Disabled, Disabled Container and Disabled Container 2 are On Surface at 38/12/4%; Light Overlay 1/2 are white at 8/12% in light and On Secondary Container at 8/12% in dark; Dark Overlay 1/2/3 are On Secondary Container at 8/12/16%; Error Overlay 1/2 are Error at 8/12%; the On Surface Variant and Inverse On Surface overlays are those colours at 8/12%.
+- Overlay and disabled colours follow the Anvil M3 rules: Primary Overlay 1/2/3 are Primary at 5/8/12%; On Disabled, Disabled Container and Disabled Container 2 are On Surface at 38/12/4%; Error Overlay 1/2 are Error at 8/12%; the On Surface Variant and Inverse On Surface overlays are those colours at 8/12%. In light, Light Overlay 1/2 are white at 8/12% and Dark Overlay 1/2/3 are black at 8/12/16%. In dark, Light Overlay 1/2 are On Primary at 8/12% and Dark Overlay 1/2/3 are On Secondary Container at 8/12/16%.
 - Every palette meets WCAG AA contrast for text on its main colours; the measured contrast is stated above each block.
 - The values are design constants. They are changed only by regenerating all four palettes from the source colours, never by editing a single value.
 
@@ -21,10 +23,10 @@ This document is the single home of the colour values of the four Mybizz CS pale
 
 | Palette | Key | Source colour |
 |---|---|---|
-| Professional Blue (default) | `professional_blue` | `#2563EB` |
-| Warm Coral | `warm_coral` | `#FF6F61` |
-| Calm Teal | `calm_teal` | `#008080` |
-| Sophisticated Purple | `sophisticated_purple` | `#6B46C1` |
+| Professional Blue (default) | `professional_blue` | `#5873C4` |
+| Warm Coral | `warm_coral` | `#BB5A4F` |
+| Calm Teal | `calm_teal` | `#008585` |
+| Sophisticated Purple | `sophisticated_purple` | `#8069BF` |
 
 ---
 
@@ -70,7 +72,7 @@ def watch_device_theme(palette_key):
 
 ### Professional Blue
 
-- Source colour: `#2563EB`
+- Source colour: `#5873C4`
 - Best for: consultants, clinics, therapists.
 - Intended effect: trust, professionalism, stability.
 
@@ -83,41 +85,41 @@ def watch_device_theme(palette_key):
     'On Primary':                                 '#FFFFFF',
     'On Primary Container':                       '#324478',
     'Secondary':                                  '#595E72',
-    'Secondary Container':                        '#DDE1F9',
+    'Secondary Container':                        '#DEE2FA',
     'On Secondary':                               '#FFFFFF',
-    'On Secondary Container':                     '#414659',
+    'On Secondary Container':                     '#161B2C',
     'Tertiary':                                   '#745470',
-    'Tertiary Container':                         '#FFD6F8',
+    'Tertiary Container':                         '#FFD6F7',
     'On Tertiary':                                '#FFFFFF',
-    'On Tertiary Container':                      '#5A3D58',
+    'On Tertiary Container':                      '#2B122A',
     'Error':                                      '#BA1A1A',
     'On Error':                                   '#FFFFFF',
-    'On Error Container':                         '#93000A',
+    'On Error Container':                         '#410002',
     'Background':                                 '#FAF8FF',
-    'On Background':                              '#1A1B21',
+    'On Background':                              '#1A1B20',
     'Surface':                                    '#FAF8FF',
-    'On Surface':                                 '#1A1B21',
+    'On Surface':                                 '#1A1B20',
     'Surface Variant':                            '#E2E2EC',
     'On Surface Variant':                         '#45464F',
     'Outline':                                    '#757680',
     'Outline Variant':                            '#C5C6D0',
-    'Surface Container Low':                      '#F4F3FA',
+    'Surface Container Low':                      '#F4F3F9',
     'Surface Container':                          '#EEEDF4',
-    'Surface Container High':                     '#E8E7EF',
+    'Surface Container High':                     '#E9E7EF',
     'Surface Container Highest':                  '#E3E2E9',
     'Inverse Surface':                            '#2F3036',
     'Inverse On Surface':                         '#F1F0F7',
     'Primary Overlay 1':                          'rgba(75, 92, 146, 0.05)',
     'Primary Overlay 2':                          'rgba(75, 92, 146, 0.08)',
     'Primary Overlay 3':                          'rgba(75, 92, 146, 0.12)',
-    'On Disabled':                                'rgba(26, 27, 33, 0.38)',
-    'Disabled Container':                         'rgba(26, 27, 33, 0.12)',
-    'Disabled Container 2':                       'rgba(26, 27, 33, 0.04)',
+    'On Disabled':                                'rgba(26, 27, 32, 0.38)',
+    'Disabled Container':                         'rgba(26, 27, 32, 0.12)',
+    'Disabled Container 2':                       'rgba(26, 27, 32, 0.04)',
     'Light Overlay 1':                            'rgba(255, 255, 255, 0.08)',
     'Light Overlay 2':                            'rgba(255, 255, 255, 0.12)',
-    'Dark Overlay 1':                             'rgba(65, 70, 89, 0.08)',
-    'Dark Overlay 2':                             'rgba(65, 70, 89, 0.12)',
-    'Dark Overlay 3':                             'rgba(65, 70, 89, 0.16)',
+    'Dark Overlay 1':                             'rgba(0, 0, 0, 0.08)',
+    'Dark Overlay 2':                             'rgba(0, 0, 0, 0.12)',
+    'Dark Overlay 3':                             'rgba(0, 0, 0, 0.16)',
     'Error Overlay 1':                            'rgba(186, 26, 26, 0.08)',
     'Error Overlay 2':                            'rgba(186, 26, 26, 0.12)',
     'On Surface Variant Overlay 1':               'rgba(69, 70, 79, 0.08)',
@@ -127,22 +129,22 @@ def watch_device_theme(palette_key):
 },
 ```
 
-**Dark** — contrast: On Primary on Primary 7.8:1; On Surface on Surface 14.4:1; On Primary Container on Primary Container 7.3:1.
+**Dark** — contrast: On Primary on Primary 7.8:1; On Surface on Surface 14.4:1; On Primary Container on Primary Container 7.2:1.
 
 ```python
 'professional_blue_dark': {
     'Primary':                                    '#B4C5FF',
-    'Primary Container':                          '#324478',
-    'On Primary':                                 '#1A2D60',
+    'Primary Container':                          '#334478',
+    'On Primary':                                 '#1B2D60',
     'On Primary Container':                       '#DBE1FF',
     'Secondary':                                  '#C1C5DD',
     'Secondary Container':                        '#414659',
     'On Secondary':                               '#2B3042',
     'On Secondary Container':                     '#DDE1F9',
     'Tertiary':                                   '#E2BBDB',
-    'Tertiary Container':                         '#5A3D58',
-    'On Tertiary':                                '#422741',
-    'On Tertiary Container':                      '#FFD6F8',
+    'Tertiary Container':                         '#5B3D58',
+    'On Tertiary':                                '#422740',
+    'On Tertiary Container':                      '#FFD6F7',
     'Error':                                      '#FFB4AB',
     'On Error':                                   '#690005',
     'On Error Container':                         '#FFDAD6',
@@ -166,8 +168,8 @@ def watch_device_theme(palette_key):
     'On Disabled':                                'rgba(227, 226, 233, 0.38)',
     'Disabled Container':                         'rgba(227, 226, 233, 0.12)',
     'Disabled Container 2':                       'rgba(227, 226, 233, 0.04)',
-    'Light Overlay 1':                            'rgba(221, 225, 249, 0.08)',
-    'Light Overlay 2':                            'rgba(221, 225, 249, 0.12)',
+    'Light Overlay 1':                            'rgba(27, 45, 96, 0.08)',
+    'Light Overlay 2':                            'rgba(27, 45, 96, 0.12)',
     'Dark Overlay 1':                             'rgba(221, 225, 249, 0.08)',
     'Dark Overlay 2':                             'rgba(221, 225, 249, 0.12)',
     'Dark Overlay 3':                             'rgba(221, 225, 249, 0.16)',
@@ -182,70 +184,70 @@ def watch_device_theme(palette_key):
 
 ### Warm Coral
 
-- Source colour: `#FF6F61`
+- Source colour: `#BB5A4F`
 - Best for: salons, spas, lifestyle, beauty.
 - Intended effect: warmth, creativity, approachability.
 
-**Light** — contrast: On Primary on Primary 6.5:1; On Surface on Surface 16.4:1; On Primary Container on Primary Container 7.2:1.
+**Light** — contrast: On Primary on Primary 6.5:1; On Surface on Surface 16.2:1; On Primary Container on Primary Container 13.2:1.
 
 ```python
 'warm_coral': {
     'Primary':                                    '#904A42',
     'Primary Container':                          '#FFDAD5',
     'On Primary':                                 '#FFFFFF',
-    'On Primary Container':                       '#73342D',
+    'On Primary Container':                       '#3B0A06',
     'Secondary':                                  '#775652',
-    'Secondary Container':                        '#FFDAD5',
+    'Secondary Container':                        '#FFDAD6',
     'On Secondary':                               '#FFFFFF',
-    'On Secondary Container':                     '#5D3F3B',
+    'On Secondary Container':                     '#2C1512',
     'Tertiary':                                   '#715B2E',
-    'Tertiary Container':                         '#FDDFA6',
+    'Tertiary Container':                         '#FCE0A6',
     'On Tertiary':                                '#FFFFFF',
-    'On Tertiary Container':                      '#574419',
+    'On Tertiary Container':                      '#251A00',
     'Error':                                      '#BA1A1A',
     'On Error':                                   '#FFFFFF',
-    'On Error Container':                         '#93000A',
+    'On Error Container':                         '#410002',
     'Background':                                 '#FFF8F7',
-    'On Background':                              '#231918',
+    'On Background':                              '#231A19',
     'Surface':                                    '#FFF8F7',
-    'On Surface':                                 '#231918',
-    'Surface Variant':                            '#F5DDDA',
+    'On Surface':                                 '#231A19',
+    'Surface Variant':                            '#F5DDD9',
     'On Surface Variant':                         '#534341',
     'Outline':                                    '#857370',
-    'Outline Variant':                            '#D8C2BF',
-    'Surface Container Low':                      '#FFF0EE',
+    'Outline Variant':                            '#D8C2BE',
+    'Surface Container Low':                      '#FFF1F0',
     'Surface Container':                          '#FCEAE7',
-    'Surface Container High':                     '#F6E4E2',
+    'Surface Container High':                     '#F7E4E2',
     'Surface Container Highest':                  '#F1DEDC',
     'Inverse Surface':                            '#392E2D',
-    'Inverse On Surface':                         '#FFEDEA',
+    'Inverse On Surface':                         '#FCEAE8',
     'Primary Overlay 1':                          'rgba(144, 74, 66, 0.05)',
     'Primary Overlay 2':                          'rgba(144, 74, 66, 0.08)',
     'Primary Overlay 3':                          'rgba(144, 74, 66, 0.12)',
-    'On Disabled':                                'rgba(35, 25, 24, 0.38)',
-    'Disabled Container':                         'rgba(35, 25, 24, 0.12)',
-    'Disabled Container 2':                       'rgba(35, 25, 24, 0.04)',
+    'On Disabled':                                'rgba(35, 26, 25, 0.38)',
+    'Disabled Container':                         'rgba(35, 26, 25, 0.12)',
+    'Disabled Container 2':                       'rgba(35, 26, 25, 0.04)',
     'Light Overlay 1':                            'rgba(255, 255, 255, 0.08)',
     'Light Overlay 2':                            'rgba(255, 255, 255, 0.12)',
-    'Dark Overlay 1':                             'rgba(93, 63, 59, 0.08)',
-    'Dark Overlay 2':                             'rgba(93, 63, 59, 0.12)',
-    'Dark Overlay 3':                             'rgba(93, 63, 59, 0.16)',
+    'Dark Overlay 1':                             'rgba(0, 0, 0, 0.08)',
+    'Dark Overlay 2':                             'rgba(0, 0, 0, 0.12)',
+    'Dark Overlay 3':                             'rgba(0, 0, 0, 0.16)',
     'Error Overlay 1':                            'rgba(186, 26, 26, 0.08)',
     'Error Overlay 2':                            'rgba(186, 26, 26, 0.12)',
     'On Surface Variant Overlay 1':               'rgba(83, 67, 65, 0.08)',
     'On Surface Variant Overlay 2':               'rgba(83, 67, 65, 0.12)',
-    'Inverse On Surface Overlay 1':               'rgba(255, 237, 234, 0.08)',
-    'Inverse On Surface Overlay 2':               'rgba(255, 237, 234, 0.12)',
+    'Inverse On Surface Overlay 1':               'rgba(252, 234, 232, 0.08)',
+    'Inverse On Surface Overlay 2':               'rgba(252, 234, 232, 0.12)',
 },
 ```
 
-**Dark** — contrast: On Primary on Primary 7.7:1; On Surface on Surface 14.3:1; On Primary Container on Primary Container 7.2:1.
+**Dark** — contrast: On Primary on Primary 7.8:1; On Surface on Surface 14.3:1; On Primary Container on Primary Container 7.2:1.
 
 ```python
 'warm_coral_dark': {
     'Primary':                                    '#FFB4AA',
-    'Primary Container':                          '#73342D',
-    'On Primary':                                 '#561E19',
+    'Primary Container':                          '#73342C',
+    'On Primary':                                 '#561E18',
     'On Primary Container':                       '#FFDAD5',
     'Secondary':                                  '#E7BDB7',
     'Secondary Container':                        '#5D3F3B',
@@ -271,15 +273,15 @@ def watch_device_theme(palette_key):
     'Surface Container High':                     '#322826',
     'Surface Container Highest':                  '#3D3231',
     'Inverse Surface':                            '#F1DEDC',
-    'Inverse On Surface':                         '#392E2D',
+    'Inverse On Surface':                         '#392E2C',
     'Primary Overlay 1':                          'rgba(255, 180, 170, 0.05)',
     'Primary Overlay 2':                          'rgba(255, 180, 170, 0.08)',
     'Primary Overlay 3':                          'rgba(255, 180, 170, 0.12)',
     'On Disabled':                                'rgba(241, 222, 220, 0.38)',
     'Disabled Container':                         'rgba(241, 222, 220, 0.12)',
     'Disabled Container 2':                       'rgba(241, 222, 220, 0.04)',
-    'Light Overlay 1':                            'rgba(255, 218, 213, 0.08)',
-    'Light Overlay 2':                            'rgba(255, 218, 213, 0.12)',
+    'Light Overlay 1':                            'rgba(86, 30, 24, 0.08)',
+    'Light Overlay 2':                            'rgba(86, 30, 24, 0.12)',
     'Dark Overlay 1':                             'rgba(255, 218, 213, 0.08)',
     'Dark Overlay 2':                             'rgba(255, 218, 213, 0.12)',
     'Dark Overlay 3':                             'rgba(255, 218, 213, 0.16)',
@@ -287,50 +289,50 @@ def watch_device_theme(palette_key):
     'Error Overlay 2':                            'rgba(255, 180, 171, 0.12)',
     'On Surface Variant Overlay 1':               'rgba(216, 194, 191, 0.08)',
     'On Surface Variant Overlay 2':               'rgba(216, 194, 191, 0.12)',
-    'Inverse On Surface Overlay 1':               'rgba(57, 46, 45, 0.08)',
-    'Inverse On Surface Overlay 2':               'rgba(57, 46, 45, 0.12)',
+    'Inverse On Surface Overlay 1':               'rgba(57, 46, 44, 0.08)',
+    'Inverse On Surface Overlay 2':               'rgba(57, 46, 44, 0.12)',
 },
 ```
 
 ### Calm Teal
 
-- Source colour: `#008080`
+- Source colour: `#008585`
 - Best for: fitness, wellness, physiotherapy, health services.
 - Intended effect: health, balance, growth.
 
-**Light** — contrast: On Primary on Primary 6.4:1; On Surface on Surface 16.3:1; On Primary Container on Primary Container 7.3:1.
+**Light** — contrast: On Primary on Primary 6.4:1; On Surface on Surface 16.3:1; On Primary Container on Primary Container 13.2:1.
 
 ```python
 'calm_teal': {
     'Primary':                                    '#006A6A',
     'Primary Container':                          '#9CF1F0',
     'On Primary':                                 '#FFFFFF',
-    'On Primary Container':                       '#004F4F',
+    'On Primary Container':                       '#002020',
     'Secondary':                                  '#4A6363',
     'Secondary Container':                        '#CCE8E7',
     'On Secondary':                               '#FFFFFF',
-    'On Secondary Container':                     '#324B4B',
+    'On Secondary Container':                     '#051F1F',
     'Tertiary':                                   '#4B607C',
     'Tertiary Container':                         '#D3E4FF',
     'On Tertiary':                                '#FFFFFF',
-    'On Tertiary Container':                      '#334863',
+    'On Tertiary Container':                      '#041C35',
     'Error':                                      '#BA1A1A',
     'On Error':                                   '#FFFFFF',
-    'On Error Container':                         '#93000A',
+    'On Error Container':                         '#410002',
     'Background':                                 '#F4FBFA',
     'On Background':                              '#161D1D',
     'Surface':                                    '#F4FBFA',
     'On Surface':                                 '#161D1D',
-    'Surface Variant':                            '#DAE5E4',
+    'Surface Variant':                            '#DAE5E3',
     'On Surface Variant':                         '#3F4948',
-    'Outline':                                    '#6F7979',
-    'Outline Variant':                            '#BEC9C8',
-    'Surface Container Low':                      '#EFF5F4',
+    'Outline':                                    '#6F7978',
+    'Outline Variant':                            '#BEC9C7',
+    'Surface Container Low':                      '#EEF4F3',
     'Surface Container':                          '#E9EFEE',
     'Surface Container High':                     '#E3E9E9',
     'Surface Container Highest':                  '#DDE4E3',
-    'Inverse Surface':                            '#2B3231',
-    'Inverse On Surface':                         '#ECF2F1',
+    'Inverse Surface':                            '#2B3131',
+    'Inverse On Surface':                         '#EDF2F1',
     'Primary Overlay 1':                          'rgba(0, 106, 106, 0.05)',
     'Primary Overlay 2':                          'rgba(0, 106, 106, 0.08)',
     'Primary Overlay 3':                          'rgba(0, 106, 106, 0.12)',
@@ -339,15 +341,15 @@ def watch_device_theme(palette_key):
     'Disabled Container 2':                       'rgba(22, 29, 29, 0.04)',
     'Light Overlay 1':                            'rgba(255, 255, 255, 0.08)',
     'Light Overlay 2':                            'rgba(255, 255, 255, 0.12)',
-    'Dark Overlay 1':                             'rgba(50, 75, 75, 0.08)',
-    'Dark Overlay 2':                             'rgba(50, 75, 75, 0.12)',
-    'Dark Overlay 3':                             'rgba(50, 75, 75, 0.16)',
+    'Dark Overlay 1':                             'rgba(0, 0, 0, 0.08)',
+    'Dark Overlay 2':                             'rgba(0, 0, 0, 0.12)',
+    'Dark Overlay 3':                             'rgba(0, 0, 0, 0.16)',
     'Error Overlay 1':                            'rgba(186, 26, 26, 0.08)',
     'Error Overlay 2':                            'rgba(186, 26, 26, 0.12)',
     'On Surface Variant Overlay 1':               'rgba(63, 73, 72, 0.08)',
     'On Surface Variant Overlay 2':               'rgba(63, 73, 72, 0.12)',
-    'Inverse On Surface Overlay 1':               'rgba(236, 242, 241, 0.08)',
-    'Inverse On Surface Overlay 2':               'rgba(236, 242, 241, 0.12)',
+    'Inverse On Surface Overlay 1':               'rgba(237, 242, 241, 0.08)',
+    'Inverse On Surface Overlay 2':               'rgba(237, 242, 241, 0.12)',
 },
 ```
 
@@ -390,8 +392,8 @@ def watch_device_theme(palette_key):
     'On Disabled':                                'rgba(221, 228, 227, 0.38)',
     'Disabled Container':                         'rgba(221, 228, 227, 0.12)',
     'Disabled Container 2':                       'rgba(221, 228, 227, 0.04)',
-    'Light Overlay 1':                            'rgba(204, 232, 231, 0.08)',
-    'Light Overlay 2':                            'rgba(204, 232, 231, 0.12)',
+    'Light Overlay 1':                            'rgba(0, 55, 55, 0.08)',
+    'Light Overlay 2':                            'rgba(0, 55, 55, 0.12)',
     'Dark Overlay 1':                             'rgba(204, 232, 231, 0.08)',
     'Dark Overlay 2':                             'rgba(204, 232, 231, 0.12)',
     'Dark Overlay 3':                             'rgba(204, 232, 231, 0.16)',
@@ -406,38 +408,38 @@ def watch_device_theme(palette_key):
 
 ### Sophisticated Purple
 
-- Source colour: `#6B46C1`
+- Source colour: `#8069BF`
 - Best for: executive coaching, premium consulting, high-end services.
 - Intended effect: premium, refined, exclusive.
 
-**Light** — contrast: On Primary on Primary 6.5:1; On Surface on Surface 16.2:1; On Primary Container on Primary Container 7.3:1.
+**Light** — contrast: On Primary on Primary 6.5:1; On Surface on Surface 16.2:1; On Primary Container on Primary Container 13.3:1.
 
 ```python
 'sophisticated_purple': {
     'Primary':                                    '#65558F',
     'Primary Container':                          '#E9DDFF',
     'On Primary':                                 '#FFFFFF',
-    'On Primary Container':                       '#4D3D75',
-    'Secondary':                                  '#625B70',
+    'On Primary Container':                       '#21005D',
+    'Secondary':                                  '#625B71',
     'Secondary Container':                        '#E8DEF8',
     'On Secondary':                               '#FFFFFF',
-    'On Secondary Container':                     '#4A4458',
-    'Tertiary':                                   '#7E525F',
-    'Tertiary Container':                         '#FFD9E2',
+    'On Secondary Container':                     '#1D192B',
+    'Tertiary':                                   '#7D5260',
+    'Tertiary Container':                         '#FFD8E4',
     'On Tertiary':                                '#FFFFFF',
-    'On Tertiary Container':                      '#633B48',
+    'On Tertiary Container':                      '#31111D',
     'Error':                                      '#BA1A1A',
     'On Error':                                   '#FFFFFF',
-    'On Error Container':                         '#93000A',
+    'On Error Container':                         '#410002',
     'Background':                                 '#FEF7FF',
     'On Background':                              '#1D1B20',
     'Surface':                                    '#FEF7FF',
     'On Surface':                                 '#1D1B20',
-    'Surface Variant':                            '#E7E0EB',
-    'On Surface Variant':                         '#49454E',
-    'Outline':                                    '#7A757F',
-    'Outline Variant':                            '#CAC4CF',
-    'Surface Container Low':                      '#F8F2FA',
+    'Surface Variant':                            '#E7E0EC',
+    'On Surface Variant':                         '#49454F',
+    'Outline':                                    '#79747E',
+    'Outline Variant':                            '#CAC4D0',
+    'Surface Container Low':                      '#F7F2FA',
     'Surface Container':                          '#F2ECF4',
     'Surface Container High':                     '#ECE6EE',
     'Surface Container Highest':                  '#E6E0E9',
@@ -451,13 +453,13 @@ def watch_device_theme(palette_key):
     'Disabled Container 2':                       'rgba(29, 27, 32, 0.04)',
     'Light Overlay 1':                            'rgba(255, 255, 255, 0.08)',
     'Light Overlay 2':                            'rgba(255, 255, 255, 0.12)',
-    'Dark Overlay 1':                             'rgba(74, 68, 88, 0.08)',
-    'Dark Overlay 2':                             'rgba(74, 68, 88, 0.12)',
-    'Dark Overlay 3':                             'rgba(74, 68, 88, 0.16)',
+    'Dark Overlay 1':                             'rgba(0, 0, 0, 0.08)',
+    'Dark Overlay 2':                             'rgba(0, 0, 0, 0.12)',
+    'Dark Overlay 3':                             'rgba(0, 0, 0, 0.16)',
     'Error Overlay 1':                            'rgba(186, 26, 26, 0.08)',
     'Error Overlay 2':                            'rgba(186, 26, 26, 0.12)',
-    'On Surface Variant Overlay 1':               'rgba(73, 69, 78, 0.08)',
-    'On Surface Variant Overlay 2':               'rgba(73, 69, 78, 0.12)',
+    'On Surface Variant Overlay 1':               'rgba(73, 69, 79, 0.08)',
+    'On Surface Variant Overlay 2':               'rgba(73, 69, 79, 0.12)',
     'Inverse On Surface Overlay 1':               'rgba(245, 239, 247, 0.08)',
     'Inverse On Surface Overlay 2':               'rgba(245, 239, 247, 0.12)',
 },
@@ -467,18 +469,18 @@ def watch_device_theme(palette_key):
 
 ```python
 'sophisticated_purple_dark': {
-    'Primary':                                    '#D0BCFE',
-    'Primary Container':                          '#4D3D75',
-    'On Primary':                                 '#36265D',
+    'Primary':                                    '#CFBDFE',
+    'Primary Container':                          '#4C3D75',
+    'On Primary':                                 '#36275D',
     'On Primary Container':                       '#E9DDFF',
-    'Secondary':                                  '#CCC2DB',
+    'Secondary':                                  '#CBC2DC',
     'Secondary Container':                        '#4A4458',
     'On Secondary':                               '#332D41',
     'On Secondary Container':                     '#E8DEF8',
-    'Tertiary':                                   '#EFB8C7',
+    'Tertiary':                                   '#EFB8C8',
     'Tertiary Container':                         '#633B48',
     'On Tertiary':                                '#4A2532',
-    'On Tertiary Container':                      '#FFD9E2',
+    'On Tertiary Container':                      '#FFD9E3',
     'Error':                                      '#FFB4AB',
     'On Error':                                   '#690005',
     'On Error Container':                         '#FFDAD6',
@@ -496,14 +498,14 @@ def watch_device_theme(palette_key):
     'Surface Container Highest':                  '#36343A',
     'Inverse Surface':                            '#E6E0E9',
     'Inverse On Surface':                         '#322F35',
-    'Primary Overlay 1':                          'rgba(208, 188, 254, 0.05)',
-    'Primary Overlay 2':                          'rgba(208, 188, 254, 0.08)',
-    'Primary Overlay 3':                          'rgba(208, 188, 254, 0.12)',
+    'Primary Overlay 1':                          'rgba(207, 189, 254, 0.05)',
+    'Primary Overlay 2':                          'rgba(207, 189, 254, 0.08)',
+    'Primary Overlay 3':                          'rgba(207, 189, 254, 0.12)',
     'On Disabled':                                'rgba(230, 224, 233, 0.38)',
     'Disabled Container':                         'rgba(230, 224, 233, 0.12)',
     'Disabled Container 2':                       'rgba(230, 224, 233, 0.04)',
-    'Light Overlay 1':                            'rgba(232, 222, 248, 0.08)',
-    'Light Overlay 2':                            'rgba(232, 222, 248, 0.12)',
+    'Light Overlay 1':                            'rgba(54, 39, 93, 0.08)',
+    'Light Overlay 2':                            'rgba(54, 39, 93, 0.12)',
     'Dark Overlay 1':                             'rgba(232, 222, 248, 0.08)',
     'Dark Overlay 2':                             'rgba(232, 222, 248, 0.12)',
     'Dark Overlay 3':                             'rgba(232, 222, 248, 0.16)',
