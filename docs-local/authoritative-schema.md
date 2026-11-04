@@ -1,7 +1,7 @@
 ---
 title: "authoritative-schema"
 doc-id: "mb-8b83e940"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Authoritative Database Schema
 
@@ -9,7 +9,7 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 
 **Authority:** this document is the single home of the schema. Where a technical fact here differs from `mb-3-cs-architecture-reference.md`, the architecture reference is correct. Feature numbers (F-01 to F-36) are those of `mb-3-cs-concept.md`. The changes that bring App 1's tables to this schema are in `schema-migration-log.md`.
 
-**Total tables:** 68
+**Total tables:** 70
 **Platform:** Anvil Data Tables. Every table has `client: none` and `server: full`: the browser never reads a table directly; server functions return rows and results.
 
 ---
@@ -53,11 +53,11 @@ Every table and column of a Mybizz CS client instance: name, type and allowed va
 | CRM and marketing | `contacts`, `contact_counter`, `contact_events`, `contact_submissions`, `segments`, `tasks`, `leads`, `lead_captures`, `email_campaigns`, `contact_campaigns`, `automation_rules`, `automation_runs` | 12 |
 | Sales | `companies`, `deals`, `quotes`, `quote_items` | 4 |
 | Email and webhooks | `email_templates`, `email_log`, `webhook_log`, `email_addresses`, `email_messages`, `email_suppressions` | 6 |
-| Content and policy | `blog_categories`, `blog_posts`, `blog_comments`, `landing_pages`, `pages`, `privacy_policy`, `t_and_c` | 7 |
+| Content and policy | `blog_categories`, `blog_posts`, `blog_comments`, `landing_pages`, `pages`, `privacy_policy`, `t_and_c`, `cookie_policy`, `consents` | 9 |
 | Reviews | `reviews`, `testimonials` | 2 |
 | Summary and health | `daily_summary`, `service_performance`, `provider_performance`, `campaign_metrics`, `health_log`, `error_log` | 6 |
 | Notifications | `notifications`, `user_preferences`, `delivery_logs` | 3 |
-| **Total** | | **68** |
+| **Total** | | **70** |
 
 ---
 
@@ -156,6 +156,7 @@ Key–value settings.
 | `app5_endpoint` | integration | App 5's base address |
 | `ses` | integration | SES region, tenant name, configuration set and the S3 prefix for received email; the keys are in the Vault |
 | `demo_mode` | features | bool; True only in the demo apps (F-36) |
+| `legal_versions` | content | The published version of each legal document: `{"privacy_policy": 3, "t_and_c": 2, "cookie_policy": 1}`; raised by one at each publish (F-22) |
 
 Sequence keys are read and incremented inside a transaction, so that no number repeats or is skipped.
 
@@ -1052,8 +1053,8 @@ Website pages (About, Contact and the others managed under Content & Website →
 | `created_at` | datetime | |
 | `updated_at` | datetime | |
 
-### 8.6 `privacy_policy` and 8.7 `t_and_c`
-Clauses of the Privacy Policy and of the Terms and Conditions (F-22). Both tables have the same columns.
+### 8.6 `privacy_policy`, 8.7 `t_and_c` and 8.8 `cookie_policy`
+Clauses of the Privacy Policy, the Terms and Conditions and the Cookie Policy (F-22), as [[[default:specifications-global/spec-legal-documents-and-consent|Legal Documents and Consent]]](C:/dev/project-library-global/specifications-global/spec-legal-documents-and-consent.md) sets out. The three tables have the same columns; `cookie_policy` has one more, `feature_key`.
 
 | Column | Type | Notes |
 |---|---|---|
@@ -1063,8 +1064,21 @@ Clauses of the Privacy Policy and of the Terms and Conditions (F-22). Both table
 | `sort_order` | number | Order within the category |
 | `is_seeded` | bool | Seeded clauses can be edited and switched off, not deleted |
 | `is_active` | bool | Published |
+| `feature_key` | string | `cookie_policy` only: `maps` / `video` / `payments`, the feature whose cookies the clause describes; empty for a general clause. The clause is active exactly while its feature is in use |
 | `created_at` | datetime | |
 | `updated_at` | datetime | |
+
+### 8.9 `consents`
+Every cookie choice, every acceptance of the Terms and Conditions or the Privacy Policy, and every Privacy Policy notice shown on a form (F-22, F-30). The last 30 days stay here; older rows are moved to R2 nightly.
+
+| Column | Type | Notes |
+|---|---|---|
+| `consent_id` | string | A random record number; for a cookie record, the same as in the visitor's `mb_consent` cookie |
+| `document` | string | `cookie_policy` / `privacy_policy` / `t_and_c` |
+| `choice` | string | `accepted` / `refused` / `item:{service}` / `shown` |
+| `policy_version` | number | The version of the document shown |
+| `contact_id` | link → contacts | The contact who accepted or was shown the notice; empty for a cookie record |
+| `created_at` | datetime | |
 
 ---
 
@@ -1228,4 +1242,4 @@ One row per user, channel and type; the server keeps the combination unique.
 
 ---
 
-*End of file — authoritative-schema.md (68 tables)*
+*End of file — authoritative-schema.md (70 tables)*

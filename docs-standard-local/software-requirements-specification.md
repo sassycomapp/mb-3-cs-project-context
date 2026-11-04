@@ -1,7 +1,7 @@
 ---
 title: "software-requirements-specification"
 doc-id: "mb-f157e3fc"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Software Requirements Specification (SRS)
 
@@ -137,6 +137,8 @@ Anvil's platform constraints apply by default: no programmatic Data Table schema
 | SR-37 | A blog post with `scheduled_at` in the past is published by the next run of the 15-minute task | FR-21 | Test | [CLEAR] |
 | SR-37a | Publishing a post writes four captions to `blog_posts.share_captions`; every shared link carries its `?ref=`; `/_/api/blog-image/{slug}` returns the image of a published post only | FR-21 | Test | [CLEAR] |
 | SR-38 | Seeded clauses can be edited and switched off but not deleted; publishing regenerates the public page immediately | FR-22 | Test | [CLEAR] |
+| SR-38a | Every publish raises the document's version and writes `legal/{document}/v{version}.html`; every agreement point requires the unticked acceptance box and writes a `consents` row for `t_and_c` and for `privacy_policy`; a Cookie Policy clause with a `feature_key` is active exactly while its feature is in use | FR-22 | Test | [CLEAR] |
+| SR-38b | No embedded map or video loads before the visitor accepts cookies or clicks Load; every cookie choice writes a `consents` row with no contact; rows older than 30 days move nightly to `consents/{document}/{year}/{month}/`, kept 2 years for cookies and 7 years for acceptances | FR-22, FR-30 | Test | [CLEAR] |
 | SR-39 | A review is not public until approved; the homepage shows at most 10 testimonials | FR-23 | Test | [CLEAR] |
 | SR-40 | Every server function the customer portal calls filters to the signed-in customer's own records | FR-24 | Access test with two customers | [CLEAR] |
 | SR-41 | Tooltips and the morning briefing are switched per user in `users.preferences` | FR-25, FR-27 | Test | [CLEAR] |

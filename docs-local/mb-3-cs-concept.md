@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-concept"
 doc-id: "mb-f23e1822"
-updated: "2026-11-01"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Concept
 
@@ -299,7 +299,7 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 ### The client's public presence
 
 **F-06 Public website**
-- Home, About, Contact (enquiry form into the CRM, with an optional Google Maps location), Services listing and detail, Blog, Privacy Policy, Terms and Conditions
+- Home, About, Contact (enquiry form into the CRM, with an optional Google Maps location), Services listing and detail, Blog, Privacy Policy, Terms and Conditions, Cookie Policy
 - A consistent footer with credentials, social links, contact details, policy links and optional map
 - Mobile-responsive, search-engine optimised, clean addresses
 - Owners and Managers edit website pages on the page itself: an Edit button makes every text, image and video editable where it sits, AI writes or rewrites any text on request, and Save publishes the changes immediately
@@ -407,7 +407,10 @@ Mybizz CS is built with every feature below. Each feature carries the same numbe
 - A Share button on every published post sends the post to Facebook, LinkedIn, WhatsApp or Instagram in one tap, with an AI-written caption in the client's language and a full preview; readers share posts too; visits and new contacts from every share are counted per platform (`sm-syndication-spec.md`)
 
 **F-22 Clause Builder**
-- Privacy Policy and Terms and Conditions built from pre-written clauses: edit, add, group, reorder, switch on or off, publish
+- Privacy Policy, Terms and Conditions and Cookie Policy built from pre-written clauses: edit, add, group, reorder, switch on or off, publish
+- Every publish creates a new version of the document, kept in the client's own storage
+- Customers accept the Terms and Conditions and the Privacy Policy with a tick box at every agreement: a booking, an order, a package purchase, an online payment, customer portal sign-up and quote acceptance
+- A cookie banner asks each visitor before any map or video sets its cookies; every choice and every acceptance is recorded
 - The published page updates immediately; the client remains responsible for the final wording
 
 **F-23 Reviews and testimonials**

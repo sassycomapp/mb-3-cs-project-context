@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-architecture-reference"
 doc-id: "mb-7d6be180"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Architecture Reference
 
@@ -290,7 +290,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Packages: `settings/`, `server_settings/`.
 
 ### F-06 Public website
-- Public pages are served through Anvil Routing: Home, About, Contact, Services listing and detail, Blog listing and post, Privacy Policy, Terms and Conditions, landing pages.
+- Public pages are served through Anvil Routing: Home, About, Contact, Services listing and detail, Blog listing and post, Privacy Policy, Terms and Conditions, Cookie Policy, landing pages.
 - The contact form creates a contact and a follow-up task (F-17, F-20).
 - Google Maps embed on Contact and in the footer, optional.
 - Meta tags, semantic structure and clean addresses on every public page; fully responsive. Every public route sets its title, description and Open Graph tags on the server through the Routing dependency's `Route.meta` (`sm-syndication-spec.md`).
@@ -411,8 +411,12 @@ Each feature below states its packages, data, rules and links. Tables and fields
 - Packages: `blog/`, `server_blog/`.
 
 ### F-22 Clause Builder
-- Clauses for Privacy Policy and Terms and Conditions: seeded clauses, custom clauses, categories, order, active flag.
-- Publishing regenerates the public policy page immediately.
+- Clauses for the Privacy Policy, the Terms and Conditions and the Cookie Policy (`privacy_policy`, `t_and_c`, `cookie_policy`): seeded clauses, custom clauses, categories, order, active flag; a Cookie Policy clause with a `feature_key` is active exactly while its feature (`maps`, `video`, `payments`) is in use.
+- Publishing regenerates the public policy page immediately, raises the document's version in `config.legal_versions`, and writes the published text to R2 at `legal/{document}/v{version}.html`.
+- Acceptance: a booking, an order, a package purchase, an online payment, customer portal sign-up and quote acceptance each require the unticked box "I accept the Terms and Conditions and have read the Privacy Policy"; a new version is accepted at the next agreement or portal sign-in. The contact form and lead-capture forms link to the Privacy Policy beside the submit button.
+- Cookie banner on every public page (Accept all, Refuse all, More info), the `mb_consent` cookie, and a Cookie settings link in the footer; embedded maps and videos load only after consent.
+- Every choice, acceptance and privacy notice shown is a `consents` row, written by `policy_service`.
+- Standard: [[[default:specifications-global/spec-legal-documents-and-consent|Legal Documents and Consent]]](C:/dev/project-library-global/specifications-global/spec-legal-documents-and-consent.md).
 - Packages: `settings/`, `server_settings/`.
 
 ### F-23 Reviews and testimonials
@@ -431,7 +435,7 @@ Each feature below states its packages, data, rules and links. Tables and fields
 
 ### F-25 Ease of use, in-app help and language
 - Every feature carries a tooltip; the tooltip opens the feature's short help video in a pop-up, using the video component (F-09); per-user on/off setting.
-- Help videos are held per language; the pop-up plays the video in the app language.
+- Help videos are held once per language in a Mybizz-owned Cloudflare R2 bucket at `media.mybizz.live` and played as direct video addresses; the pop-up plays the video in the app language. They set no cookies.
 - App language: `business_profile.app_language` (`en` / `fr` / `pt` / `es` / `de` / `it`). English is complete at launch; a language is offered once its translation is complete and checked.
 - Translation follows [[[default:specifications-global/spec-translation|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md):
   - Every fixed text has a phrase key. The Designer holds the key; each form calls `translate_form(self)` after `init_components`, and code uses `t(key, **values)`. Server functions return phrase keys with values, never finished text.
@@ -542,8 +546,9 @@ Each feature below states its packages, data, rules and links. Tables and fields
 | AI text | Groq (provider configurable in App 5) | Called through App 5 |
 | Speech | Groq Whisper (speech-to-text); browser SpeechSynthesis and Groq TTS (text-to-speech) | Groq called through App 5 |
 | Translation | `shared/translations/` | Phrase files per language, `formats.py`, `glossary.py` ([[[default:specifications-global/spec-translation\|Translation]]](C:/dev/project-library-global/specifications-global/spec-translation.md)) |
-| Video | YouTube, Vimeo, Dailymotion, direct video addresses | Embedded |
-| Maps | Google Maps embed | Optional |
+| Video | YouTube, Vimeo, Dailymotion, direct video addresses | Embedded; outside-service videos load only after cookie consent |
+| Help videos | Mybizz-owned Cloudflare R2 at `media.mybizz.live` | Direct video addresses; no cookies |
+| Maps | Google Maps embed | Optional; loads only after cookie consent |
 
 ---
 

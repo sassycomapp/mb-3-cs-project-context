@@ -1,7 +1,7 @@
 ---
 title: "DESIGN"
 doc-id: "mb-190df6bf"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — DESIGN
 
@@ -423,7 +423,7 @@ This section defines the primary implementation-facing forms and pages in the My
 - Onboarding state is tracked in `business_profile.onboarding_status`; an Owner who leaves returns to the next unfinished step. See [[[default:adr-global/adr-onboarding-resumability|Onboarding Resumability]]](C:/dev/project-library-global/adr-global/adr-onboarding-resumability.md) ADR.
 
 **Step 6 — Legal Acknowledgement (two checkboxes):**
-- `cb_legal_ack` (Checkbox) — "I understand I must configure my own Privacy Policy and Terms & Conditions in Settings → Legal Pages. Mybizz is not responsible for the content of those pages." Sets `business_profile.legal_ack_accepted`.
+- `cb_legal_ack` (Checkbox) — "I understand I must configure my own Privacy Policy, Terms & Conditions and Cookie Policy in Settings → Legal Pages. Mybizz is not responsible for the content of those pages." Sets `business_profile.legal_ack_accepted`.
 - `cb_data_governance_ack` (Checkbox) — "I understand that Mybizz retains certain records for legal and compliance purposes as described above." Sets `business_profile.data_governance_ack_accepted`.
 - "Confirm Acknowledgement" button (`btn_confirm_legal`) is enabled only when both checkboxes are ticked.
 - The acknowledgement is recorded once and cannot be reversed.
@@ -577,32 +577,32 @@ This section defines the primary implementation-facing forms and pages in the My
 
 ### PolicyEditorForm
 
-**Purpose:** Settings → Legal Pages: editing the Privacy Policy and Terms & Conditions with the ClauseBuilder component (F-22).  
+**Purpose:** Settings → Legal Pages: editing the Privacy Policy, the Terms & Conditions and the Cookie Policy with the ClauseBuilder component (F-22).  
 **Architecture:** Hosted in the Legal Pages tab of Settings. Uses ClauseBuilder as a shared custom component.  
 **Wireframe:** `wireframe-settings-PolicyEditorForm.html` (created).
 
 **Key design rules:**
-- Contains a document type selector (Privacy Policy vs Terms & Conditions).
+- Contains a document type selector (Privacy Policy, Terms & Conditions, Cookie Policy).
 - Embeds the ClauseBuilder component, parameterized by document type.
-- Publish/update button writes to `privacy_policy` or `t_and_c` table and publishes to the corresponding public page.
+- Publish/update button writes to the `privacy_policy`, `t_and_c` or `cookie_policy` table, publishes to the corresponding public page, raises the document's version and keeps the published text in R2 ([[[default:specifications-global/spec-legal-documents-and-consent|Legal Documents and Consent]]](C:/dev/project-library-global/specifications-global/spec-legal-documents-and-consent.md)).
 - See [[[default:adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture|Legal Policy Responsibility Acknowledgement and Clause-Builder Architecture]]](C:/dev/project-library-global/adr-global/adr-legal-policy-responsibility-acknowledgement-and-clause-builder-architecture.md) ADR.
 
 ### ClauseBuilder (Shared Custom Component)
 
 **Purpose:** Standalone reusable clause editor for legal policy documents.  
-**Architecture:** Shared custom component used by Privacy Policy and Terms & Conditions editing flows.  
+**Architecture:** Shared custom component used by the Privacy Policy, Terms & Conditions and Cookie Policy editing flows.  
 **Wireframe:** `wireframe-custom-component-ClauseBuilder.html` (created).
 
 **Key design rules:**
-- Parameterized by document type (`privacy_policy` or `t_and_c`).
+- Parameterized by document type (`privacy_policy`, `t_and_c` or `cookie_policy`).
 - Category dropdown selector for clause grouping.
 - Seeded clauses from master template (green border, editable text, not deletable).
 - Custom clauses added by Owner (blue border, editable and deletable).
 - "+ Add Custom Clause" button reveals add form.
 - "Edit" link on each clause reveals edit form.
 - "Save" button writes changes to datatable and publishes to public page.
-- Has its own data model: `category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`.
-- Used in 2+ places (PrivacyPolicyEditor, TermsConditionsEditor). Qualifies as shared.
+- Has its own data model: `category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`; `cookie_policy` adds `feature_key`, and a clause with a `feature_key` cannot be switched off while its feature is in use.
+- Used in 3 places (Privacy Policy, Terms & Conditions, Cookie Policy). Qualifies as shared.
 
 ### PrivacyPolicyPage
 
@@ -627,6 +627,33 @@ This section defines the primary implementation-facing forms and pages in the My
 - Clauses rendered in category order, then sort_order within category.
 - Only active clauses (`is_active = True`) are displayed.
 - Follows public-facing UI tone (comfortable density, generous whitespace).
+
+### CookiePolicyPage
+
+**Purpose:** Public-facing page that renders the Owner's cookie policy.  
+**Architecture:** Reads from `cookie_policy` table. Renders clauses grouped by category.  
+**Wireframe:** To be created.
+
+**Key design rules:**
+- Same rules as PrivacyPolicyPage.
+- Opened from the cookie banner's More info button and from the footer.
+
+### Cookie Banner
+
+**Purpose:** Asks each visitor for their cookie choice before any embedded map or video sets its cookies ([[[default:specifications-global/spec-legal-documents-and-consent|Legal Documents and Consent]]](C:/dev/project-library-global/specifications-global/spec-legal-documents-and-consent.md), sections 6 to 8).  
+**Architecture:** Part of the public page layout; shown on the first visit and whenever the `mb_consent` cookie is missing, older than 12 months or older than the published Cookie Policy version.  
+**Wireframe:** To be created.
+
+**Key design rules:**
+- Sits at the bottom of the screen and never blocks the page.
+- Text from the translation module; buttons Accept all and Refuse all with the same size and style, and More info as a text link.
+- Every choice is written as a `consents` row; the Cookie settings link in the footer opens the banner again and shows the visitor's consent number.
+
+### Terms Acceptance Box
+
+- A Checkbox, never ticked in advance: "I accept the Terms and Conditions and have read the Privacy Policy", with both documents linked beside it.
+- Shown at a booking, an order, a package purchase, an online payment, customer portal sign-up and quote acceptance. The confirm button stays disabled until the box is ticked.
+- Confirming writes a `consents` row for `t_and_c` and for `privacy_policy` with the published versions and the contact.
 
 ---
 
@@ -931,9 +958,13 @@ These fields support the design. Their home is `authoritative-schema.md`, which 
 
 `post_id`, `commenter_name`, `commenter_email`, `comment_text`, `status`, `created_at`, `updated_at`.
 
-### privacy_policy and t_and_c
+### privacy_policy, t_and_c and cookie_policy
 
-`category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`, `created_at`, `updated_at`.
+`category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`, `created_at`, `updated_at`; `cookie_policy` adds `feature_key`.
+
+### consents
+
+`consent_id`, `document`, `choice`, `policy_version`, `contact_id`, `created_at`.
 
 ### theme_config
 
@@ -1040,7 +1071,8 @@ The `bookings.status` field supports five values: `pending`, `confirmed`, `compl
 - `confirmed` → `completed` (the appointment took place; triggers the invoice or balance invoice, and the review request)
 - `confirmed` → `no_show` (the customer did not attend)
 - `confirmed` → `cancelled` (cancelled after confirmation)
-- `completed`, `no_show` and `cancelled` are terminal
+- `cancelled` → `confirmed` (only when an online payment succeeds after the payment hold released the booking, and the slot, resource and places are still free; the re-check runs inside the same transaction that confirms the booking. Otherwise the payment is refunded in full, and the customer and the Owner are notified)
+- `completed` and `no_show` are terminal; `cancelled` is terminal except for the late-payment path above
 
 Bookings booked on pay on the day or invoice terms are `confirmed` at once. Bookings are never deleted; they are cancelled, so their history is kept.
 

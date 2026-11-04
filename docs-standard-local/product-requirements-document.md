@@ -1,7 +1,7 @@
 ---
 title: "product-requirements-document"
 doc-id: "mb-ad69f2ae"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Product Requirements Document (PRD)
 
@@ -86,7 +86,7 @@ The project has several user types and needs role-based access control (section 
 | US-20 | As an Owner, I want revenue, bookings, customers and marketing return by period, service and provider, so that I know how the business performs | UF-11, UF-25 | Must | [CLEAR] |
 | US-21 | As an Owner, I want tasks and automation rules, so that follow-ups happen without my remembering them | UF-26 | Must | [CLEAR] |
 | US-22 | As a customer, I want to leave a review, and as an Owner approve reviews and add testimonials, so that the website shows real trust | UF-27 | Must | [CLEAR] |
-| US-23 | As an Owner, I want to build my Privacy Policy and Terms and Conditions from pre-written clauses, so that I have legal pages without a lawyer drafting from nothing | UF-28 | Must | [CLEAR] |
+| US-23 | As an Owner, I want to build my Privacy Policy, Terms and Conditions and Cookie Policy from pre-written clauses, so that I have legal pages without a lawyer drafting from nothing | UF-28 | Must | [CLEAR] |
 | US-24 | As a customer, I want a portal with my bookings, packages, quotes, invoices, reviews and account, so that I can manage my dealings with the business myself | UF-29 | Must | [CLEAR] |
 | US-25 | As a client's staff member, I want an AI helper on the form I am using, so that I write faster without leaving the page | UF-30 | Must | [CLEAR] |
 | US-26 | As a client's staff member, I want to speak to the app from my phone — create tasks, fill in forms, ask questions, ask business questions, hear a morning briefing — so that I can run the business on the move | UF-31 | Must | [CLEAR] |
@@ -117,7 +117,7 @@ The project has several user types and needs role-based access control (section 
 | FR-03 | F-03 Registration and onboarding: registration in App 5 issues the client reference; a 10-step resumable wizard with a help video per step: language, profile, palette, currency, legal acknowledgement, gateway, domain, contact import | US-1, US-2, US-39 | A registered client has a reference number and an instance on its domain; an Owner who leaves at step 6 returns to step 6; Continue at steps 5 and 6 stays disabled until confirmed; a HubSpot export imports with no manual mapping and creates no duplicate contact | [CLEAR] |
 | FR-04 | F-04 Dashboard and analytics: metric cards, trends, activity feed, period comparison, revenue by service and provider, marketing return, PDF and CSV export, scheduled reports, the sample data banner | US-20, US-40 | Dashboard figures match the summary tables; an export opens as PDF and as CSV; a scheduled report arrives by email | [CLEAR] |
 | FR-05 | F-05 Settings Hub: one form, 14 tabs, shown per role | US-2, US-3 | A Manager sees no financial or security tab; the Owner sees all 14 | [CLEAR] |
-| FR-06 | F-06 Public website on the client's domain: Home, About, Contact, Services, Blog, Privacy Policy, Terms and Conditions, footer, optional map; edit mode for Owner and Manager | US-14, US-17 | Every public page loads on the client's domain at its clean address, works at compact and expanded widths, and carries its title, description and Open Graph tags in the first response; a Manager's edit is published on Save; an Admin sees no Edit button | [CLEAR] |
+| FR-06 | F-06 Public website on the client's domain: Home, About, Contact, Services, Blog, Privacy Policy, Terms and Conditions, Cookie Policy, footer, optional map; edit mode for Owner and Manager | US-14, US-17 | Every public page loads on the client's domain at its clean address, works at compact and expanded widths, and carries its title, description and Open Graph tags in the first response; a Manager's edit is published on Save; an Admin sees no Edit button | [CLEAR] |
 | FR-07 | F-07 Homepage templates: Classic, Services, Booking, Minimalist and further layouts from one section set | US-15 | Switching the layout changes section order and visibility only; an optional section with no content does not render | [CLEAR] |
 | FR-08 | F-08 Landing pages: Lead Capture, Event Registration, Video Sales Letter, on a blank layout, with views and conversions counted | US-16 | A published landing page has no site header or footer; each visit and each submission increments its counters | [CLEAR] |
 | FR-09 | F-09 Visual and media presentation: parallax hero, carousels, one video component for YouTube, Vimeo, Dailymotion and direct addresses | US-15 | A section with no video address is hidden; parallax stops when the device asks for reduced motion | [CLEAR] |
@@ -133,7 +133,7 @@ The project has several user types and needs role-based access control (section 
 | FR-19 | F-19 Lead capture and funnel: lead and contact created together, sequence enrolment, source carried from blog to landing page to booking | US-16 | A capture creates one `leads` row and one linked `contacts` row in one call, and enrols the contact in the welcome sequence | [CLEAR] |
 | FR-20 | F-20 Tasks and automation: manual and automatic tasks, automation rules evaluated by background task, voice-created tasks | US-21 | An automation for "booking completed" runs once per completed booking and records its run | [CLEAR] |
 | FR-21 | F-21 Blog and content: editor, three post layouts, SEO, statuses including scheduled, categories, comments with moderation, edit mode for published posts, social sharing with AI captions | US-14, US-38 | A scheduled post is public within 15 minutes of its time; a pending comment is not public; a published post has four captions and a shared link shows the post's preview | [CLEAR] |
-| FR-22 | F-22 Clause Builder: seeded and custom clauses, categories, order, active flag, immediate publishing | US-23 | A seeded clause can be edited but not deleted; publishing updates the public page at once | [CLEAR] |
+| FR-22 | F-22 Clause Builder: the Privacy Policy, Terms and Conditions and Cookie Policy; seeded and custom clauses, categories, order, active flag, immediate publishing; every published version kept; customer acceptance at every agreement; the cookie banner and consent records | US-23 | A seeded clause can be edited but not deleted; publishing updates the public page at once | [CLEAR] |
 | FR-23 | F-23 Reviews and testimonials: review request after completion, approval before display, typed-in testimonials, up to 10 shown | US-22 | An unapproved review never appears on the website; no more than 10 testimonials are shown | [CLEAR] |
 | FR-24 | F-24 Customer portal: My Dashboard, My Bookings, My Packages, My Quotes, My Invoices, My Reviews, Account | US-24 | A customer never receives another customer's record from any server function | [CLEAR] |
 | FR-25 | F-25 In-app help and language: tooltips opening help videos, with a per-user switch; six app languages from `shared/translations/` | US-35, US-39 | Switching tooltips off hides them for that user only; with the app language set to a completed language no screen shows English text | [CLEAR] |

@@ -1,7 +1,7 @@
 ---
 title: "user-flows"
 doc-id: "mb-b1292280"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — User Flows
 
@@ -481,10 +481,10 @@ This is how a customer contacts the business with a question or a problem; there
 
 **Entry:** Settings → Legal Pages
 
-1. Choose the document — Privacy Policy or Terms and Conditions.
+1. Choose the document — Privacy Policy, Terms and Conditions or Cookie Policy.
 2. The pre-written clauses load, grouped by category.
 3. Edit clauses, add custom clauses, reorder by dragging, switch clauses on or off.
-4. Save and publish → the public page updates immediately.
+4. Save and publish → the public page updates immediately, the document's version rises by one, and a copy of that version is kept in the client's R2 bucket.
 
 The client is responsible for the final wording being right for the client's business and jurisdiction.
 
@@ -723,3 +723,5 @@ Assists 9 (client sentiment summary) and 10 (booking and availability insights) 
 - **Automatic progress saving**
 - **Email confirmation for every transaction**
 - **Fewest possible server calls** — pre-load, batch, submit once at the end of a multi-step flow
+- **Accepted terms at every agreement** — a booking, an order, a package purchase, an online payment, customer portal sign-up and quote acceptance each require the unticked box "I accept the Terms and Conditions and have read the Privacy Policy"; every form that takes personal details links to the Privacy Policy
+- **Cookie choice first** — a visitor's first visit shows the cookie banner; no embedded map or video loads before Accept all or Load

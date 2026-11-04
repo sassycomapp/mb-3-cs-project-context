@@ -1,7 +1,7 @@
 ---
 title: "schema-migration-log"
 doc-id: "mb-dde289cd"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Schema Migration Log
 
@@ -20,8 +20,9 @@ Every schema change, recorded at Step 17 and read at Steps 41 and 42. The schema
 | pre-release | 2026-11-01 | 10 new tables: `companies`, `quotes`, `quote_items`, `deals`, `expense_categories`, `expenses`, `sample_rows`, `email_addresses`, `email_messages`, `email_suppressions` | Additive: tables created | App 1 only, prompts P8–P10 |
 | pre-release | 2026-11-01 | `business_profile`, `users`, `contacts`, `email_config`, `email_templates`, `email_campaigns`, `blog_posts`, `pages`, `payments` | Additive: columns added | App 1 only, prompt P11 |
 | pre-release | 2026-11-02 | 3 new tables: `notifications`, `user_preferences`, `delivery_logs` | Additive: tables created | App 1 only, prompt P12 |
-| pre-release | 2026-10-31 | 19 tables with `instance_id` or `client_id`; `theme_config`; `webhook_log`; `bookings`; `invoice`; `services` | Breaking: columns removed (listed in P12) | App 1 only, prompt P13, last. App 1 holds development data only; the data in the removed columns is not needed |
-| pre-release | 2026-11-01 | `email_config` | Breaking: the Brevo columns `from_email`, `from_name`, `configured`, `configured_at`, `sender_domain_verified` removed | App 1 only, prompt P13, last |
+| pre-release | 2026-11-04 | 2 new tables: `cookie_policy`, `consents` | Additive: tables created | App 1 only, prompt P13 |
+| pre-release | 2026-10-31 | 19 tables with `instance_id` or `client_id`; `theme_config`; `webhook_log`; `bookings`; `invoice`; `services` | Breaking: columns removed (listed in P14) | App 1 only, prompt P14, last. App 1 holds development data only; the data in the removed columns is not needed |
+| pre-release | 2026-11-01 | `email_config` | Breaking: the Brevo columns `from_email`, `from_name`, `configured`, `configured_at`, `sender_domain_verified` removed | App 1 only, prompt P14, last |
 
 ---
 
@@ -42,7 +43,7 @@ Renaming a column in the Data Tables view keeps its data. Rename:
 
 ### Part B — one prompt per conversation (Anvil editor → Agent chat)
 
-For each prompt, in order P1 to P13:
+For each prompt, in order P1 to P14:
 
 1. Start a new conversation in the Agent chat.
 2. Paste the prompt.
@@ -209,7 +210,18 @@ Create these new Data Tables in this app, in this order, with exactly these colu
 Change only the Data Tables schema. Do not change any form, module, server module, theme, CSS, dependency or service. Do not change or delete any data. For every table you create, set access to "No access" for forms and "Full access" for server code. Before making any change, list exactly what you will create or change and wait for my confirmation.
 ```
 
-**P13 — removals (last)**
+**P13 — legal documents and consent tables**
+
+```text
+Create these new Data Tables in this app, in this order, with exactly these columns and types:
+
+- Table `cookie_policy`: `category` (string), `title` (string), `clause` (string), `sort_order` (number), `is_seeded` (bool), `is_active` (bool), `feature_key` (string), `created_at` (datetime), `updated_at` (datetime)
+- Table `consents`: `consent_id` (string), `document` (string), `choice` (string), `policy_version` (number), `contact_id` (link to one row of `contacts`), `created_at` (datetime)
+
+Change only the Data Tables schema. Do not change any form, module, server module, theme, CSS, dependency or service. Do not change or delete any data. For every table you create, set access to "No access" for forms and "Full access" for server code. Before making any change, list exactly what you will create or change and wait for my confirmation.
+```
+
+**P14 — removals (last)**
 
 ```text
 Remove these columns from these existing Data Tables. Remove nothing else:

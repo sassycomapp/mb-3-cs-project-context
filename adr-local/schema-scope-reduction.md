@@ -1,7 +1,7 @@
 ---
 title: "schema-scope-reduction"
 doc-id: "mb-d146fc2b"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Schema Scope — Tables In and Out of a Mybizz CS Client Instance
 
@@ -41,6 +41,8 @@ A Mybizz CS client instance holds only the tables its features need (F-01 to F-3
 | `companies`, `deals`, `quotes`, `quote_items` | Sales is a feature (F-35) |
 | `email_addresses`, `email_messages`, `email_suppressions` | The Team Inbox and email are a feature (F-18) |
 | `sample_rows` | The record of the sample data, so that clearing it removes only sample rows |
+| `cookie_policy`, `consents` | The Cookie Policy is the Clause Builder's third legal document, and every cookie choice and acceptance of the legal documents is recorded (F-22, F-30) |
+| `notifications`, `user_preferences`, `delivery_logs` | The notification engine every client instance inherits (`spec-mastertemplate-notification-system`) |
 
 ### Rule for any new table
 
@@ -50,7 +52,7 @@ A table is added to a client instance only when a feature in `mb-3-cs-concept.md
 
 ## Consequences
 
-- The schema holds 68 tables, each traceable to a feature.
+- The schema holds 70 tables, each traceable to a feature.
 - Support data never enters a client's database, and a client's customer data never enters App 5 (reference section 3).
 - Adding a table is a deliberate schema change with a migration plan, applied by hand to App 1, App 3 and every client instance.
 

@@ -1,7 +1,7 @@
 ---
 title: "scaffold-spec"
 doc-id: "mb-be462593"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Scaffold Specification
 
@@ -97,6 +97,7 @@ client_code/
 │   ├── ServiceDetailPage/         public service detail; start of the booking and order flows
 │   ├── PrivacyPolicyPage/
 │   ├── TermsConditionsPage/
+│   ├── CookiePolicyPage/
 │   ├── PageListForm/              admin: Content & Website → Pages (name, SEO title, address, published)
 │   ├── HomepageEditorForm/        admin: homepage layout, sections, testimonials (UF-17)
 │   └── MediaLibraryForm/          admin: Content & Website → Media
@@ -250,7 +251,7 @@ server_code/
 ├── server_packages/      package_service, package_tasks
 ├── server_time/          time_entry_service
 ├── server_payments/      payment_service, stripe_gateway, paystack_gateway, paypal_gateway,
-│                         invoice_service, invoice_pdf, refund_service, webhook_handlers, invoice_tasks
+│                         invoice_service, invoice_pdf, refund_service, webhook_handlers, webhook_tasks, invoice_tasks
 ├── server_customers/     contact_service, company_service, segment_service, contact_import_export
 ├── server_marketing/     campaign_service, broadcast_service, lead_capture_service, landing_page_service,
 │                         campaign_tasks, unsubscribe_endpoint
@@ -300,7 +301,7 @@ A custom component is a reusable element that the Anvil Material 3 theme does no
 
 ## Database Schema
 
-The tables, their columns, types and allowed values are in `authoritative-schema.md`: 68 tables. The changes that bring App 1's tables to that schema, and the prompts that apply them, are in `schema-migration-log.md`. Every schema change is made in App 1, recorded in `schema-migration-log.md`, and applied to App 3.
+The tables, their columns, types and allowed values are in `authoritative-schema.md`: 70 tables. The changes that bring App 1's tables to that schema, and the prompts that apply them, are in `schema-migration-log.md`. Every schema change is made in App 1, recorded in `schema-migration-log.md`, and applied to App 3.
 
 ### Rules
 
@@ -405,6 +406,7 @@ Within each item, what a role may see or do is enforced by the server (F-01).
 | `/contact` | `public_pages.ContactPage` |
 | `/privacy` | `public_pages.PrivacyPolicyPage` |
 | `/terms` | `public_pages.TermsConditionsPage` |
+| `/cookies` | `public_pages.CookiePolicyPage` |
 | `/landing/:slug` | `landing_pages.LandingPage` |
 | `/review/:token` | `reviews.ReviewSubmitForm` |
 | `/quote/:token` | `sales.QuoteAcceptPage` |

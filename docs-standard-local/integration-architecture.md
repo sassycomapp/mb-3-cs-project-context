@@ -1,7 +1,7 @@
 ---
 title: "integration-architecture"
 doc-id: "mb-af335781"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Integration Architecture
 
@@ -23,7 +23,8 @@ Every outside service the application uses, and how it is connected.
 | Cloudflare DNS | The client's domain records for the website and email (F-03, F-18) | Client, in the same Cloudflare account; Mybizz is a member with the DNS role | App 5 only |
 | Groq | AI text, speech-to-text, natural-sounding speech (F-26, F-27) | Mybizz | App 5 only |
 | Google Maps embed | Optional map (F-06) | Client | none (embed address in `business_profile`) |
-| Video hosts | YouTube, Vimeo, Dailymotion, direct addresses (F-09) | Client | none |
+| Video hosts | YouTube, Vimeo, Dailymotion, direct addresses (F-09); loaded only after cookie consent | Client | none |
+| Help videos | Mybizz's help and explainer videos, one file per language, at `media.mybizz.live` (F-25); no cookie-setting Cloudflare feature is enabled there | Mybizz: a Mybizz-owned Cloudflare R2 bucket | none |
 
 Every credential a client instance uses is encrypted in the client's Vault (F-02). Mybizz's own AI keys and AWS account access never reach a client instance.
 
@@ -132,6 +133,8 @@ Every email of a client instance, received and sent, goes through **Amazon SES**
 | Email bodies older than 90 days | `email/messages/{address}/{year}/{month}/` | Nightly, by `inbound_tasks` | the `email_messages` row as an index |
 | Email attachments | `email/attachments/` | On receipt or send | their R2 keys in `email_messages.attachments` |
 | Expense receipts | `expenses/receipts/` | On save | `expenses.receipt_r2_key` |
+| Published legal documents | `legal/{document}/v{version}.html` | At every publish (F-22) | the current version in `config.legal_versions` |
+| Consent and acceptance records older than 30 days | `consents/{document}/{year}/{month}/` | Nightly, by `audit_archive_tasks`; cookie files deleted after 2 years, acceptance files after 7 years | the last 30 days of `consents` |
 | CSV and accounting exports, the exit export | `exports/` | On request | nothing |
 
 - Settings → Data reads history from the bucket and shows it (UF-33). Mybizz restores from the bucket at the Owner's request. All data can be exported as CSV at any time.
@@ -169,6 +172,7 @@ Any operation expected to run longer than 22 seconds is an `@anvil.server.backgr
 | Heartbeat to App 5 | `server_management/heartbeat_tasks` | Every 15 minutes | Health, release version, schema fingerprint, task status (`observability-requirements.md`) |
 | Usage report to App 5 | `server_management/heartbeat_tasks` | Daily | Row count, storage, email volume, heavy-job activity, last staff sign-in, last booking date (F-33, F-34) |
 | Payment hold expiry | `server_bookings/booking_tasks` | Every 5 minutes | Release `pending` bookings older than 15 minutes, with their slot and resource |
+| Webhook reconciliation | `server_payments/webhook_tasks` | Every 5 minutes | Retry `webhook_log` rows not yet processed; a late payment for a released booking follows the late-payment rule (`DESIGN.md`, Booking Status Lifecycle) |
 | Appointment reminders | `server_bookings/booking_tasks` | Every 15 minutes | Send the 24-hour and 1-hour reminders that fall due, each once |
 | Scheduled blog posts | `server_blog/blog_tasks` | Every 15 minutes | Publish posts whose `scheduled_at` has passed |
 | Automation rules | `server_automation/automation_tasks` | Every 15 minutes | Evaluate automations, act, record each run |
@@ -183,6 +187,7 @@ Any operation expected to run longer than 22 seconds is an `@anvil.server.backgr
 | Package expiry | `server_packages/package_tasks` | Daily 04:00 | Notify customers before expiry; lapse expired sessions |
 | Backup to R2 | `server_storage/backup_tasks` | Daily 01:00 | Export every table to the client's bucket |
 | Audit archive to R2 | `server_storage/audit_archive_tasks` | Daily 01:30 | Move `activity_log` entries older than 30 days to the bucket |
+| Consent archive to R2 | `server_storage/audit_archive_tasks` | Daily 01:40 | Move `consents` rows older than 30 days to the bucket; delete cookie files older than 2 years and acceptance files older than 7 years |
 | Email archive and Trash | `server_inbox/inbound_tasks` | Daily 01:45 | Move email bodies older than 90 days to the bucket; delete Trash older than 30 days |
 | Demo reset (demo apps only) | `server_shared/demo_service` | Daily 00:30 | Empty every table, reload the demo's sample data, remove demo sign-ins (F-36) |
 | Scheduled reports | `server_analytics/summary_tasks` | Daily 06:00 | Email the reports each user has scheduled (F-04) |

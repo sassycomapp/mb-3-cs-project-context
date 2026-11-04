@@ -1,7 +1,7 @@
 ---
 title: "mb-3-cs-feature-list"
 doc-id: "mb-46a56ee7"
-updated: "2026-11-01"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Feature List
 
@@ -51,7 +51,7 @@ Every feature a client of Mybizz CS receives, by category. This list is the sing
 
 ## 5. Website and public presence
 
-- Pages: Home, About, Contact, Services listing and detail, Blog, Privacy Policy, Terms and Conditions.
+- Pages: Home, About, Contact, Services listing and detail, Blog, Privacy Policy, Terms and Conditions, Cookie Policy.
 - Contact form feeds straight into the CRM, with an optional Google Maps location.
 - Homepage templates: Classic, Services, Booking, Minimalist and more.
 - Parallax hero, carousels, and video from YouTube, Vimeo, Dailymotion or a direct link.
@@ -161,7 +161,9 @@ Every feature a client of Mybizz CS receives, by category. This list is the sing
 - An email asks each customer for a star rating and a comment after the appointment.
 - The client approves each review before it shows on the website.
 - The client can type in testimonials the business already has.
-- Clause Builder: the Privacy Policy and Terms are built from pre-written clauses and published instantly.
+- Clause Builder: the Privacy Policy, Terms and Cookie Policy are built from pre-written clauses and published instantly, and every published version is kept.
+- Customers accept the Terms and the Privacy Policy with a tick box whenever they book, order, buy, pay, sign up or accept a quote.
+- A cookie banner asks every visitor before any map or video sets its cookies, and every choice is recorded.
 
 ## 18. Customer portal
 

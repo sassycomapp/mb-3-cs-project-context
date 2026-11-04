@@ -1,7 +1,7 @@
 ---
 title: "custom-component-requirements-matrix"
 doc-id: "mb-680c4ac6"
-updated: "2026-11-02"
+updated: "2026-11-04"
 ---
 # Mybizz CS — Custom Component Requirements Matrix
 
@@ -35,10 +35,10 @@ All custom components:
 | Component | Feature | Used in | Uses | Why no native component serves |
 |---|---|---|---|---|
 | VideoDisplayComponent | F-09, F-25 | HomePage, services page, ServiceViewerForm, blog posts, HelpTooltipComponent | 5 | The M3 theme has no video embed; the native YouTube component handles one source only |
-| FooterComponent | F-06 | Every public page (HomePage, About, Contact, Services, Blog listing, Blog post, Privacy Policy, Terms and Conditions) | 8 | No footer component; the footer combines logo, credentials, social links, policy links, map and contact |
+| FooterComponent | F-06 | Every public page (HomePage, About, Contact, Services, Blog listing, Blog post, Privacy Policy, Terms and Conditions, Cookie Policy) | 9 | No footer component; the footer combines logo, credentials, social links, policy links, map and contact |
 | TimeLapseCarouselComponent | F-09 | HomePage, services page | 2 | No carousel component |
 | ParallaxComponent | F-09 | HomePage hero, About, Services, landing pages | 4 | No parallax effect |
-| ClauseBuilder | F-22 | PolicyEditorForm for the Privacy Policy and for Terms and Conditions | 2 | No clause-level document editor |
+| ClauseBuilder | F-22 | PolicyEditorForm for the Privacy Policy, the Terms and Conditions and the Cookie Policy | 3 | No clause-level document editor |
 | AIHelperComponent | F-26, F-27 | Business Profile, ServiceEditorForm, FAQ editor, proposal editor, QuoteEditorForm, BlogEditorForm, Team Inbox compose, InvoiceEditorForm, Clause Builder explainer, ContactViewerForm, BookingCalendar insights, EditModeComponent, SharePanelComponent | 13 | No floating AI assistant with assist selection, voice input and spoken output |
 | StarRatingComponent | F-23 | Customer review form, ReviewViewerForm, homepage testimonials, customer portal My Reviews | 4 | No star rating input or display |
 | HelpTooltipComponent | F-25 | Every feature on every admin screen, every onboarding step | many | The native `tooltip` property shows text only; no tooltip opens a video pop-up |
@@ -71,6 +71,7 @@ All custom components:
 - **Properties:** `video_url` and `video_type`, set in code by the host form.
 - **Sources:** YouTube, Vimeo, Dailymotion and direct video addresses; `video_type` ∈ `youtube`, `vimeo`, `dailymotion`, `direct`, detected from the address when the address is saved.
 - **Visibility:** set in code — an empty or invalid address hides the component. No user-facing show/hide switch.
+- **Consent:** a YouTube, Vimeo or Dailymotion video loads only after the visitor accepts cookies; before that the component shows a placeholder naming the service with a Load button. A direct video address loads at once.
 - **Host contexts and address sources:**
 
 | Host context | Video address source | Governed by |
@@ -79,11 +80,12 @@ All custom components:
 | HomePage | `business_profile.home_video_url` | Settings → Business Profile |
 | Blog post (public view) | `blog_posts.video_url` | BlogEditorForm → Video Embed card |
 | ServiceViewerForm | `services.video_url` | ServiceEditorForm → video address field |
-| Process-flow help video | help content record | Mybizz, through `master_template` |
+| Process-flow help video | `media.mybizz.live`, one file per language | Mybizz |
 
 ### FooterComponent
 
-- Contains: business logo, accreditations, social links, contact email and phone, policy links (Privacy Policy, Terms and Conditions), optional Google Maps embed.
+- Contains: business logo, accreditations, social links, contact email and phone, policy links (Privacy Policy, Terms and Conditions, Cookie Policy), the Cookie settings link, optional Google Maps embed.
+- The map loads only after the visitor accepts cookies; before that it shows a placeholder naming Google Maps with a Load button.
 - Reads its content from `business_profile`; the map shows only when `google_maps_embed_url` is set.
 - Identical on every public page.
 
@@ -102,10 +104,10 @@ All custom components:
 
 ### ClauseBuilder
 
-- Parameterised by document type: `privacy_policy` or `t_and_c`.
+- Parameterised by document type: `privacy_policy`, `t_and_c` or `cookie_policy`.
 - Supports category selection, seeded clauses (editable, not deletable), custom clauses (editable and deletable), clause editing, drag reordering and switching clauses on or off.
-- Data model: `category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`.
-- On save: writes to the `privacy_policy` or `t_and_c` table and publishes the public page immediately.
+- Data model: `category`, `title`, `clause`, `sort_order`, `is_seeded`, `is_active`; `cookie_policy` adds `feature_key`.
+- On save: writes to the `privacy_policy`, `t_and_c` or `cookie_policy` table, publishes the public page immediately, raises the document's version and keeps the published text in R2.
 - Hosted by PolicyEditorForm in Settings → Legal Pages.
 
 ### AIHelperComponent
